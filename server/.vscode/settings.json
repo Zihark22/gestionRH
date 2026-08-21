@@ -1,0 +1,11 @@
+{
+  "cmake.debugConfig": {
+    "setupCommands": [
+      {
+        "description": "Activer le pretty-printing pour STL C++",
+        "text": "-enable-pretty-printing",
+        "ignoreFailures": true
+      }
+    ]
+  }
+}

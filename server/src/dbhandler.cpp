@@ -1,0 +1,79 @@
+#include "../includes/dbhandler.hpp"
+
+DBhandler::DBhandler(const string& dbPath) {
+    // Ouvrir la base de données SQLite
+    int exit = sqlite3_open(dbPath.c_str(), &this->DB);
+    
+    if (exit != SQLITE_OK) {
+        cerr << "Error opening DB: " << sqlite3_errmsg(this->DB) << endl;
+        sqlite3_close(this->DB);
+        this->DB = nullptr;
+    } else {
+        cout << "--- Connection Database: connected ---" << endl;
+    }
+}
+DBhandler::~DBhandler() {
+    if (this->DB) {
+        // fermeture de la base de données SQLite
+        sqlite3_close(this->DB);
+        this->DB = nullptr;
+        cout << "Connection DB closed" << endl;
+    }
+}
+
+// Le callback reçoit 'data' qui est notre pointeur 'this'
+int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
+    // On re-caste le void* en pointeur d'instance DBhandler*
+    auto* self = static_cast<DBhandler*>(data);
+
+    if (!self) return SQLITE_ERROR;
+
+    map<string, string> row;
+    for (int i = 0; i < argc; i++) {
+        row[azColName[i]] = argv[i] ? argv[i] : "NULL";
+    }
+
+    // On remplit le vecteur de L'INSTANCE courante
+    self->employees.emplace_back(Employee::from_sql(row));
+
+    return SQLITE_OK;
+}
+
+int DBhandler::get_all_employees() {
+    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+
+    // Réinitialiser la liste si vous souhaitez rafraîchir les données
+    employees.clear();
+
+    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    int rc = sqlite3_exec(DB, QUERY_ALL_EMPLOYEES, DBhandler::save_data, static_cast<void*>(this), &messageError);
+
+    if (rc != SQLITE_OK) {
+        cerr << "SQL Error: " << messageError << endl;
+        sqlite3_free(messageError);
+        return 1; // Indiquer qu'il y a eu une erreur
+    }
+    cout << "All data retrieved successfully" << endl;
+    // displayEmployees();
+    // cout << "JSON Output: " << formatter_JSON() << endl;
+    return 0; // Indiquer que tout s'est bien passé
+}
+
+
+void DBhandler::display_employees(void) {
+    for (const auto& emp : employees) {
+        emp.display();
+    }
+}
+
+string DBhandler::formatter_JSON() {
+    string json = "[";
+    for (size_t i = 0; i < employees.size(); ++i) {
+        json += employees[i].toJSON();
+        if (i < employees.size() - 1) {
+            json += ",";
+        }
+    }
+    json += "]";
+    return json;
+}
