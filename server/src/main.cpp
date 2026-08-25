@@ -5,10 +5,9 @@
 #include <string>
 
 int main(void) {
-    
-    // Server server("../config/config.ini");
-    Server* server = new Server();
-    server->startServer();
+
+    Server server;
+    server.start();
 
     return 0;
 }

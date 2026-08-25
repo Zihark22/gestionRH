@@ -1,16 +1,11 @@
 #include "../includes/dbhandler.hpp"
 
+DBhandler::DBhandler() {
+    db_path = "";
+}
+
 DBhandler::DBhandler(const string& dbPath) {
-    // Ouvrir la base de données SQLite
-    int exit = sqlite3_open(dbPath.c_str(), &this->DB);
-    
-    if (exit != SQLITE_OK) {
-        cerr << "Error opening DB: " << sqlite3_errmsg(this->DB) << endl;
-        sqlite3_close(this->DB);
-        this->DB = nullptr;
-    } else {
-        cout << "--- Connection Database: connected ---" << endl;
-    }
+    db_path = dbPath;
 }
 DBhandler::~DBhandler() {
     if (this->DB) {
@@ -20,6 +15,25 @@ DBhandler::~DBhandler() {
         cout << "Connection DB closed" << endl;
     }
 }
+void DBhandler::open_db() {
+    int exit = sqlite3_open(db_path.c_str(), &this->DB);
+    
+    if (exit != SQLITE_OK) {
+        cerr << "Error opening DB: " << sqlite3_errmsg(this->DB) << endl;
+        sqlite3_close(this->DB);
+        this->DB = nullptr;
+    } else {
+        cout << "--- Connection Database: connected ---" << endl;
+    }
+} 
+void DBhandler::close_db() {
+    if (this->DB) {
+        // fermeture de la base de données SQLite
+        sqlite3_close(this->DB);
+        cout << "Connection DB closed" << endl;
+    }
+}
+
 
 // Le callback reçoit 'data' qui est notre pointeur 'this'
 int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
@@ -47,6 +61,29 @@ int DBhandler::get_all_employees() {
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
     int rc = sqlite3_exec(DB, QUERY_ALL_EMPLOYEES, DBhandler::save_data, static_cast<void*>(this), &messageError);
+
+    if (rc != SQLITE_OK) {
+        cerr << "SQL Error: " << messageError << endl;
+        sqlite3_free(messageError);
+        return 1; // Indiquer qu'il y a eu une erreur
+    }
+    cout << "All data retrieved successfully" << endl;
+    // displayEmployees();
+    // cout << "JSON Output: " << formatter_JSON() << endl;
+    return 0; // Indiquer que tout s'est bien passé
+}
+
+
+int DBhandler::get_employee(const int &id) {
+    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+
+    // Réinitialiser la liste si vous souhaitez rafraîchir les données
+    employees.clear();
+
+    string query = "SELECT * FROM employees WHERE employees.id=" + to_string(id) + ";";
+
+    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    int rc = sqlite3_exec(DB, query.c_str(), DBhandler::save_data, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
         cerr << "SQL Error: " << messageError << endl;

@@ -16,6 +16,7 @@ class DBhandler {
 private:
     sqlite3* DB = nullptr;
     char* messageError = nullptr;
+    std::string db_path;
 
     // La liste devient une variable membre classique d'instance (NON static)
     vector<Employee> employees;
@@ -25,16 +26,24 @@ private:
 
     void display_employees(void);
 
+
     // void createTable();
     // void insertData(const std::string& nom, const std::string& prenom, const std::string& email, const std::string& poste);
     // void selectData();
 
 public:
+    DBhandler();
     DBhandler(const std::string& dbPath);
     ~DBhandler();
 
-    int get_all_employees();    
-    std::string formatter_JSON();    
+    
+    // SQL actions
+    int get_all_employees();
+    int get_employee(const int &id);
+    
+    std::string formatter_JSON();
+    void open_db();
+    void close_db();
     // void insertCollaborateur(const std::string& nom, const std::string& prenom, const std::string& email, const std::string& poste);
 
 };

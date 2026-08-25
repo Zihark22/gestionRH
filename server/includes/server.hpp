@@ -6,6 +6,8 @@
 #include <unistd.h>
 
 
+#include "apiserver.hpp"
+
 class Server {
 private:
     int server_fd;
@@ -16,11 +18,12 @@ private:
     std::string host;
     std::string db_path;
     std::string log_file;
+    ApiServer apiServer; // Instance de ApiServer pour gérer les requêtes API
 
 
 public:
     Server(); // Désactiver le constructeur par défaut
     // Server(const char* file_path);
-    void startServer();
+    void start();
     void loadConfig(const std::string& file_path);
 };

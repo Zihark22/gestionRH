@@ -1,4 +1,5 @@
 #include "../includes/employee.hpp"
+#include "../includes/date.hpp"
 
 
 using namespace std;
@@ -65,12 +66,12 @@ Employee Employee::from_sql(const map<string, string> &json) {
     emp.set_id(to_int_or_default("id", -1));
     emp.set_firstname(json.at("firstname").empty() ? "" : json.at("firstname"));
     emp.set_lastname(json.at("lastname").empty() ? "" : json.at("lastname"));
-    emp.set_birthdate(Date::fromString(json.at("birthdate").empty() ? "" : json.at("birthdate")));
+    emp.set_birthdate(Date(json.at("birthdate").empty() ? "" : json.at("birthdate")));
     emp.set_job(json.at("job").empty() ? "" : json.at("job"));
     emp.set_executive_status(json.at("executive_status").empty() ? false : json.at("executive_status") == "1");
     emp.set_position(json.at("position").empty() ? 0.0f : stof(json.at("position")));
     emp.set_coefficient(to_int_or_default("coefficient", 0));
-    emp.set_start_date(Date::fromString(json.at("start_date").empty() ? "" : json.at("start_date")));
+    emp.set_start_date(Date(json.at("start_date").empty() ? "" : json.at("start_date")));
     emp.set_manager_id(to_int_or_default("manager_id", -1));
     emp.set_prev_plan(json.at("prev_plan").empty() ? "" : json.at("prev_plan"));
     emp.set_signed_plan(json.at("signed_plan").empty() ? false : json.at("signed_plan") == "1");
