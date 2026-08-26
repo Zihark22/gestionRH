@@ -12,9 +12,23 @@ Date::Date(const string& dateStr) {
         secondSlash = dateStr.find('-', firstSlash + 1);
 
     if (firstSlash != string::npos && secondSlash != string::npos) {
-        this->m_day = stoi(dateStr.substr(0, firstSlash));
-        this->m_month = stoi(dateStr.substr(firstSlash + 1, secondSlash - firstSlash - 1));
-        this->m_year = stoi(dateStr.substr(secondSlash + 1));
+        int firstPart  = stoi(dateStr.substr(0, firstSlash));
+        int secondPart = stoi(dateStr.substr(firstSlash + 1, secondSlash - firstSlash - 1));
+        int thirdPart  = stoi(dateStr.substr(secondSlash + 1));
+
+        if(firstPart>1000) // écriture américaine
+       {
+        this->m_day = thirdPart;
+        this->m_month = secondPart;
+        this->m_year = firstPart;
+
+       }
+       else {
+        this->m_day = firstPart;
+        this->m_month = secondPart;
+        this->m_year = thirdPart;
+       }  
+
     }
     else {
         this->m_day = 1;
@@ -24,7 +38,12 @@ Date::Date(const string& dateStr) {
 }
 
 string Date::toString() const {
-    return to_string(m_day) + "/" + to_string(m_month) + "/" + to_string(m_year);
+    string format_day, format_month;
+    if(m_day<10) format_day = "0";
+    format_day += to_string(m_day);
+    if(m_month<10) format_month = "0";
+    format_month += to_string(m_month);
+    return format_day + "/" + format_month + "/" + to_string(m_year);
 }
 
 
