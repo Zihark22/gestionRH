@@ -36,10 +36,12 @@ public:
     DBhandler(const std::string& dbPath);
     ~DBhandler();
 
-    
     // SQL actions
     int get_all_employees();
     int get_employee(const int &id);
+    int delete_employee(const int &id);
+    int modify_employee(const int &id);
+    int add_employee(const Employee &e);
     
     std::string formatter_JSON();
     void open_db();

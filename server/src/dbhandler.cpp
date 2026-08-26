@@ -97,6 +97,75 @@ int DBhandler::get_employee(const int &id) {
 }
 
 
+int DBhandler::delete_employee(const int &id) {
+    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+
+    // Réinitialiser la liste si vous souhaitez rafraîchir les données
+    employees.clear();
+
+    string query = "DELETE FROM employees WHERE employees.id=" + to_string(id) + ";";
+
+    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    int rc = sqlite3_exec(DB, query.c_str(), NULL, NULL, &messageError);
+
+    if (rc != SQLITE_OK) {
+        cerr << "SQL Error: " << messageError << endl;
+        sqlite3_free(messageError);
+        return 1; // Indiquer qu'il y a eu une erreur
+    }
+    cout << "Employee successfully deleted" << endl;
+    return 0; // Indiquer que tout s'est bien passé
+}
+
+
+int DBhandler::modify_employee(const int &id){
+    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+
+    // Réinitialiser la liste si vous souhaitez rafraîchir les données
+    employees.clear();
+
+    string query = "INSERT ";
+
+    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    int rc = sqlite3_exec(DB, query.c_str(), NULL, NULL, &messageError);
+
+    if (rc != SQLITE_OK) {
+        cerr << "SQL Error: " << messageError << endl;
+        sqlite3_free(messageError);
+        return 1; // Indiquer qu'il y a eu une erreur
+    }
+    cout << "Employee successfully deleted" << endl;
+    return 0; // Indiquer que tout s'est bien passé
+} 
+int DBhandler::add_employee(const Employee &e) {
+    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+
+    // Réinitialiser la liste si vous souhaitez rafraîchir les données
+    employees.clear();
+
+    string query = "INSERT INTO employees (\
+        firstname, lastname, birthdate, job, executive_status, \
+        position, coefficient, start_date, \
+        manager_id, prev_plan, signed_plan\
+    ) VALUES (\
+        '"+e.firstname()+"', '"+e.lastname()+"', '"+e.birthdate().toString()+"', '"+e.job()+"', "+to_string(e.is_executive())+", \
+        '"+to_string(e.position())+"', "+to_string(e.coefficient())+", '"+e.start_date().toString()+"', \
+        "+to_string(e.manager_id())+", '"+e.prev_plan()+"', "+to_string(e.signed_plan())+"\
+    );";
+
+    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    int rc = sqlite3_exec(DB, query.c_str(), NULL, NULL, &messageError);
+
+    if (rc != SQLITE_OK) {
+        cerr << "SQL Error: " << messageError << endl;
+        sqlite3_free(messageError);
+        return 1; // Indiquer qu'il y a eu une erreur
+    }
+    cout << "Employee successfully deleted" << endl;
+    return 0; // Indiquer que tout s'est bien passé
+}
+
+
 void DBhandler::display_employees(void) {
     for (const auto& emp : employees) {
         emp.display();
