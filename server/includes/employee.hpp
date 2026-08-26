@@ -8,12 +8,10 @@
 #include <map>
 
 
-using namespace std;
-
-
 class Employee {
 public:
     Employee() = default;
+    Employee(const string &json);
 
     // Identifiant unique BDD
     int id() const { return m_id; }
@@ -29,13 +27,13 @@ public:
     Date birthdate() const { return m_birthdate; }
     void set_birthdate(const Date &date) { m_birthdate = date; }
 
-    string poste() const { return m_job; }
+    string job() const { return m_job; }
     void set_job(const string &poste) { m_job = poste; }
 
-    bool isCadre() const { return m_executive_status; }
-    void set_executive_status(bool cadre) { m_executive_status = cadre; }
+    int is_executive() const { return m_executive_status; }
+    void set_executive_status(int cadre) { m_executive_status = cadre; }
 
-    float positionSyntec() const { return m_position; }
+    float position() const { return m_position; }
     void set_position(const float &pos) { m_position = pos; }
 
     int coefficient() const { return m_coefficient; }
@@ -50,13 +48,13 @@ public:
     string prev_plan() const { return m_prev_plan; }
     void set_prev_plan(string plan) { m_prev_plan = plan; }
 
-    bool signed_plan() const { return m_signed_plan; }
-    void set_signed_plan(bool signe) { m_signed_plan = signe; }
+    int signed_plan() const { return m_signed_plan; }
+    void set_signed_plan(int signe) { m_signed_plan = signe; }
 
     // Méthodes de sérialisation JSON pour l'API REST
     string toJSON() const;
 
-    static Employee from_sql(const map<string, string> &json);
+    static Employee from_sql(const map<string, string> &sql_row);
     void display(void) const;
 
 private:
@@ -65,13 +63,13 @@ private:
     string m_lastname;
     Date m_birthdate;
     string m_job;
-    bool m_executive_status{false};
+    int m_executive_status{0};
     float m_position;
     int m_coefficient{0};
     Date m_start_date;
     int m_manager_id{-1};
     string m_prev_plan{"Plan A"};
-    bool m_signed_plan{false};
+    int m_signed_plan{0};
 };
 
 #endif // EMPLOYEE_HPP
