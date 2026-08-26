@@ -161,7 +161,7 @@ int DBhandler::add_employee(const Employee &e) {
         sqlite3_free(messageError);
         return 1; // Indiquer qu'il y a eu une erreur
     }
-    cout << "Employee successfully deleted" << endl;
+    cout << "Employee successfully added" << endl;
     return 0; // Indiquer que tout s'est bien passé
 }
 

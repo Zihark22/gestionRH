@@ -84,7 +84,6 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
     db_handler.open_db();
     cout << "Action demandée par le client : ";
 
-
     // si le endpoint employees est dans la requete (ex: ID)
     if (endpoint.rfind("/api/employees", 0) == 0) {
         string id = endpoint.substr(string("/api/employees").size());
@@ -162,7 +161,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
 
                 // reponse en fonction du resultat
                 if(result != 0) {
-                    messageError = "Erreur lors de la récupération des employees";
+                    messageError = "Erreur lors de la récupération des employées";
                     response_status_code = 500;
                     response_msg = "Internal Server Error";
                 }
@@ -175,13 +174,13 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
                 // Traiter la requête POST
                 cout << "ajout employé" << endl;
 
-
                 // commande
-                result = db_handler.add_employee(Employee(body));
+                Employee e(this->body);
+                result = db_handler.add_employee(e);
 
                 // reponse en fonction du resultat
                 if(result != 0) {
-                    messageError = "Erreur lors de la récupération des employees";
+                    messageError = "Erreur lors de l'ajout d'un employé";
                     response_status_code = 500;
                     response_msg = "Internal Server Error";
                 }
