@@ -21,6 +21,7 @@ private:
     std::string response_msg;
     bool authentication_ok = false;
     DBhandler db_handler;
+    string body="";
     void parse_request_http(std::string request, const int client_fd);
     void execute_request(const std::string &method, const std::string &endpoint, const int client_fd);
 
