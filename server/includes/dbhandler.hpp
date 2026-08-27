@@ -25,6 +25,7 @@ private:
     static int save_data(void* data, int argc, char** argv, char** azColName);
 
     void display_employees(void);
+    
 
 
     // void createTable();
@@ -40,14 +41,13 @@ public:
     int get_all_employees();
     int get_employee(const int &id);
     int delete_employee(const int &id);
-    int modify_employee(const int &id);
+    int modify_employee(const Employee &e, const string &id);
     int add_employee(const Employee &e);
     
     std::string formatter_JSON();
     void open_db();
     void close_db();
-    // void insertCollaborateur(const std::string& nom, const std::string& prenom, const std::string& email, const std::string& poste);
-
+    int count_employees(void);
 };
 
 #endif

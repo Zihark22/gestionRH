@@ -108,10 +108,7 @@ Employee::Employee(const string &jsonStr) {
     if (!coefficientStr.empty())  m_coefficient = stoi(coefficientStr);
     if (!managerIdStr.empty())    m_manager_id = stoi(managerIdStr);
     if (!startDate.empty())       m_start_date = Date(startDate);
-    
-    
-    m_id = -1; // laisse la base de donnée mettre l'id
-
+    if (!idStr.empty())           m_id = stoi(idStr); else m_id = -1; // laisse la base de donnée mettre l'id
 
 } 
 

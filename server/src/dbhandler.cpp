@@ -90,6 +90,7 @@ int DBhandler::get_employee(const int &id) {
         sqlite3_free(messageError);
         return 1; // Indiquer qu'il y a eu une erreur
     }
+
     cout << "All data retrieved successfully" << endl;
     // displayEmployees();
     // cout << "JSON Output: " << formatter_JSON() << endl;
@@ -118,14 +119,28 @@ int DBhandler::delete_employee(const int &id) {
 }
 
 
-int DBhandler::modify_employee(const int &id){
+int DBhandler::modify_employee(const Employee &e, const string &id) {
     if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
-    string query = "INSERT ";
-
+    string query = "\
+        UPDATE employees \
+        SET \
+            firstname=\'"+e.firstname()+"\', \
+            lastname=\'"+e.lastname()+"\', \
+            birthdate=\'"+e.birthdate().toString()+"\', \
+            job=\'"+e.job()+"\', \
+            executive_status="+to_string(e.is_executive())+", \
+            position="+to_string(e.position())+", \
+            coefficient="+to_string(e.coefficient())+", \
+            start_date=\'"+e.start_date().toString()+"\', \
+            manager_id="+to_string(e.manager_id())+", \
+            prev_plan=\'"+e.prev_plan()+"\',\
+            signed_plan="+to_string(e.signed_plan())+" \
+        WHERE id="+id+";";
+ 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
     int rc = sqlite3_exec(DB, query.c_str(), NULL, NULL, &messageError);
 
@@ -134,7 +149,7 @@ int DBhandler::modify_employee(const int &id){
         sqlite3_free(messageError);
         return 1; // Indiquer qu'il y a eu une erreur
     }
-    cout << "Employee successfully deleted" << endl;
+    cout << "Employee successfully modified" << endl;
     return 0; // Indiquer que tout s'est bien passé
 } 
 int DBhandler::add_employee(const Employee &e) {
@@ -171,6 +186,10 @@ void DBhandler::display_employees(void) {
         emp.display();
     }
 }
+
+int DBhandler::count_employees(void){
+    return employees.size();
+} 
 
 string DBhandler::formatter_JSON() {
     string json = "[";

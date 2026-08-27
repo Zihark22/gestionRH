@@ -66,10 +66,10 @@ void ApiServer::parse_request_http(string request, const int client_fd) {
         body = "";
 
     /*
-        code to check authentification
+        code to check authentification in user table for future feature
     */
     authentication_ok = true; // remove after implementation of login function
-    // cout << endpoint << endl;
+    
     if(authentication_ok)
         execute_request(method, endpoint, client_fd);
 
@@ -100,14 +100,23 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
                 result = db_handler.get_employee(atoi(id.c_str()));
 
                 // reponse en fonction du resultat
-                if(result != 0) {
-                    messageError = "Erreur lors de la récupération de l'employé";
-                    response_status_code = 500;
-                    response_msg = "Internal Server Error";
+                if(result == 0) {
+                    int nbE = db_handler.count_employees();
+                    if(nbE<1){
+                        response_status_code = 404;
+                        response_msg = "Not found";
+                        messageError = "L'employé avec ID = "+id+" n'est pas dans la BDD"; 
+                    
+                    }
+                    else {
+                        response_status_code = 200;
+                        response_msg = "OK";
+                    }
                 }
                 else {
-                    response_status_code = 200;
-                    response_msg = "OK";
+                    messageError = "Erreur lors de la récupération de l'employé"; 
+                    response_status_code = 500;
+                    response_msg = "Internal Server Error";
                 }
             }
             else if (method == "DELETE") {
@@ -133,21 +142,30 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
                 cout << "modifier employé dont ID = " << id << endl;
 
                  // commande
-                result = db_handler.modify_employee(atoi(id.c_str()));
+                Employee e(this->body);
+                result = db_handler.modify_employee(e, id);
 
                 // reponse en fonction du resultat
-                if(result != 0) {
+                if(result == 0) {                    
+                    response_status_code = 200;
+                    response_msg = "OK";
+                }
+                else {
                     messageError = "Erreur lors de la modification de l'employé";
                     response_status_code = 500;
                     response_msg = "Internal Server Error";
                 }
-                else {
-                    response_status_code = 200;
-                    response_msg = "OK";
-                }
+            }
+            else if (method == "POST") {
+                messageError = "La méthode POST n'est pas autorisée sur cet endpoint";
+                response_status_code = 405;
+                response_msg = "Method Not Allowed";
             }
             else{
-                cout << "méthode non supportée dont ID = " << id << endl;
+                cout << "méthode non supportée " << endl;
+                messageError = "Requête non implémentée";
+                response_status_code = 501;
+                response_msg = "Not implemented";
             } 
         }
         // si la requete concerne tout les employes
@@ -189,8 +207,23 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
                     response_msg = "OK";
                 }
             }
+            else if (method == "PUT") {
+                messageError = "La méthode PUT n'est pas autorisée sur cet endpoint";
+                response_status_code = 405;
+                response_msg = "Method Not Allowed";
+                
+            }
+            else if (method == "DELETE") {
+                messageError = "La méthode DELETE n'est pas autorisée sur cet endpoint";
+                response_status_code = 405;
+                response_msg = "Method Not Allowed";
+                
+            }
             else {
-                cout << "méthode non supportée" << endl;
+                cout << "méthode non supportée " << endl;
+                messageError = "Requête non implémentée";
+                response_status_code = 501;
+                response_msg = "Not implemented";
             } 
         } 
     }
@@ -202,7 +235,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
     }
 
 
-    if(result != 0) {
+    if(response_status_code != 200) {
         body = "{\"error\": \""+ messageError +"\"}";
         response = 
             "HTTP/1.1 "+ to_string(response_status_code) + " " + response_msg +"\r\n"
