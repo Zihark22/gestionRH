@@ -39,10 +39,15 @@ Date::Date(const string& dateStr) {
 
 string Date::toString() const {
     string format_day, format_month;
-    if(m_day<10) format_day = "0";
+
+    if(m_day<10) 
+        format_day = "0";
     format_day += to_string(m_day);
-    if(m_month<10) format_month = "0";
+
+    if(m_month<10) 
+        format_month = "0";
     format_month += to_string(m_month);
+    
     return format_day + "/" + format_month + "/" + to_string(m_year);
 }
 

@@ -1,8 +1,4 @@
 #include "../includes/employee.hpp"
-#include "../includes/date.hpp"
-
-
-// Employee::Employee() {}
 
 Employee::Employee(const string &jsonStr) {
     // Créer un Employee à partir du body sous forme JSON lors d'une demande d'ajout à la DB : [{"firstname":"Marc","lastname":"Dumort"}]

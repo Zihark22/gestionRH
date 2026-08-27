@@ -1,12 +1,8 @@
 #include <iostream>
-#include <string>
-#include <cstring>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-
 
 #include "apiserver.hpp"
+#include "iniparser.hpp"
 
 class Server {
 private:
@@ -20,10 +16,12 @@ private:
     std::string log_file;
     ApiServer apiServer; // Instance de ApiServer pour gérer les requêtes API
 
+    // Chargement de la configuration depuis le fichier config.ini
+    void load_config(const std::string& file_path);
 
 public:
-    Server(); // Désactiver le constructeur par défaut
-    // Server(const char* file_path);
+    Server();
+
+    // lancement du serveur
     void start();
-    void loadConfig(const std::string& file_path);
 };

@@ -60,7 +60,7 @@ int DBhandler::get_all_employees() {
     employees.clear();
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
-    int rc = sqlite3_exec(DB, QUERY_ALL_EMPLOYEES, DBhandler::save_data, static_cast<void*>(this), &messageError);
+    int rc = sqlite3_exec(DB, "SELECT * FROM employees ORDER BY id ASC;", DBhandler::save_data, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
         cerr << "SQL Error: " << messageError << endl;
@@ -68,8 +68,6 @@ int DBhandler::get_all_employees() {
         return 1; // Indiquer qu'il y a eu une erreur
     }
     cout << "All data retrieved successfully" << endl;
-    // displayEmployees();
-    // cout << "JSON Output: " << formatter_JSON() << endl;
     return 0; // Indiquer que tout s'est bien passé
 }
 
@@ -92,11 +90,8 @@ int DBhandler::get_employee(const int &id) {
     }
 
     cout << "All data retrieved successfully" << endl;
-    // displayEmployees();
-    // cout << "JSON Output: " << formatter_JSON() << endl;
     return 0; // Indiquer que tout s'est bien passé
 }
-
 
 int DBhandler::delete_employee(const int &id) {
     if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
@@ -117,7 +112,6 @@ int DBhandler::delete_employee(const int &id) {
     cout << "Employee successfully deleted" << endl;
     return 0; // Indiquer que tout s'est bien passé
 }
-
 
 int DBhandler::modify_employee(const Employee &e, const string &id) {
     if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
@@ -152,6 +146,7 @@ int DBhandler::modify_employee(const Employee &e, const string &id) {
     cout << "Employee successfully modified" << endl;
     return 0; // Indiquer que tout s'est bien passé
 } 
+
 int DBhandler::add_employee(const Employee &e) {
     if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
 

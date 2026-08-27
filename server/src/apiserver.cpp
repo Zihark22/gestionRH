@@ -1,9 +1,9 @@
 #include "../includes/apiserver.hpp"
 
-ApiServer::ApiServer() {
-    // Initialisation si nécessaire
-    db_handler = DBhandler("");
-}
+// ApiServer::ApiServer() {
+//     // Initialisation si nécessaire
+//     db_handler = DBhandler("");
+// }
 ApiServer::ApiServer(const string &db_path) {
     // Initialisation si nécessaire
     db_handler = DBhandler(db_path);
@@ -47,7 +47,7 @@ void ApiServer::parse_request_http(string request, const int client_fd) {
         method = request.substr(0, space_pos);
     }
     
-    // Extraction de l'endpoint (entre la première et la deuxième espace)
+    // Extraction de l'endpoint (entre le premier et le deuxième espace)
     size_t first_space = request.find(" ");
     size_t second_space = request.find(" ", first_space + 1);
     
@@ -66,7 +66,7 @@ void ApiServer::parse_request_http(string request, const int client_fd) {
         body = "";
 
     /*
-        code to check authentification in user table for future feature
+        code to extract authentification token in user table for future feature and check in DB if user registered
     */
     authentication_ok = true; // remove after implementation of login function
     
