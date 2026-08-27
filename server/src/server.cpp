@@ -1,16 +1,4 @@
 #include "../includes/server.hpp"
-#include "../includes/iniparser.hpp"
-
-// Server::Server(const char* file_path) {
-//     config_file_path = "config.ini"; // Valeur par défaut
-//     server_fd = socket(AF_INET, SOCK_STREAM, 0);
-//     if (server_fd < 0) {
-//         std::cerr << "Erreur création socket" << std::endl;
-//         exit(EXIT_FAILURE);
-//     }
-//     this->opt = 1;
-//     loadConfig(config_file_path);
-// }
 
 Server::Server() {
     this->config_file_path = "config/config.ini"; // Valeur par défaut
@@ -20,11 +8,11 @@ Server::Server() {
         exit(EXIT_FAILURE);
     }
     this->opt = 1;
-    loadConfig(config_file_path);
+    load_config(config_file_path);
     this->apiServer = ApiServer(db_path);
 }
 
-void Server::loadConfig(const std::string& file_path) {
+void Server::load_config(const std::string& file_path) {
     auto config = IniParser::parse(file_path);
 
     for (const auto& section : config) {
