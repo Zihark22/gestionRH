@@ -1,6 +1,8 @@
 #include "../includes/server.hpp"
 
 Server::Server() {
+
+
     this->config_file_path = "config/config.ini"; // Valeur par défaut
     this->server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
@@ -10,7 +12,37 @@ Server::Server() {
     this->opt = 1;
     load_config(config_file_path);
     this->apiServer = ApiServer(db_path);
+
+    // Server s'abonne à l'API (fonction de Callback)
+    apiServer.setRequestHandler([this](const std::string& req) -> std::string {
+        return this->handleAction(req);
+    });
 }
+Server::~Server(){
+    if (server_fd >= 0) {
+        ::close(server_fd);
+        server_fd = -1;
+    }
+
+} 
+string Server::handleAction(const string &req){
+    string msg;
+
+    if(req=="getconfig")
+        msg = config_to_json();
+    else
+        modify_config_from_json(req);
+    return msg;
+}
+string Server::config_to_json(){
+    string rep_json="[{";
+    rep_json += "\'host\':\'"+host+"\',";
+    rep_json += "\'config_file_path\':\'"+config_file_path+"\'";
+    return rep_json+"}]" ;
+} 
+int Server::modify_config_from_json(const string &json){
+
+} 
 
 void Server::load_config(const std::string& file_path) {
     auto config = IniParser::parse(file_path);
@@ -66,6 +98,13 @@ void Server::start() {
 
     std::cout << "\n============= Serveur démarré sur http://" << host << ":" << port << " ==============" << std::endl;
 
-    apiServer.start(server_fd); // Démarre le serveur API avec le socket et le chemin de la base de données
+    std::thread monThread([this]() {
+        apiServer.start(server_fd);
+    });
 
+    // 2. Le thread principal continue son travail en parallèle
+    std::cout << "[Thread Principal] Fait autre chose pendant ce temps...\n";
+
+    // 3. Attente bloquante : le main attend que 'monThread' ait fini avant de continuer
+    monThread.join();
 }

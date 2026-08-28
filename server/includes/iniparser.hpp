@@ -1,7 +1,9 @@
+#ifndef INIPARSER_HPP
+#define INIPARSER_HPP
+
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <algorithm>
 #include <cctype>
 
 using namespace std;
@@ -36,3 +38,5 @@ public:
     // Méthode principale de parsing
     static vector<SectionConfig> parse(const string& filepath);
 };
+
+#endif // INIPARSER_HPP

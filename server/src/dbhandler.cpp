@@ -8,28 +8,28 @@ DBhandler::DBhandler(const string& dbPath) {
     db_path = dbPath;
 }
 DBhandler::~DBhandler() {
-    if (this->DB) {
+    if (this->db) {
         // fermeture de la base de données SQLite
-        sqlite3_close(this->DB);
-        this->DB = nullptr;
+        sqlite3_close(this->db);
+        this->db = nullptr;
         cout << "Connection DB closed" << endl;
     }
 }
 void DBhandler::open_db() {
-    int exit = sqlite3_open(db_path.c_str(), &this->DB);
+    int exit = sqlite3_open(db_path.c_str(), &this->db);
     
     if (exit != SQLITE_OK) {
-        cerr << "Error opening DB: " << sqlite3_errmsg(this->DB) << endl;
-        sqlite3_close(this->DB);
-        this->DB = nullptr;
+        cerr << "Error opening DB: " << sqlite3_errmsg(this->db) << endl;
+        sqlite3_close(this->db);
+        this->db = nullptr;
     } else {
         cout << "--- Connection Database: connected ---" << endl;
     }
 } 
 void DBhandler::close_db() {
-    if (this->DB) {
+    if (this->db) {
         // fermeture de la base de données SQLite
-        sqlite3_close(this->DB);
+        sqlite3_close(this->db);
         cout << "Connection DB closed" << endl;
     }
 }
@@ -54,13 +54,13 @@ int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
 }
 
 int DBhandler::get_all_employees() {
-    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
-    int rc = sqlite3_exec(DB, "SELECT * FROM employees ORDER BY id ASC;", DBhandler::save_data, static_cast<void*>(this), &messageError);
+    int rc = sqlite3_exec(this->db, "SELECT * FROM employees ORDER BY id ASC;", DBhandler::save_data, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
         cerr << "SQL Error: " << messageError << endl;
@@ -73,7 +73,7 @@ int DBhandler::get_all_employees() {
 
 
 int DBhandler::get_employee(const int &id) {
-    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
@@ -81,7 +81,7 @@ int DBhandler::get_employee(const int &id) {
     string query = "SELECT * FROM employees WHERE employees.id=" + to_string(id) + ";";
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
-    int rc = sqlite3_exec(DB, query.c_str(), DBhandler::save_data, static_cast<void*>(this), &messageError);
+    int rc = sqlite3_exec(this->db, query.c_str(), DBhandler::save_data, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
         cerr << "SQL Error: " << messageError << endl;
@@ -94,7 +94,7 @@ int DBhandler::get_employee(const int &id) {
 }
 
 int DBhandler::delete_employee(const int &id) {
-    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
@@ -102,7 +102,7 @@ int DBhandler::delete_employee(const int &id) {
     string query = "DELETE FROM employees WHERE employees.id=" + to_string(id) + ";";
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
-    int rc = sqlite3_exec(DB, query.c_str(), NULL, NULL, &messageError);
+    int rc = sqlite3_exec(this->db, query.c_str(), NULL, NULL, &messageError);
 
     if (rc != SQLITE_OK) {
         cerr << "SQL Error: " << messageError << endl;
@@ -114,7 +114,7 @@ int DBhandler::delete_employee(const int &id) {
 }
 
 int DBhandler::modify_employee(const Employee &e, const string &id) {
-    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
@@ -136,7 +136,7 @@ int DBhandler::modify_employee(const Employee &e, const string &id) {
         WHERE id="+id+";";
  
     // On passe 'this' en 4ème paramètre à sqlite3_exec
-    int rc = sqlite3_exec(DB, query.c_str(), NULL, NULL, &messageError);
+    int rc = sqlite3_exec(this->db, query.c_str(), NULL, NULL, &messageError);
 
     if (rc != SQLITE_OK) {
         cerr << "SQL Error: " << messageError << endl;
@@ -148,7 +148,7 @@ int DBhandler::modify_employee(const Employee &e, const string &id) {
 } 
 
 int DBhandler::add_employee(const Employee &e) {
-    if (!DB) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
@@ -164,7 +164,7 @@ int DBhandler::add_employee(const Employee &e) {
     );";
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
-    int rc = sqlite3_exec(DB, query.c_str(), NULL, NULL, &messageError);
+    int rc = sqlite3_exec(this->db, query.c_str(), NULL, NULL, &messageError);
 
     if (rc != SQLITE_OK) {
         cerr << "SQL Error: " << messageError << endl;
@@ -189,7 +189,7 @@ int DBhandler::count_employees(void){
 string DBhandler::formatter_JSON() {
     string json = "[";
     for (size_t i = 0; i < employees.size(); ++i) {
-        json += employees[i].toJSON();
+        json += employees[i].to_JSON();
         if (i < employees.size() - 1) {
             json += ",";
         }

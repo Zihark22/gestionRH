@@ -9,7 +9,7 @@
 
 class DBhandler {
 private:
-    sqlite3* DB = nullptr;
+    sqlite3* db = nullptr;
     char* messageError = nullptr; // message d'erreur de retour de la BDD lors d'une requête
     std::string db_path;        // chemin de la BDD
 

@@ -51,7 +51,7 @@ public:
     void set_signed_plan(int signe) { m_signed_plan = signe; }
 
     // Méthodes de sérialisation JSON pour l'API REST
-    string toJSON() const;
+    string to_JSON() const;
 
     static Employee from_sql(const map<string, string> &sql_row);
     void display(void) const;

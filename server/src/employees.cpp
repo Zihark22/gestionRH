@@ -109,7 +109,7 @@ Employee::Employee(const string &jsonStr) {
 } 
 
 
-string Employee::toJSON() const {
+string Employee::to_JSON() const {
     // Implémentez la sérialisation JSON ici
     // Vous pouvez utiliser une bibliothèque JSON comme nlohmann/json pour faciliter cette tâche
     string json = "{";

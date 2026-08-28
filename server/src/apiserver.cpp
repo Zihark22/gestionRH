@@ -60,7 +60,8 @@ void ApiServer::parse_request_http(string request, const int client_fd) {
     if(content_pos != string::npos) {
         size_t body_pos_deb = request.find("[", content_pos+1);
         size_t body_pos_fin = request.find("]", body_pos_deb+1);
-        body = request.substr(body_pos_deb, body_pos_fin);
+        if(body_pos_deb != string::npos and body_pos_fin != string::npos)
+            body = request.substr(body_pos_deb, body_pos_fin);
     }
     else
         body = "";
@@ -80,6 +81,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
     string body;
     string response;
     int result=-1;
+    string rep;
 
     db_handler.open_db();
     cout << "Action demandée par le client : ";
@@ -227,6 +229,57 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
             } 
         } 
     }
+    // si le endpoint config est dans la requete
+    else if(endpoint.rfind("/api/config", 0) == 0){
+        if (method == "GET") {
+            // Traiter la requête GET /api/employees
+            cout << "Obtenir config" << endl;
+
+            // commande en appelant le serveur
+             if (m_handler) {
+                rep = m_handler("getconfig");
+                cout << "reponse : " << response << endl;
+                result = 0;
+            } else {
+                rep = "ERROR 500: No handler";
+                result = -1;
+            }
+
+            // reponse en fonction du resultat
+            if(result != 0) {
+                messageError = "Erreur lors de la récupération de la config";
+                response_status_code = 500;
+                response_msg = "Internal Server Error";
+            }
+            else {
+                response_status_code = 200;
+                response_msg = "OK";
+            }
+        }
+        else if (method == "PUT") {
+            // Traiter la requête GET /api/employees
+            cout << "Modifier config" << endl;
+
+            // commande ??????????
+
+            // reponse en fonction du resultat
+            if(result != 0) {
+                messageError = "Erreur lors de la mdofication de la config";
+                response_status_code = 500;
+                response_msg = "Internal Server Error";
+            }
+            else {
+                response_status_code = 200;
+                response_msg = "OK";
+            }
+        }
+        else {
+            cout << "méthode non supportée " << endl;
+            messageError = "Requête non implémentée";
+            response_status_code = 501;
+            response_msg = "Not implemented";
+        } 
+    } 
     // Route de secours (404 Not Found)
     else {
         messageError = "Route non trouvée";
@@ -244,7 +297,10 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
             body;
     }
     else {
-        body = db_handler.formatter_JSON(); // JSON de sortie de la base de données
+        if(rep.empty())
+            body = db_handler.formatter_JSON(); // JSON de sortie de la base de données
+        else
+            body = rep;
         response = 
             "HTTP/1.1 "+ to_string(response_status_code) + " " + response_msg +"\r\n"
             "Access-Control-Allow-Origin: *\r\n"
