@@ -1,5 +1,16 @@
 #include "../includes/date.hpp"
 
+
+// Constructeur avec validation
+Date::Date(int day, int month, int year) {
+    if (!isValidDate(day, month, year)) {
+        throw std::invalid_argument("Date invalide : " + std::to_string(day) + "/" 
+                                    + std::to_string(month) + "/" + std::to_string(year));
+    }
+    m_day = day;
+    m_month = month;
+    m_year = year;
+}
 Date::Date(const std::string& dateStr) {
     // Implémentez la conversion d'une chaîne de caractères en date
     // Exemple: "dd/mm/yyyy"
@@ -37,6 +48,35 @@ Date::Date(const std::string& dateStr) {
     } 
 }
 
+void Date::normalizeDate() {
+    
+} 
+bool Date::isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+bool Date::isValidDate(int d, int m, int y) {
+    if (y < 1 || m < 1 || m > 12 || d < 1) {
+        return false;
+    }
+
+    // Nombre de jours par mois
+    std::array<int, 12> daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    
+    if (m == 2 && isLeapYear(y)) {
+        daysInMonth[1] = 29; // Février année bissextile
+    }
+
+    return d <= daysInMonth[m - 1];
+}
+
+// Sécuriser les setters
+void Date::setDay(int day) {
+    if (!isValidDate(day, m_month, m_year)) {
+        throw std::invalid_argument("Jour invalide pour cette date : " + std::to_string(day));
+    }
+    m_day = day;
+}
+
 std::string Date::toString() const {
     std::string format_day, format_month;
 
@@ -50,8 +90,6 @@ std::string Date::toString() const {
     
     return format_day + "/" + format_month + "/" + std::to_string(m_year);
 }
-
-
 
 
 /* ------------------- Opérateurs ------------------- */

@@ -2,12 +2,14 @@
 #define DATE_HPP
 
 #include <string>
+#include <stdexcept> // Pour std::invalid_argument
+#include <array>
 
 class Date {
 public:
     Date() = default;
     Date(const std::string& dateStr);
-    Date(int day, int month, int year) : m_day(day), m_month(month), m_year(year) {}
+    Date(int day, int month, int year);
 
     // Getters
     int day() const { return m_day; }
@@ -15,12 +17,15 @@ public:
     int year() const { return m_year; }
 
     // Setters
-    void setDay(int day) { m_day = day; }
+    void setDay(int day);
     void setMonth(int month) { m_month = month; }
     void setYear(int year) { m_year = year; }
 
     // Méthode pour convertir la date en chaîne de caractères
     std::string toString() const;
+    void normalizeDate();
+    bool isLeapYear(int year);
+    bool isValidDate(int d, int m, int y);
 
 
 private:

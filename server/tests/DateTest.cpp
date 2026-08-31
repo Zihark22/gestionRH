@@ -104,3 +104,26 @@ TEST(DateTest, StreamOperator_ShouldOutputSameAsToString) {
     
     EXPECT_EQ(oss.str(), d.toString());
 }
+
+
+// Test de dates valides
+TEST(DateTest, ValidDatesDoNotThrow) {
+    EXPECT_NO_THROW(Date(15, 6, 2024));
+    EXPECT_NO_THROW(Date(29, 2, 2024)); // 2024 est bissextile
+}
+
+// Test de dates invalides
+TEST(DateTest, InvalidDatesThrowException) {
+    // Jour > 31
+    EXPECT_THROW(Date(32, 1, 2024), std::invalid_argument);
+
+    // Mois invalide
+    EXPECT_THROW(Date(10, 13, 2024), std::invalid_argument);
+
+    // 29 février sur une année non bissextile
+    EXPECT_THROW(Date(29, 2, 2023), std::invalid_argument);
+
+    // Jour négatif ou nul
+    EXPECT_THROW(Date(0, 5, 2024), std::invalid_argument);
+    EXPECT_THROW(Date(-5, 5, 2024), std::invalid_argument);
+}
