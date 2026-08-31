@@ -1,0 +1,16 @@
+SELECT 
+    c.id,
+    c.prenom,
+    c.nom,
+    c.date_naissance,
+    c.poste,
+    c.est_cadre,
+    c.position_syntec,
+    c.coefficient_syntec,
+    c.date_embauche,
+    c.plan_prevention,
+    c.plan_signe,
+    c.manager_id,
+    COALESCE(m.prenom || ' ' || m.nom, 'Aucun') AS nom_manager
+FROM collaborateurs c
+LEFT JOIN collaborateurs m ON c.manager_id = m.id;

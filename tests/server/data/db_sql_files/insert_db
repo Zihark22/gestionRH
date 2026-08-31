@@ -1,0 +1,32 @@
+-- 1. Insertion du Directeur / Manager principal (Pas de manager_id)
+INSERT INTO collaborateurs (
+    prenom, nom, date_naissance, poste, est_cadre, 
+    position_syntec, coefficient_syntec, date_embauche, 
+    manager_id, plan_prevention, plan_signe
+) VALUES (
+    'Marc', 'Dupont', '1980-05-12', 'Directeur Technique', 1, 
+    '3.2', 210, '2015-01-10', 
+    NULL, 'Plan A', 1
+);
+
+-- 2. Insertion d'un développeur sous la responsabilité du manager (manager_id = 1)
+INSERT INTO collaborateurs (
+    prenom, nom, date_naissance, poste, est_cadre, 
+    position_syntec, coefficient_syntec, date_embauche, 
+    manager_id, plan_prevention, plan_signe
+) VALUES (
+    'Alice', 'Martin', '1995-08-23', 'Développeuse C++', 1, 
+    '2.1', 115, '2021-09-01', 
+    1, 'Plan B', 1
+);
+
+-- 3. Insertion d'un technicien sous la responsabilité du manager (manager_id = 1)
+INSERT INTO collaborateurs (
+    prenom, nom, date_naissance, poste, est_cadre, 
+    position_syntec, coefficient_syntec, date_embauche, 
+    manager_id, plan_prevention, plan_signe
+) VALUES (
+    'Thomas', 'Bernard', '2000-02-14', 'Technicien Support', 0, 
+    '1.2', 100, '2023-03-15', 
+    1, 'Plan C', 0
+);

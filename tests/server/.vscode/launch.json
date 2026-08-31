@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Déboguer ServerApp",
+            "type": "cppdbg",
+            "request": "launch",
+            // Utilise le binaire produit par CMake Tools ou pointe vers le dossier build
+            "program": "${command:cmake.launchTargetPath}", 
+            "args": [],
+            "stopAtEntry": false,
+            // Le répertoire de travail (cwd) est mis dans /build pour accéder au config.ini copié par votre POST_BUILD
+            "cwd": "${command:cmake.launchTargetDirectory}", 
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Activer le pretty-printing pour gdb (affichage propre des std::vector, std::map)",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            // Demande à CMake de compiler automatiquement avant de lancer le débogueur
+            "preLaunchTask": "CMake: build"
+        }
+    ]
+}
