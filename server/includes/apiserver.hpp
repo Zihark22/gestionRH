@@ -15,15 +15,12 @@ class ApiServer {
 
 public:
     ApiServer() = default;
-    ApiServer(const string &db_path);
-    ~ApiServer();
+    ApiServer(const std::string &db_path);
 
     // Signature du handler : prend les données de la requête et retourne le résultat à renvoyer au client
     using RequestHandler = std::function<std::string(const std::string& request)>;
 
-    void setRequestHandler(RequestHandler handler) {
-        m_handler = handler;
-    }
+    void set_request_handler(RequestHandler handler);
 
     void start(int server_fd); // Démarrage du serveur
 
@@ -33,7 +30,7 @@ private:
     std::string response_msg;       // Message sur le status code
     bool authentication_ok = false; // pour implémenter l'authentification plus tard
     DBhandler db_handler;           // 
-    string body="";                 // body des requêtes HTTP
+    std::string body="";                 // body des requêtes HTTP
     RequestHandler m_handler;
 
     // méthodes

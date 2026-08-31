@@ -1,16 +1,12 @@
 #include "../includes/apiserver.hpp"
 
-// ApiServer::ApiServer() {
-//     // Initialisation si nécessaire
-//     db_handler = DBhandler("");
-// }
-ApiServer::ApiServer(const string &db_path) {
+ApiServer::ApiServer(const std::string &db_path) {
     // Initialisation si nécessaire
     db_handler = DBhandler(db_path);
 }
-ApiServer::~ApiServer() {
-    // Libération des ressources si nécessaire
-    
+
+void ApiServer::set_request_handler(RequestHandler handler) {
+    m_handler = handler;
 }
 
 void ApiServer::start(int server_fd) {
@@ -24,26 +20,26 @@ void ApiServer::start(int server_fd) {
         char buffer[2048] = {0};
         read(client_fd, buffer, sizeof(buffer) - 1);
 
-        string request(buffer);
-        cout << "\n============ Requête reçue ============\n" << request << "\n" << endl;
+        std::string request(buffer);
+        std::cout << "\n============ Requête reçue ============\n" << request << "\n" << std::endl;
         parse_request_http(request, client_fd);
 
         close(client_fd);
     }
 }
 
-void ApiServer::parse_request_http(string request, const int client_fd) {
+void ApiServer::parse_request_http(std::string request, const int client_fd) {
     /**
      * @brief Extrait la méthode HTTP et l'endpoint de la requête
      *  
      */
-    // cout << "start parsing" << endl;
-    string method;
-    string endpoint;
+    // std::cout << "start parsing" << std::endl;
+    std::string method;
+    std::string endpoint;
     
     // Extraction de la méthode HTTP (GET, POST, DELETE, PUT, etc.)
     size_t space_pos = request.find(" ");
-    if (space_pos != string::npos) {
+    if (space_pos != std::string::npos) {
         method = request.substr(0, space_pos);
     }
     
@@ -51,16 +47,16 @@ void ApiServer::parse_request_http(string request, const int client_fd) {
     size_t first_space = request.find(" ");
     size_t second_space = request.find(" ", first_space + 1);
     
-    if (first_space != string::npos && second_space != string::npos) {
+    if (first_space != std::string::npos && second_space != std::string::npos) {
         endpoint = request.substr(first_space + 1, second_space - first_space - 1);
     }
 
     // Extraction du body si présent
     size_t content_pos = request.find("Content-Length:");
-    if(content_pos != string::npos) {
+    if(content_pos != std::string::npos) {
         size_t body_pos_deb = request.find("[", content_pos+1);
         size_t body_pos_fin = request.find("]", body_pos_deb+1);
-        if(body_pos_deb != string::npos and body_pos_fin != string::npos)
+        if(body_pos_deb != std::string::npos and body_pos_fin != std::string::npos)
             body = request.substr(body_pos_deb, body_pos_fin);
     }
     else
@@ -76,27 +72,27 @@ void ApiServer::parse_request_http(string request, const int client_fd) {
 
 } 
 
-void ApiServer::execute_request(const string &method, const string &endpoint, const int client_fd) {
-    string jsonOutput; // JSON de sortie de la base de données
-    string body;
-    string response;
+void ApiServer::execute_request(const std::string &method, const std::string &endpoint, const int client_fd) {
+    std::string jsonOutput; // JSON de sortie de la base de données
+    std::string body;
+    std::string response;
     int result=-1;
-    string rep;
+    std::string rep;
 
     db_handler.open_db();
-    cout << "Action demandée par le client : ";
+    std::cout << "Action demandée par le client : ";
 
     // si le endpoint employees est dans la requete (ex: ID)
     if (endpoint.rfind("/api/employees", 0) == 0) {
-        string id = endpoint.substr(string("/api/employees").size());
+        std::string id = endpoint.substr(std::string("/api/employees").size());
         if(id[0]=='/') id = id.substr(1); // pour gérer avec / ou sans à la fin
         
         // si ID à la fin du endpoint
-        if (!id.empty() && id.find_first_not_of("0123456789") == string::npos) {
+        if (!id.empty() && id.find_first_not_of("0123456789") == std::string::npos) {
         
             if (method == "GET") {
                 // Traiter la requête GET /api/employees
-                cout << "Obtenir employé dont ID = " << id << endl;
+                std::cout << "Obtenir employé dont ID = " << id << std::endl;
 
                 // commande
                 result = db_handler.get_employee(atoi(id.c_str()));
@@ -123,7 +119,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
             }
             else if (method == "DELETE") {
                 // Traiter la requête DELETE
-                cout << "supprimer employé dont ID = " << id << endl;
+                std::cout << "supprimer employé dont ID = " << id << std::endl;
 
                 // commande
                 result = db_handler.delete_employee(atoi(id.c_str()));
@@ -141,7 +137,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
             }
             else if (method == "PUT") {
                 // Traiter la requête PUT
-                cout << "modifier employé dont ID = " << id << endl;
+                std::cout << "modifier employé dont ID = " << id << std::endl;
 
                  // commande
                 Employee e(this->body);
@@ -164,7 +160,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
                 response_msg = "Method Not Allowed";
             }
             else{
-                cout << "méthode non supportée " << endl;
+                std::cout << "méthode non supportée " << std::endl;
                 messageError = "Requête non implémentée";
                 response_status_code = 501;
                 response_msg = "Not implemented";
@@ -174,7 +170,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
         else {
             if (method == "GET") {
                 // Traiter la requête GET /api/employees
-                cout << "Obtenir employés" << endl;
+                std::cout << "Obtenir employés" << std::endl;
 
                 // commande
                 result = db_handler.get_all_employees();
@@ -192,7 +188,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
             }
             else if (method == "POST") {
                 // Traiter la requête POST
-                cout << "ajout employé" << endl;
+                std::cout << "ajout employé" << std::endl;
 
                 // commande
                 Employee e(this->body);
@@ -222,7 +218,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
                 
             }
             else {
-                cout << "méthode non supportée " << endl;
+                std::cout << "méthode non supportée " << std::endl;
                 messageError = "Requête non implémentée";
                 response_status_code = 501;
                 response_msg = "Not implemented";
@@ -233,12 +229,12 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
     else if(endpoint.rfind("/api/config", 0) == 0){
         if (method == "GET") {
             // Traiter la requête GET /api/employees
-            cout << "Obtenir config" << endl;
+            std::cout << "Obtenir config" << std::endl;
 
             // commande en appelant le serveur
              if (m_handler) {
                 rep = m_handler("getconfig");
-                cout << "reponse : " << response << endl;
+                std::cout << "reponse : " << response << std::endl;
                 result = 0;
             } else {
                 rep = "ERROR 500: No handler";
@@ -258,7 +254,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
         }
         else if (method == "PUT") {
             // Traiter la requête GET /api/employees
-            cout << "Modifier config" << endl;
+            std::cout << "Modifier config" << std::endl;
 
             // commande ??????????
 
@@ -274,7 +270,7 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
             }
         }
         else {
-            cout << "méthode non supportée " << endl;
+            std::cout << "méthode non supportée " << std::endl;
             messageError = "Requête non implémentée";
             response_status_code = 501;
             response_msg = "Not implemented";
@@ -291,9 +287,9 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
     if(response_status_code != 200) {
         body = "{\"error\": \""+ messageError +"\"}";
         response = 
-            "HTTP/1.1 "+ to_string(response_status_code) + " " + response_msg +"\r\n"
+            "HTTP/1.1 "+ std::to_string(response_status_code) + " " + response_msg +"\r\n"
             "Content-Type: application/json\r\n"
-            "Content-Length: " + to_string(body.length()) + "\r\n\r\n" + 
+            "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + 
             body;
     }
     else {
@@ -302,10 +298,10 @@ void ApiServer::execute_request(const string &method, const string &endpoint, co
         else
             body = rep;
         response = 
-            "HTTP/1.1 "+ to_string(response_status_code) + " " + response_msg +"\r\n"
+            "HTTP/1.1 "+ std::to_string(response_status_code) + " " + response_msg +"\r\n"
             "Access-Control-Allow-Origin: *\r\n"
             "Content-Typexecute_requeste: application/json\r\n"
-            "Content-Length: " + to_string(body.length()) + "\r\n\r\n" + 
+            "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + 
             body;
     }
 

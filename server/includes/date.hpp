@@ -3,12 +3,10 @@
 
 #include <string>
 
-using namespace std;
-
 class Date {
 public:
     Date() = default;
-    Date(const string& dateStr);
+    Date(const std::string& dateStr);
     Date(int day, int month, int year) : m_day(day), m_month(month), m_year(year) {}
 
     // Getters
@@ -22,7 +20,7 @@ public:
     void setYear(int year) { m_year = year; }
 
     // Méthode pour convertir la date en chaîne de caractères
-    string toString() const;
+    std::string toString() const;
 
 
 private:
@@ -43,6 +41,6 @@ bool operator<(Date const& a, Date const& b);
 
 
 // Opérateurs de flux
-ostream &operator<<(ostream &flux, Date const& duree);
+std::ostream &operator<<(std::ostream &flux, Date const& m_date);
 
 #endif // DATE_HPP

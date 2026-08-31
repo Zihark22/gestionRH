@@ -14,7 +14,7 @@ private:
     std::string db_path;        // chemin de la BDD
 
     // La liste des employés récupérés
-    vector<Employee> employees;
+    std::vector<Employee> employees;
 
     // Le callback SQLite doit rester static
     static int save_data(void* data, int argc, char** argv, char** azColName);
@@ -31,7 +31,7 @@ public:
     int get_all_employees();
     int get_employee(const int &id);
     int delete_employee(const int &id);
-    int modify_employee(const Employee &e, const string &id);
+    int modify_employee(const Employee &e, const std::string &id);
     int add_employee(const Employee &e);
     
     std::string formatter_JSON();

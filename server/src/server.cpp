@@ -1,8 +1,6 @@
 #include "../includes/server.hpp"
 
 Server::Server() {
-
-
     this->config_file_path = "config/config.ini"; // Valeur par défaut
     this->server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
@@ -14,8 +12,8 @@ Server::Server() {
     this->apiServer = ApiServer(db_path);
 
     // Server s'abonne à l'API (fonction de Callback)
-    apiServer.setRequestHandler([this](const std::string& req) -> std::string {
-        return this->handleAction(req);
+    apiServer.set_request_handler([this](const std::string& req) -> std::string {
+        return this->handle_action(req);
     });
 }
 Server::~Server(){
@@ -25,8 +23,8 @@ Server::~Server(){
     }
 
 } 
-string Server::handleAction(const string &req){
-    string msg;
+std::string Server::handle_action(const std::string &req){
+    std::string msg;
 
     if(req=="getconfig")
         msg = config_to_json();
@@ -34,16 +32,17 @@ string Server::handleAction(const string &req){
         modify_config_from_json(req);
     return msg;
 }
-string Server::config_to_json(){
-    string rep_json="[{";
+std::string Server::config_to_json(){
+    std::string rep_json="[{";
     rep_json += "\'host\':\'"+host+"\',";
     rep_json += "\'config_file_path\':\'"+config_file_path+"\'";
     return rep_json+"}]" ;
 } 
-int Server::modify_config_from_json(const string &json){
-
+int Server::modify_config_from_json(const std::string &json){
+    if(json=="dad")
+        return 1;
+    return 0;
 } 
-
 void Server::load_config(const std::string& file_path) {
     auto config = IniParser::parse(file_path);
 
@@ -51,7 +50,7 @@ void Server::load_config(const std::string& file_path) {
         if (section.nom == "Server") {
             if (auto var = section.getVariable("port")) {
                 try {
-                    this->port = std::stoi(var->valeur);
+                    this->port = stoi(var->valeur);
                 } catch (...) {
                     std::cerr << "[loadConfig] Invalid port value: " << var->valeur << std::endl;
                 }
@@ -78,7 +77,6 @@ void Server::start() {
     // Réutilisation du port pour éviter l'erreur "Address already in use"
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);

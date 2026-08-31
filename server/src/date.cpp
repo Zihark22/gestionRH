@@ -1,17 +1,17 @@
 #include "../includes/date.hpp"
 
-Date::Date(const string& dateStr) {
+Date::Date(const std::string& dateStr) {
     // Implémentez la conversion d'une chaîne de caractères en date
     // Exemple: "dd/mm/yyyy"
     size_t firstSlash = dateStr.find('/');
-    if(firstSlash == string::npos)
+    if(firstSlash == std::string::npos)
         firstSlash = dateStr.find('-');
 
     size_t secondSlash = dateStr.find('/', firstSlash + 1);
-    if(secondSlash == string::npos)
+    if(secondSlash == std::string::npos)
         secondSlash = dateStr.find('-', firstSlash + 1);
 
-    if (firstSlash != string::npos && secondSlash != string::npos) {
+    if (firstSlash != std::string::npos && secondSlash != std::string::npos) {
         int firstPart  = stoi(dateStr.substr(0, firstSlash));
         int secondPart = stoi(dateStr.substr(firstSlash + 1, secondSlash - firstSlash - 1));
         int thirdPart  = stoi(dateStr.substr(secondSlash + 1));
@@ -37,18 +37,18 @@ Date::Date(const string& dateStr) {
     } 
 }
 
-string Date::toString() const {
-    string format_day, format_month;
+std::string Date::toString() const {
+    std::string format_day, format_month;
 
     if(m_day<10) 
         format_day = "0";
-    format_day += to_string(m_day);
+    format_day += std::to_string(m_day);
 
     if(m_month<10) 
         format_month = "0";
-    format_month += to_string(m_month);
+    format_month += std::to_string(m_month);
     
-    return format_day + "/" + format_month + "/" + to_string(m_year);
+    return format_day + "/" + format_month + "/" + std::to_string(m_year);
 }
 
 
@@ -150,3 +150,8 @@ bool operator>=(Date const& a, Date const& b) {
 }
 
 
+std::ostream &operator<<(std::ostream &flux, Date const& m_date) {
+    // a faire
+    flux << m_date.toString();
+    return flux;
+} 

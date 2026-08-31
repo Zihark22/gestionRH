@@ -8,7 +8,7 @@
 #include "iniparser.hpp"
 
 class Server {
-
+    
 public:
     Server();
     ~Server();
@@ -18,7 +18,7 @@ public:
     Server& operator=(const Server&) = delete;
 
     void start();  // lancement du serveur
-    string handleAction(const string &req); // gestion des requetes API pour modifier la config
+    std::string handle_action(const std::string &req); // gestion des requetes API pour modifier la config
 
 private:
     int server_fd; // socket
@@ -33,7 +33,7 @@ private:
 
     // Chargement de la configuration depuis le fichier config.ini
     void load_config(const std::string& file_path);
-    string config_to_json();
-    int modify_config_from_json(const string &json);
+    std::string config_to_json();
+    int modify_config_from_json(const std::string &json);
 
 };

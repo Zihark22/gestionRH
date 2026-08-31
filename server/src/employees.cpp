@@ -1,9 +1,9 @@
 #include "../includes/employee.hpp"
 
-Employee::Employee(const string &jsonStr) {
+Employee::Employee(const std::string &jsonStr) {
     // Créer un Employee à partir du body sous forme JSON lors d'une demande d'ajout à la DB : [{"firstname":"Marc","lastname":"Dumort"}]
       
-    auto trim = [](const string &s) -> string {
+    auto trim = [](const std::string &s) -> std::string {
         size_t start = 0;
         while (start < s.size() && (s[start] == ' ' || s[start] == '\n' || s[start] == '\t' || s[start] == '\r')) {
             ++start;
@@ -15,20 +15,20 @@ Employee::Employee(const string &jsonStr) {
         return s.substr(start, end - start);
     };
 
-    auto getField = [&](const string &obj, const string &key) -> string {
-        string pattern = "\"" + key + "\"";
+    auto getField = [&](const std::string &obj, const std::string &key) -> std::string {
+        std::string pattern = "\"" + key + "\"";
         size_t pos = obj.find(pattern);
-        if (pos == string::npos) {
+        if (pos == std::string::npos) {
             return "";
         }
 
         size_t colon = obj.find(':', pos + pattern.size());
-        if (colon == string::npos) {
+        if (colon == std::string::npos) {
             return "";
         }
 
         size_t valueStart = obj.find_first_not_of(" \t\r\n", colon + 1);
-        if (valueStart == string::npos) {
+        if (valueStart == std::string::npos) {
             return "";
         }
 
@@ -56,14 +56,14 @@ Employee::Employee(const string &jsonStr) {
         return trim(obj.substr(valueStart, valueEnd - valueStart));
     };
 
-    string s = trim(jsonStr);
+    std::string s = trim(jsonStr);
 
     // Format attendu : [{"firstname":"Marc","lastname":"Dumort"}]
     if (s.size() < 2 || s.front() != '[' || s.back() != ']') {
         return;
     }
 
-    string inner = trim(s.substr(1, s.size() - 2));
+    std::string inner = trim(s.substr(1, s.size() - 2));
 
     if (inner.empty()) {
         return;
@@ -73,23 +73,23 @@ Employee::Employee(const string &jsonStr) {
         return;
     }
 
-    string obj = trim(inner.substr(1, inner.size() - 2));
+    std::string obj = trim(inner.substr(1, inner.size() - 2));
 
     // Extraction des attributs
-    string firstname = getField(obj, "firstname");
-    string lastname  = getField(obj, "lastname");
-    string birthdate = getField(obj, "birthdate");
-    string job       = getField(obj, "job");
-    string prevPlan  = getField(obj, "prev_plan");
+    std::string firstname = getField(obj, "firstname");
+    std::string lastname  = getField(obj, "lastname");
+    std::string birthdate = getField(obj, "birthdate");
+    std::string job       = getField(obj, "job");
+    std::string prevPlan  = getField(obj, "prev_plan");
 
-    string executiveStatus = getField(obj, "executive_status");
-    string signedPlan      = getField(obj, "signed_plan");
+    std::string executiveStatus = getField(obj, "executive_status");
+    std::string signedPlan      = getField(obj, "signed_plan");
 
-    string positionStr = getField(obj, "position");
-    string coefficientStr = getField(obj, "coefficient");
-    string managerIdStr = getField(obj, "manager_id");
-    string startDate = getField(obj, "start_date");
-    string idStr = getField(obj, "id");
+    std::string positionStr = getField(obj, "position");
+    std::string coefficientStr = getField(obj, "coefficient");
+    std::string managerIdStr = getField(obj, "manager_id");
+    std::string startDate = getField(obj, "start_date");
+    std::string idStr = getField(obj, "id");
 
     if (!firstname.empty()) m_firstname = firstname;
     if (!lastname.empty())  m_lastname = lastname;
@@ -109,51 +109,51 @@ Employee::Employee(const string &jsonStr) {
 } 
 
 
-string Employee::to_JSON() const {
+std::string Employee::to_JSON() const {
     // Implémentez la sérialisation JSON ici
     // Vous pouvez utiliser une bibliothèque JSON comme nlohmann/json pour faciliter cette tâche
-    string json = "{";
-    json += "\"id\":" + to_string(m_id) + ",";
+    std::string json = "{";
+    json += "\"id\":" + std::to_string(m_id) + ",";
     json += "\"firstname\":\"" + m_firstname + "\",";
     json += "\"lastname\":\"" + m_lastname + "\",";
     json += "\"birthdate\":\"" + m_birthdate.toString() + "\",";
     json += "\"job\":\"" + m_job + "\",";
-    json += "\"executive_status\":" + string(m_executive_status ? "true" : "false") + ",";
-    json += "\"position\":" + to_string(m_position) + ",";
-    json += "\"coefficient\":" + to_string(m_coefficient) + ",";
+    json += "\"executive_status\":" + std::string(m_executive_status ? "true" : "false") + ",";
+    json += "\"position\":" + std::to_string(m_position) + ",";
+    json += "\"coefficient\":" + std::to_string(m_coefficient) + ",";
     json += "\"start_date\":\"" + m_start_date.toString() + "\",";
-    json += "\"manager_id\":" + to_string(m_manager_id) + ",";
+    json += "\"manager_id\":" + std::to_string(m_manager_id) + ",";
     json += "\"prev_plan\":\"" + m_prev_plan + "\",";
-    json += "\"signed_plan\":" + string(m_signed_plan ? "true" : "false");
+    json += "\"signed_plan\":" + std::string(m_signed_plan ? "true" : "false");
     json += "}";
     return json;
 }
 
 void Employee::display(void) const {
-    cout << "Employee: " << endl;
-    cout << "\tID: " << m_id << endl;
-    cout << "\tFirstname: " << m_firstname << endl;
-    cout << "\tLastname: " << m_lastname << endl;
-    cout << "\tBirthdate: " << m_birthdate.toString() << endl;
-    cout << "\tPoste: " << m_job << endl;
-    cout << "\tIs Cadre: " << (m_executive_status ? "Yes" : "No") << endl;
-    cout << "\tPosition Syntec: " << m_position << endl;
-    cout << "\tCoefficient: " << m_coefficient << endl;
-    cout << "\tStart Date: " << m_start_date.toString() << endl;
-    cout << "\tManager ID: " << m_manager_id << endl;
-    cout << "\tPrev Plan: " << m_prev_plan << endl;
-    cout << "\tSigned Plan: " << (m_signed_plan ? "Yes" : "No") << endl;
+    std::cout << "Employee: " << std::endl;
+    std::cout << "\tID: " << m_id << std::endl;
+    std::cout << "\tFirstname: " << m_firstname << std::endl;
+    std::cout << "\tLastname: " << m_lastname << std::endl;
+    std::cout << "\tBirthdate: " << m_birthdate.toString() << std::endl;
+    std::cout << "\tPoste: " << m_job << std::endl;
+    std::cout << "\tIs Cadre: " << (m_executive_status ? "Yes" : "No") << std::endl;
+    std::cout << "\tPosition Syntec: " << m_position << std::endl;
+    std::cout << "\tCoefficient: " << m_coefficient << std::endl;
+    std::cout << "\tStart Date: " << m_start_date.toString() << std::endl;
+    std::cout << "\tManager ID: " << m_manager_id << std::endl;
+    std::cout << "\tPrev Plan: " << m_prev_plan << std::endl;
+    std::cout << "\tSigned Plan: " << (m_signed_plan ? "Yes" : "No") << std::endl;
 }
 
-Employee Employee::from_sql(const map<string, string> &sql_row) {
+Employee Employee::from_sql(const std::map<std::string, std::string> &sql_row) {
     // Implémentez la désérialisation JSON ici
-    auto to_int_or_default = [&](const string& key, int defaultValue) -> int {
+    auto to_int_or_default = [&](const std::string& key, int defaultValue) -> int {
         const auto it = sql_row.find(key);
         if (it == sql_row.end()) {
             return defaultValue;
         }
 
-        const string& value = it->second;
+        const std::string& value = it->second;
         if (value.empty() || value == "NULL" || value == "null") {
             return defaultValue;
         }

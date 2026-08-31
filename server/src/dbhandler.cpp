@@ -4,7 +4,7 @@ DBhandler::DBhandler() {
     db_path = "";
 }
 
-DBhandler::DBhandler(const string& dbPath) {
+DBhandler::DBhandler(const std::string& dbPath) {
     db_path = dbPath;
 }
 DBhandler::~DBhandler() {
@@ -12,25 +12,25 @@ DBhandler::~DBhandler() {
         // fermeture de la base de données SQLite
         sqlite3_close(this->db);
         this->db = nullptr;
-        cout << "Connection DB closed" << endl;
+        std::cout << "Connection DB closed" << std::endl;
     }
 }
 void DBhandler::open_db() {
     int exit = sqlite3_open(db_path.c_str(), &this->db);
     
     if (exit != SQLITE_OK) {
-        cerr << "Error opening DB: " << sqlite3_errmsg(this->db) << endl;
+        std::cerr << "Error opening DB: " << sqlite3_errmsg(this->db) << std::endl;
         sqlite3_close(this->db);
         this->db = nullptr;
     } else {
-        cout << "--- Connection Database: connected ---" << endl;
+        std::cout << "--- Connection Database: connected ---" << std::endl;
     }
 } 
 void DBhandler::close_db() {
     if (this->db) {
         // fermeture de la base de données SQLite
         sqlite3_close(this->db);
-        cout << "Connection DB closed" << endl;
+        std::cout << "Connection DB closed" << std::endl;
     }
 }
 
@@ -42,7 +42,7 @@ int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
 
     if (!self) return SQLITE_ERROR;
 
-    map<string, string> row;
+    std::map<std::string, std::string> row;
     for (int i = 0; i < argc; i++) {
         row[azColName[i]] = argv[i] ? argv[i] : "NULL";
     }
@@ -63,11 +63,11 @@ int DBhandler::get_all_employees() {
     int rc = sqlite3_exec(this->db, "SELECT * FROM employees ORDER BY id ASC;", DBhandler::save_data, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
-        cerr << "SQL Error: " << messageError << endl;
+        std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
         return 1; // Indiquer qu'il y a eu une erreur
     }
-    cout << "All data retrieved successfully" << endl;
+    std::cout << "All data retrieved successfully" << std::endl;
     return 0; // Indiquer que tout s'est bien passé
 }
 
@@ -78,18 +78,18 @@ int DBhandler::get_employee(const int &id) {
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
-    string query = "SELECT * FROM employees WHERE employees.id=" + to_string(id) + ";";
+    std::string query = "SELECT * FROM employees WHERE employees.id=" + std::to_string(id) + ";";
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
     int rc = sqlite3_exec(this->db, query.c_str(), DBhandler::save_data, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
-        cerr << "SQL Error: " << messageError << endl;
+        std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
         return 1; // Indiquer qu'il y a eu une erreur
     }
 
-    cout << "All data retrieved successfully" << endl;
+    std::cout << "All data retrieved successfully" << std::endl;
     return 0; // Indiquer que tout s'est bien passé
 }
 
@@ -99,51 +99,51 @@ int DBhandler::delete_employee(const int &id) {
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
-    string query = "DELETE FROM employees WHERE employees.id=" + to_string(id) + ";";
+    std::string query = "DELETE FROM employees WHERE employees.id=" + std::to_string(id) + ";";
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
     int rc = sqlite3_exec(this->db, query.c_str(), NULL, NULL, &messageError);
 
     if (rc != SQLITE_OK) {
-        cerr << "SQL Error: " << messageError << endl;
+        std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
         return 1; // Indiquer qu'il y a eu une erreur
     }
-    cout << "Employee successfully deleted" << endl;
+    std::cout << "Employee successfully deleted" << std::endl;
     return 0; // Indiquer que tout s'est bien passé
 }
 
-int DBhandler::modify_employee(const Employee &e, const string &id) {
+int DBhandler::modify_employee(const Employee &e, const std::string &id) {
     if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
-    string query = "\
+    std::string query = "\
         UPDATE employees \
         SET \
             firstname=\'"+e.firstname()+"\', \
             lastname=\'"+e.lastname()+"\', \
             birthdate=\'"+e.birthdate().toString()+"\', \
             job=\'"+e.job()+"\', \
-            executive_status="+to_string(e.is_executive())+", \
-            position="+to_string(e.position())+", \
-            coefficient="+to_string(e.coefficient())+", \
+            executive_status=" + std::to_string(e.is_executive())+", \
+            position=" + std::to_string(e.position())+", \
+            coefficient=" + std::to_string(e.coefficient())+", \
             start_date=\'"+e.start_date().toString()+"\', \
-            manager_id="+to_string(e.manager_id())+", \
+            manager_id=" + std::to_string(e.manager_id())+", \
             prev_plan=\'"+e.prev_plan()+"\',\
-            signed_plan="+to_string(e.signed_plan())+" \
+            signed_plan=" + std::to_string(e.signed_plan())+" \
         WHERE id="+id+";";
  
     // On passe 'this' en 4ème paramètre à sqlite3_exec
     int rc = sqlite3_exec(this->db, query.c_str(), NULL, NULL, &messageError);
 
     if (rc != SQLITE_OK) {
-        cerr << "SQL Error: " << messageError << endl;
+        std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
         return 1; // Indiquer qu'il y a eu une erreur
     }
-    cout << "Employee successfully modified" << endl;
+    std::cout << "Employee successfully modified" << std::endl;
     return 0; // Indiquer que tout s'est bien passé
 } 
 
@@ -153,25 +153,25 @@ int DBhandler::add_employee(const Employee &e) {
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
-    string query = "INSERT INTO employees (\
+    std::string query = "INSERT INTO employees (\
         firstname, lastname, birthdate, job, executive_status, \
         position, coefficient, start_date, \
         manager_id, prev_plan, signed_plan\
     ) VALUES (\
-        '"+e.firstname()+"', '"+e.lastname()+"', '"+e.birthdate().toString()+"', '"+e.job()+"', "+to_string(e.is_executive())+", \
-        '"+to_string(e.position())+"', "+to_string(e.coefficient())+", '"+e.start_date().toString()+"', \
-        "+to_string(e.manager_id())+", '"+e.prev_plan()+"', "+to_string(e.signed_plan())+"\
+        '"+e.firstname()+"', '"+e.lastname()+"', '"+e.birthdate().toString()+"', '"+e.job()+"', " + std::to_string(e.is_executive())+", \
+        '"+ std::to_string(e.position())+"', " + std::to_string(e.coefficient())+", '"+e.start_date().toString()+"', \
+        " + std::to_string(e.manager_id())+", '"+e.prev_plan()+"', " + std::to_string(e.signed_plan())+"\
     );";
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
     int rc = sqlite3_exec(this->db, query.c_str(), NULL, NULL, &messageError);
 
     if (rc != SQLITE_OK) {
-        cerr << "SQL Error: " << messageError << endl;
+        std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
         return 1; // Indiquer qu'il y a eu une erreur
     }
-    cout << "Employee successfully added" << endl;
+    std::cout << "Employee successfully added" << std::endl;
     return 0; // Indiquer que tout s'est bien passé
 }
 
@@ -186,8 +186,8 @@ int DBhandler::count_employees(void){
     return employees.size();
 } 
 
-string DBhandler::formatter_JSON() {
-    string json = "[";
+std::string DBhandler::formatter_JSON() {
+    std::string json = "[";
     for (size_t i = 0; i < employees.size(); ++i) {
         json += employees[i].to_JSON();
         if (i < employees.size() - 1) {
