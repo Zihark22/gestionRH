@@ -8,8 +8,12 @@
 class Date {
 public:
     Date() = default;
-    Date(const std::string& dateStr);
+    
+    // Constructeur principal avec validation
     Date(int day, int month, int year);
+
+    // Constructeur délégué depuis std::string
+    Date(const std::string& dateStr);
 
     // Getters
     int day() const { return m_day; }
@@ -23,7 +27,6 @@ public:
 
     // Méthode pour convertir la date en chaîne de caractères
     std::string toString() const;
-    void normalizeDate();
     bool isLeapYear(int year);
     bool isValidDate(int d, int m, int y);
 

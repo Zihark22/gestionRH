@@ -11,46 +11,40 @@ Date::Date(int day, int month, int year) {
     m_month = month;
     m_year = year;
 }
-Date::Date(const std::string& dateStr) {
-    // Implémentez la conversion d'une chaîne de caractères en date
-    // Exemple: "dd/mm/yyyy"
-    size_t firstSlash = dateStr.find('/');
-    if(firstSlash == std::string::npos)
-        firstSlash = dateStr.find('-');
+Date::Date(const std::string& dateStr) : Date([&]() {
+        // Implémentez la conversion d'une chaîne de caractères en date
+        // Exemple: "dd/mm/yyyy"
+        size_t firstSlash = dateStr.find('/');
+        if(firstSlash == std::string::npos)
+            firstSlash = dateStr.find('-');
 
-    size_t secondSlash = dateStr.find('/', firstSlash + 1);
-    if(secondSlash == std::string::npos)
-        secondSlash = dateStr.find('-', firstSlash + 1);
+        size_t secondSlash = dateStr.find('/', firstSlash + 1);
+        if(secondSlash == std::string::npos)
+            secondSlash = dateStr.find('-', firstSlash + 1);
 
-    if (firstSlash != std::string::npos && secondSlash != std::string::npos) {
-        int firstPart  = stoi(dateStr.substr(0, firstSlash));
-        int secondPart = stoi(dateStr.substr(firstSlash + 1, secondSlash - firstSlash - 1));
-        int thirdPart  = stoi(dateStr.substr(secondSlash + 1));
+        if (firstSlash != std::string::npos && secondSlash != std::string::npos) {
+            int firstPart  = stoi(dateStr.substr(0, firstSlash));
+            int secondPart = stoi(dateStr.substr(firstSlash + 1, secondSlash - firstSlash - 1));
+            int thirdPart  = stoi(dateStr.substr(secondSlash + 1));
 
-        if(firstPart>1000) // écriture américaine
-       {
-        this->m_day = thirdPart;
-        this->m_month = secondPart;
-        this->m_year = firstPart;
+            if(firstPart>1000) // yyyy/MM/dd
+            {
+                return Date(thirdPart, secondPart, firstPart); // Appelle la validation du constructeur (int, int, int)
+            }
+            else {
+                return Date(firstPart, secondPart, thirdPart);
+            }
+        }
+        else {
+            throw std::invalid_argument("Format de la date non conforme (dd/MM/yyyy ou dd-MM-yyyy ou yyyy/MM/dd) : " + dateStr);
+        } 
+        
+    }()) 
+{
 
-       }
-       else {
-        this->m_day = firstPart;
-        this->m_month = secondPart;
-        this->m_year = thirdPart;
-       }  
-
-    }
-    else {
-        this->m_day = 1;
-        this->m_month = 1;
-        this->m_year = 2000;
-    } 
+    // Le corps est vide, tout a été délégué et validé !
 }
 
-void Date::normalizeDate() {
-    
-} 
 bool Date::isLeapYear(int year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
