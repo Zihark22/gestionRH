@@ -36,8 +36,9 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QJsonDocument>
-#include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonParseError>
 #include <QDate>
 #include <QDebug>
 #include <QAbstractItemView>
@@ -66,9 +67,10 @@ private:
     QTableWidget* fillGeneralTab(QWidget* tab, const QString& jsonString);
     QTableWidget* fillPreventionTab(QWidget* tab, const QString& jsonString);
 
-    // Création du formulaire
-    void createFormWindow(); // pour ajout
-    void createFormWindowOnID(int &id); // pour modification
+    // Création du formulaire pour ajout
+    void addingEmployee();
+
+    void parseMyJson();
 
     // Attributs
     int cmptEmployees; // compteur d'employés

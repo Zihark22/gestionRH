@@ -1,6 +1,8 @@
 #ifndef FORMWINDOW_HPP
 #define FORMWINDOW_HPP
 
+#include "employee.hpp"
+
 #include <QDialog>
 #include <QWidget>
 
@@ -25,7 +27,7 @@ class FormWindow : public QDialog
 {
 public:
     FormWindow();
-    FormWindow(int id);
+    FormWindow(const Employee &e);
 
     // Getters pour récupérer la saisie après validation
     QString getNom() const;

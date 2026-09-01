@@ -75,17 +75,15 @@ FormWindow::FormWindow()
     connect(m_btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-FormWindow::FormWindow(int id)
+FormWindow::FormWindow(const Employee &e)
     : QDialog()
 {
     setWindowTitle("Modifier collaborateur");
 
     // Formulaire
     QFormLayout *formLayout = new QFormLayout();
-    m_txtNom = new QLineEdit(this);
-    m_txtNom->setPlaceholderText("Ex: Dupont");
-    m_txtPrenom = new QLineEdit(this);
-    m_txtPrenom->setPlaceholderText("Ex: Julien");
+    m_txtNom = new QLineEdit(QString::fromStdString(e.lastname()), this);
+    m_txtPrenom = new QLineEdit(QString::fromStdString(e.firstname()), this);
 
     auto *birthDate = new QDateEdit(this);
     birthDate->setDisplayFormat("dd/MM/yyyy");

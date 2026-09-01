@@ -3,7 +3,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     // Load data
-    apiClient = new ApiClient(); // MainWindow or ApiClientWindow
+    apiClient = new ApiClient(); // launch API that get all employees
 
     cmptEmployees = 0;
 
@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     // Get DB
     jsonDB = QString::fromUtf8(apiClient->getResponseData());
+    parseMyJson();
+
 
     // Ajout des deux onglets
     tabWidget->addTab(createGeneralTab(), "Général");
@@ -51,6 +53,40 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     setCentralWidget(tabWidget);
 }
+
+
+void MainWindow::parseMyJson() {
+
+    // 2. Parser le QString
+    QJsonParseError parseError;
+    // QJsonDocument attend un QByteArray en UTF-8
+    QJsonDocument doc = QJsonDocument::fromJson(apiClient->getResponseData(), &parseError);
+
+    // Vérification des erreurs de parsing
+    if (parseError.error != QJsonParseError::NoError) {
+        qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
+        return;
+    }
+
+    // 3. Vérifier qu'il s'agit bien d'un tableau JSON (Array)
+    if (doc.isArray()) {
+        QJsonArray jsonArray = doc.array();
+
+        // Vérifier qu'on a bien au moins 2 éléments
+        for (int i = 0; i < jsonArray.size(); ++i) {
+
+            QJsonObject empl_json = jsonArray.at(i).toObject();
+            QJsonDocument empl_array(empl_json);
+            std::string e_str = QString::fromUtf8(empl_array.toJson(QJsonDocument::Compact)).toStdString();
+            e_str = "[" + e_str + "]";
+            Employee e(e_str);
+            employees.append(e);
+        }
+    }
+}
+
+
+
 
 MainWindow::~MainWindow() {}
 
@@ -317,7 +353,7 @@ QWidget* MainWindow::createGeneralTab() {
     auto *onLine = new QWidget();
     auto *onLineLayout = new QHBoxLayout(onLine);
     auto *addButton = new QPushButton("Ajouter");
-    connect(addButton, &QPushButton::clicked, this, &MainWindow::createFormWindow);
+    connect(addButton, &QPushButton::clicked, this, &MainWindow::addingEmployee);
     auto *exportButton = new QPushButton("Exporter");
     auto *cmptLabel = new QLabel("Nombre collaborateurs : ");
     auto *cmptVal = new QLabel(tr("%1").arg(this->cmptEmployees));
@@ -390,7 +426,7 @@ QWidget* MainWindow::createPreventionTab() {
 }
 
 // Création du Formulaire
-void MainWindow::createFormWindow() {
+void MainWindow::addingEmployee() {
     // Instanciation du dialogue avec 'this' en parent
     FormWindow dialog;
 
@@ -413,30 +449,6 @@ void MainWindow::createFormWindow() {
         // std::cout << "Saisie annulée" << std::endl;
     }
 }
-void MainWindow::createFormWindowOnID(int &id) {
-    // Instanciation du dialogue avec 'this' en parent
-    apiClient->sendGetRequest(id);
-    FormWindow dialog(id);
-
-    // .exec() rend la fenêtre MODALE et bloque le flux jusqu'à la fermerture
-    if (dialog.exec() == QDialog::Accepted)
-    {
-        // L'utilisateur a cliqué sur "Valider"
-        QString nom = dialog.getNom();
-        QString prenom = dialog.getPrenom();
-
-        qDebug() << "Saisie validée :" << nom.toStdString() << " " << prenom.toStdString();
-
-        // Ici : Appel du service HTTP pour envoyer le JSON au serveur
-        // m_apiService->createCollaborateur(nom, prenom);
-
-    }
-    else
-    {
-        // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
-        // std::cout << "Saisie annulée" << std::endl;
-    }
-}
 
 // Slot activé lors du clic sur la ligne du premier onglet
 void MainWindow::onTableDoubleClicked(int row, int column)
@@ -449,35 +461,50 @@ void MainWindow::onTableDoubleClicked(int row, int column)
 
     // 2. Extraire l'ID qu'on avait caché dedans avec Qt::UserRole
     int id = firstItem->data(Qt::UserRole).toInt();
-    qDebug() << "Collaborateur ID:" << id;
+    // qDebug() << "Collaborateur ID:" << id;
 
-    createFormWindowOnID(id);
+    // 3. Chercher le collaborateur correspondant dans votre QList
+    auto it = std::find_if(employees.begin(), employees.end(),
+                           [id](const Employee &c) {
+                               return c.id() == id;
+                           });
 
-    // // 3. Chercher le collaborateur correspondant dans votre QList
-    // auto it = std::find_if(m_collaborateurs.begin(), m_collaborateurs.end(),
-    //                        [idCollaborateur](const Collaborateur &c) {
-    //                            return c.id() == idCollaborateur;
-    //                        });
-
-    // if (it != m_collaborateurs.end())
-    // {
-    //     Collaborateur collab = *it; // Copie de l'objet à modifier
-
-    //     // 4. Ouvrir le formulaire modal de modification
-    //     CollaborateurFormDialog dialog(collab, this);
-    //     if (dialog.exec() == QDialog::Accepted)
-    //     {
-    //         Collaborateur collabModifie = dialog.getCollaborateur();
-
-    //         // Envoyer la mise à jour à l'API/BDD...
-    //         // Puis rafraîchir l'IHM
-    //     }
+    // apiClient->sendGetEmployeeRequest(id);
+    // Employee e(QString::fromUtf8(apiClient->getResponseData()).toStdString());
+    // int indice = 0;
+    // for (int var = 0; var < employees.size(); ++var) {
+    //     if(employees[var].id()==id)
+    //         indice = var;
     // }
+    // Employee e = employees[indice];
+
+
+    if (it != employees.end())
+    {
+
+    // 4. Ouvrir le formualire remplit avec les données de l'employé
+        Employee e = *it; // Copie de l'objet à modifier
+        FormWindow dialog(e); // ouvre formulaire
+
+        // .exec() rend la fenêtre MODALE et bloque le flux jusqu'à la fermerture
+        if (dialog.exec() == QDialog::Accepted)
+        {
+            // L'utilisateur a cliqué sur "Valider"
+            QString nom = dialog.getNom();
+            QString prenom = dialog.getPrenom();
+
+            qDebug() << "Saisie validée :" << nom.toStdString() << " " << prenom.toStdString();
+
+            // Ici : Appel du service HTTP pour envoyer le JSON au serveur
+            // m_apiService->createCollaborateur(nom, prenom);
+
+        }
+        else
+        {
+            // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
+            // std::cout << "Saisie annulée" << std::endl;
+        }
+
+    }
 
 }
-
-
-
-
-
-

@@ -14,7 +14,13 @@ class ApiClient : public QObject {
 
 public:
     explicit ApiClient(QObject *parent = nullptr);
-    int sendGetRequest(int id);
+
+    // requests
+    int sendGetEmployeeRequest(int id); // get employees id=0 for all
+    int sendPostEmployeeRequest(int id); // add employee
+    int sendPutEmployeeRequest(int id);  // modify employee
+
+    // getters
     int getStatus();
     QByteArray getResponseData();
 
