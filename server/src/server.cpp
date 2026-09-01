@@ -1,4 +1,6 @@
 #include "../includes/server.hpp"
+#include <sstream>
+
 
 Server::Server() {
     this->config_file_path = "config/config.ini"; // Valeur par défaut
@@ -12,8 +14,8 @@ Server::Server() {
     this->apiServer = ApiServer(db_path);
 
     // Server s'abonne à l'API (fonction de Callback)
-    apiServer.set_request_handler([this](const std::string& req) -> std::string {
-        return this->handle_action(req);
+    apiServer.set_request_handler([this](const std::string& req, const std::string& body) -> std::string {
+        return this->handle_action(req, body);
     });
 }
 Server::~Server(){
@@ -23,24 +25,134 @@ Server::~Server(){
     }
 
 } 
-std::string Server::handle_action(const std::string &req){
-    std::string msg;
+std::string Server::handle_action(const std::string &req, const std::string &body) {
+    std::string msg="OK";
 
     if(req=="getconfig")
-        msg = config_to_json();
+        return config_to_json();
+    else if(req=="modifyconfig") { 
+        modify_config_from_json(body);
+        return "Configuration modifiée avec succès. Veuillez redémarrer le serveur pour appliquer les changements.";
+    }
     else
-        modify_config_from_json(req);
-    return msg;
+        return "Invalid request";
 }
 std::string Server::config_to_json(){
     std::string rep_json="[{";
-    rep_json += "\'host\':\'"+host+"\',";
-    rep_json += "\'config_file_path\':\'"+config_file_path+"\'";
+    rep_json += "\"host\":\""+host+"\",";
+    rep_json += "\"port\":" + std::to_string(port) + ",";
+    rep_json += "\"db_path\":\""+db_path+"\"";
     return rep_json+"}]" ;
-} 
+}
 int Server::modify_config_from_json(const std::string &json){
-    if(json=="dad")
+    // ex : json = [{"host":"127.0.0.1","port":8080,"db_path":"../data/employees.db"}]
+    std::cout << "modifying ...." << std::endl;
+      
+    auto trim = [](const std::string &s) -> std::string {
+        size_t start = 0;
+        while (start < s.size() && (s[start] == ' ' || s[start] == '\n' || s[start] == '\t' || s[start] == '\r')) {
+            ++start;
+        }
+        size_t end = s.size();
+        while (end > start && (s[end - 1] == ' ' || s[end - 1] == '\n' || s[end - 1] == '\t' || s[end - 1] == '\r')) {
+            --end;
+        }
+        return s.substr(start, end - start);
+    };
+
+    auto getField = [&](const std::string &obj, const std::string &key) -> std::string {
+        std::string pattern = "\"" + key + "\"";
+        size_t pos = obj.find(pattern);
+        if (pos == std::string::npos) {
+            return "";
+        }
+
+        size_t colon = obj.find(':', pos + pattern.size());
+        if (colon == std::string::npos) {
+            return "";
+        }
+
+        size_t valueStart = obj.find_first_not_of(" \t\r\n", colon + 1);
+        if (valueStart == std::string::npos) {
+            return "";
+        }
+
+        // Cas chaîne de caractères
+        if (obj[valueStart] == '"') {
+            size_t valueEnd = valueStart + 1;
+            while (valueEnd < obj.size()) {
+                if (obj[valueEnd] == '\\' && valueEnd + 1 < obj.size()) {
+                    valueEnd += 2;
+                    continue;
+                }
+                if (obj[valueEnd] == '"') {
+                    break;
+                }
+                ++valueEnd;
+            }
+            return obj.substr(valueStart + 1, valueEnd - valueStart - 1);
+        }
+
+        // Cas nombre / bool / null
+        size_t valueEnd = valueStart;
+        while (valueEnd < obj.size() && obj[valueEnd] != ',' && obj[valueEnd] != '}') {
+            ++valueEnd;
+        }
+        return trim(obj.substr(valueStart, valueEnd - valueStart));
+    };
+
+    std::string s = trim(json);
+
+    if (s.size() < 2 || s.front() != '[' || s.back() != ']') {
         return 1;
+    }
+
+    std::string inner = trim(s.substr(1, s.size() - 2));
+
+    if (inner.empty()) {
+        return 1;
+    }
+
+    if (inner.front() != '{' || inner.back() != '}') {
+        return 1;
+    }
+
+    std::string obj = trim(inner.substr(1, inner.size() - 2));
+
+    std::string new_host = getField(obj, "host");
+    int new_port = stoi(getField(obj, "port"));
+    std::string new_db_path = getField(obj, "db_path");
+
+    // remplacer config dans fichier (relancer pour activer nouvelle config)
+    std::fstream fichier;
+    fichier.open(config_file_path.c_str(), std::ios::in | std::ios::out);
+    if (fichier.is_open()) {
+        std::cout << "Fichier ouvert pour modification dont chemin: " << config_file_path << std::endl;
+        std::string ligne;
+        std::string contenu;
+        fichier.seekg(0);
+        while (getline(fichier, ligne)) {
+            if (ligne.find("host =") != std::string::npos) {
+                contenu += "host = " + new_host + "\n";
+            } 
+            else if (ligne.find("port =") != std::string::npos) {
+                contenu += "port = " + std::to_string(new_port) + "\n";
+            }
+            else if (ligne.find("db_path =") != std::string::npos) {
+                contenu += "db_path = " + new_db_path + "\n";
+            }            
+            else {
+                contenu += ligne + "\n";
+            }
+        }
+        fichier.clear();
+        fichier.seekp(0);
+        fichier.write(contenu.c_str(), contenu.length());
+        fichier.close();
+    } else {
+        std::cerr << "Impossible d'ouvrir le fichier en écriture." << std::endl;
+    }
+
     return 0;
 } 
 void Server::load_config(const std::string& file_path) {

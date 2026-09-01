@@ -74,7 +74,7 @@ void ApiServer::parse_request_http(std::string request, const int client_fd) {
 
 void ApiServer::execute_request(const std::string &method, const std::string &endpoint, const int client_fd) {
     std::string jsonOutput; // JSON de sortie de la base de données
-    std::string body;
+    std::string repbody;
     std::string response;
     int result=-1;
     std::string rep;
@@ -233,8 +233,8 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
 
             // commande en appelant le serveur
              if (m_handler) {
-                rep = m_handler("getconfig");
-                std::cout << "reponse : " << response << std::endl;
+                rep = m_handler("getconfig", "");
+                std::cout << "reponse : " << rep << std::endl;
                 result = 0;
             } else {
                 rep = "ERROR 500: No handler";
@@ -256,17 +256,25 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
             // Traiter la requête GET /api/employees
             std::cout << "Modifier config" << std::endl;
 
-            // commande ??????????
+            // envoi de la requete au serveur pour modifier le fichier config.ini
+             if (m_handler) {
+                rep = m_handler("modifyconfig",this->body);
+                std::cout << "reponse : " << rep << std::endl;
+                result = 0;
+            } else {
+                rep = "ERROR 500: No handler";
+                result = -1;
+            }
 
             // reponse en fonction du resultat
             if(result != 0) {
-                messageError = "Erreur lors de la mdofication de la config";
+                messageError = "Erreur lors de la modification de la config";
                 response_status_code = 500;
                 response_msg = "Internal Server Error";
             }
             else {
                 response_status_code = 200;
-                response_msg = "OK";
+                response_msg = "rep";
             }
         }
         else {
@@ -285,24 +293,25 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
 
 
     if(response_status_code != 200) {
-        body = "{\"error\": \""+ messageError +"\"}";
+        repbody = "{\"error\": \""+ messageError +"\"}";
         response = 
             "HTTP/1.1 "+ std::to_string(response_status_code) + " " + response_msg +"\r\n"
             "Content-Type: application/json\r\n"
             "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + 
-            body;
+            repbody;
     }
     else {
         if(rep.empty())
-            body = db_handler.formatter_JSON(); // JSON de sortie de la base de données
+            repbody = db_handler.formatter_JSON(); // JSON de sortie de la base de données
         else
-            body = rep;
+            repbody = rep;
+
         response = 
             "HTTP/1.1 "+ std::to_string(response_status_code) + " " + response_msg +"\r\n"
             "Access-Control-Allow-Origin: *\r\n"
             "Content-Typexecute_requeste: application/json\r\n"
-            "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + 
-            body;
+            "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
+            repbody;
     }
 
     write(client_fd, response.c_str(), response.length());

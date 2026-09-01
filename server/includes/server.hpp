@@ -18,7 +18,7 @@ public:
     Server& operator=(const Server&) = delete;
 
     void start();  // lancement du serveur
-    std::string handle_action(const std::string &req); // gestion des requetes API pour modifier la config
+    std::string handle_action(const std::string &req, const std::string &body); // gestion des requetes API pour modifier la config
 
 private:
     int server_fd; // socket

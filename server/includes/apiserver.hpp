@@ -18,7 +18,7 @@ public:
     ApiServer(const std::string &db_path);
 
     // Signature du handler : prend les données de la requête et retourne le résultat à renvoyer au client
-    using RequestHandler = std::function<std::string(const std::string& request)>;
+    using RequestHandler = std::function<std::string(const std::string& request, const std::string& body)>;
 
     void set_request_handler(RequestHandler handler);
 
