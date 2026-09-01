@@ -34,3 +34,12 @@ add_custom_command(
             "$<TARGET_FILE_DIR:ServerApp>/config/config.ini"
     COMMENT "Copie de config.ini vers le repertoire de sortie"
 )
+
+# 6. Copie de la DB à la compilation
+add_custom_command(
+    TARGET ServerApp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/data/employees.db"
+            "$<TARGET_FILE_DIR:ServerApp>/data/employees.db"
+    COMMENT "Copie de la base de données vers le repertoire de sortie"
+)
