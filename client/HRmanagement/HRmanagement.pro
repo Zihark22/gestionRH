@@ -1,6 +1,6 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
 
 CONFIG += c++17
 
@@ -10,18 +10,20 @@ CONFIG += c++17
 
 SOURCES += \
     apiclient.cpp \
+    date.cpp \
     employee.cpp \
     formwindow.cpp \
+    iniparser.cpp \
     main.cpp \
-    mainwindow.cpp \
-    parserini.cpp
+    mainwindow.cpp
 
 HEADERS += \
     apiclient.hpp \
+    date.hpp \
     employee.hpp \
     formwindow.hpp \
-    mainwindow.hpp \
-    parserini.hpp
+    iniparser.hpp \
+    mainwindow.hpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -1,23 +1,160 @@
-/* style.qss */
+/* ===================================================================
+   Thème Moderne : Blanc & Dégradés Violet (Clean & Purple)
+   =================================================================== */
+
+/* --- Fenêtre et Widgets Généraux --- */
+QMainWindow {
+    background-color: #F8F9FD; /* Blanc cassé très doux */
+}
+
 QWidget {
-    background-color: #1e1e2e;
-    color: #cdd6f4;
-    font-family: "Segoe UI", sans-serif;
+    color: #2D3748; /* Gris anthracite pour un contraste lisible et reposant */
+    font-family: "Segoe UI", Arial, sans-serif;
     font-size: 14px;
 }
 
-QPushButton {
-    background-color: #89b4fa;
-    color: #11111b;
+/* --- Barre de Menu & Menus Déroulants --- */
+QMenuBar {
+    background-color: #FFFFFF;
+    color: #4A5568;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 2px;
+}
+
+QMenuBar::item:selected {
+    background-color: #F3E8FF; /* Violet très pâle */
+    color: #7C3AED;           /* Violet vif */
+    border-radius: 4px;
+}
+
+QMenu {
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    padding: 4px;
     border-radius: 6px;
-    padding: 8px 16px;
+}
+
+QMenu::item:selected {
+    background-color: #7C3AED;
+    color: #FFFFFF;
+    border-radius: 4px;
+}
+
+/* --- Système d'Onglets (QTabWidget / QTabBar) --- */
+QTabWidget::pane {
+    border: 1px solid #E2E8F0;
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    top: -1px; /* Fusionne l'onglet actif avec le panneau */
+}
+
+QTabBar::tab {
+    background-color: #EDF2F7;
+    color: #718096;
+    font-weight: 600;
+    padding: 10px 24px;
+    margin-right: 4px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border: 1px solid #E2E8F0;
+    border-bottom: none;
+}
+
+QTabBar::tab:hover {
+    background-color: #F3E8FF;
+    color: #7C3AED;
+}
+
+QTabBar::tab:selected {
+    background-color: #FFFFFF;
+    color: #6D28D9; /* Violet profond */
+    border-top: 3px solid #7C3AED; /* Ligne d'accentuation violette en haut */
+    border-bottom: 1px solid #FFFFFF; /* Masque la bordure du pane */
+}
+
+/* --- Tableaux de données (QTableWidget / QTableView) --- */
+QTableWidget, QTableView {
+    background-color: #FFFFFF;
+    alternate-background-color: #FAF5FF; /* Lignes alternées teintées de lilas */
+    gridline-color: #F1F5F9;
+    border: none;
+    selection-background-color: #DDD6FE; /* Violet clair pour la ligne sélectionnée */
+    selection-color: #3B0764;            /* Texte violet foncé à la sélection */
+    border-radius: 6px;
+}
+
+/* En-têtes de colonnes du tableau */
+QHeaderView::section {
+    background-color: #6D28D9; /* Violet principal pour les titres */
+    color: #FFFFFF;
     font-weight: bold;
+    padding: 8px 12px;
+    border: none;
+    border-right: 1px solid #8B5CF6;
+}
+
+QHeaderView::section:first {
+    border-top-left-radius: 6px;
+}
+
+QHeaderView::section:last {
+    border-top-right-radius: 6px;
+    border-right: none;
+}
+
+/* --- Boutons d'Action (QPushButton) --- */
+QPushButton {
+    background-color: #7C3AED; /* Violet éclatant */
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-weight: 600;
 }
 
 QPushButton:hover {
-    background-color: #b4befe;
+    background-color: #6D28D9; /* Violet plus soutenu au survol */
 }
 
 QPushButton:pressed {
-    background-color: #74c7ec;
+    background-color: #5B21B6; /* Violet foncé au clic */
+}
+
+QPushButton:disabled {
+    background-color: #E2E8F0;
+    color: #A0AEC0;
+}
+
+/* --- Champs de saisie (QLineEdit, etc.) --- */
+QLineEdit, QSpinBox, QDateEdit {
+    background-color: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #1E293B;
+}
+
+QLineEdit:focus, QSpinBox:focus, QDateEdit:focus {
+    border: 2px solid #7C3AED; /* Focus violet */
+}
+
+/* --- Barres de Défilement (QScrollBar) --- */
+QScrollBar:vertical {
+    background: transparent;
+    width: 8px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #CBD5E1;
+    min-height: 25px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #A78BFA; /* Poignée lilas au survol */
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
 }
