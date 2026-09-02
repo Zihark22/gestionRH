@@ -55,3 +55,63 @@ int ApiClient::sendGetEmployeeRequest(int id) {
     }
 
 }
+
+int ApiClient::sendPostEmployeeRequest(const std::string &json) {
+    QString apiURL = "http://127.0.0.1:8080/api/employees";
+    QUrl url(apiURL);
+    QNetworkRequest request(url);
+
+    // 2. Définir les headers HTTP indispensables pour du JSON
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
+
+    // 3. Convertir le std::string en QByteArray (garde les octets UTF-8 tels quels)
+    QByteArray data = QByteArray::fromStdString(json);
+    QNetworkReply *reply = networkManager->post(request, data);
+
+    // 5. Gérer la réponse de manière asynchrone
+    QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray responseD = reply->readAll();
+            qDebug() << "Succès ! Réponse API :" << responseD;
+        } else {
+            qDebug() << "Erreur HTTP :" << reply->errorString();
+            qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            qDebug() << "Détails réponse :" << reply->readAll();
+        }
+
+        // Très important en Qt : libérer la mémoire de la réponse
+        reply->deleteLater();
+    });
+    return 0;
+}
+
+
+int ApiClient::sendPutEmployeeRequest(const std::string &json, const int &id) {
+    std::string u = "http://127.0.0.1:8080/api/employees/" + std::to_string(id);
+    QString apiURL(u.c_str());
+    QUrl url(apiURL);
+    QNetworkRequest request(url);
+
+    // 2. Définir les headers HTTP indispensables pour du JSON
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
+
+    // 3. Convertir le std::string en QByteArray (garde les octets UTF-8 tels quels)
+    QByteArray data = QByteArray::fromStdString(json);
+    QNetworkReply *reply = networkManager->put(request, data);
+
+    // 5. Gérer la réponse de manière asynchrone
+    QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray responseD = reply->readAll();
+            qDebug() << "Succès ! Réponse API :" << responseD;
+        } else {
+            qDebug() << "Erreur HTTP :" << reply->errorString();
+            qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            qDebug() << "Détails réponse :" << reply->readAll();
+        }
+
+        // Très important en Qt : libérer la mémoire de la réponse
+        reply->deleteLater();
+    });
+    return 0;
+}

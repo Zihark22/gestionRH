@@ -17,8 +17,8 @@ public:
 
     // requests
     int sendGetEmployeeRequest(int id); // get employees id=0 for all
-    int sendPostEmployeeRequest(int id); // add employee
-    int sendPutEmployeeRequest(int id);  // modify employee
+    int sendPostEmployeeRequest(const std::string &json); // add employee
+    int sendPutEmployeeRequest(const std::string &json, const int &id);  // modify employee
 
     // getters
     int getStatus();

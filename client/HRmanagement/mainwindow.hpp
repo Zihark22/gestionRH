@@ -71,6 +71,7 @@ private:
     void addingEmployee();
 
     void parseMyJson();
+    void extractManagers();
 
     // Attributs
     int cmptEmployees; // compteur d'employés
@@ -78,5 +79,6 @@ private:
     QString jsonDB; // donnees JSON de la BDD transmises en HTTP
     QTableWidget* generalTableWidget; // onglet general
     QList<Employee> employees;
+    QStringList managers;
 };
 #endif // MAINWINDOW_HPP

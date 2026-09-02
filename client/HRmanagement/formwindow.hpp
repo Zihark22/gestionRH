@@ -18,6 +18,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QDateEdit>
+#include <QDate>
 #include <QCheckBox>
 #include <QLabel>
 #include <QMessageBox>
@@ -26,18 +27,27 @@
 class FormWindow : public QDialog
 {
 public:
-    FormWindow();
-    FormWindow(const Employee &e);
+    FormWindow(const QStringList &managers);
+    FormWindow(const Employee &e, const QStringList &managers);
 
     // Getters pour récupérer la saisie après validation
-    QString getNom() const;
-    QString getPrenom() const;
+    Employee toEmployee();
 
 private:
-    QLineEdit *m_txtNom;
-    QLineEdit *m_txtPrenom;
+    QLineEdit *m_txtFirstname;
+    QLineEdit *m_txtLastname;
     QPushButton *m_btnValider;
     QPushButton *m_btnAnnuler;
+    QDateEdit * m_birthDate;
+    QDateEdit *m_startDate;
+    QLineEdit *m_jobEdit;
+    QCheckBox *m_signedPlanBox;
+    QCheckBox *m_statusBox;
+    QDoubleSpinBox *m_posSyntSpinBox;
+    QSpinBox *m_coefSyntSpinBox;
+    QComboBox *m_planCombo;
+    QComboBox *m_manager;
+
 };
 
 #endif // FORMWINDOW_HPP

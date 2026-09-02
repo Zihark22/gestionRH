@@ -1,5 +1,20 @@
 #include "employee.hpp"
 
+Employee::Employee() {
+    this->m_birthdate = Date("01/01/2000");
+    this->m_start_date = Date("01/01/2000");
+    this->m_coefficient = 100;
+    this->m_position = 2.1;
+    this->m_firstname = "";
+    this->m_lastname = "";
+    this->m_executive_status = 0;
+    this->m_signed_plan = 0;
+    this->m_manager_id = -1;
+    this->m_id = -1;
+    this->m_prev_plan = "";
+    this->m_job = "";
+}
+
 Employee::Employee(const string &jsonStr) {
     // Créer un Employee à partir du body sous forme JSON lors d'une demande d'ajout à la DB : [{"firstname":"Marc","lastname":"Dumort"}]
 
@@ -146,20 +161,3 @@ void Employee::display(void) const {
     qDebug() << "\tPrev Plan: " << m_prev_plan ;
     qDebug() << "\tSigned Plan: " << (m_signed_plan ? "Yes" : "No") ;
 }
-
-// Employee Employee::from_sql(const QMap<string, string> &sql_row) {
-//     Employee emp;
-//     emp.set_id(stoi(sql_row["id"]));
-//     emp.set_firstname(sql_row["firstname"].empty() ? "" : sql_row["firstname"]);
-//     emp.set_lastname(sql_row["lastname"].empty() ? "" : sql_row["lastname"]);
-//     emp.set_birthdate(QDate::fromString(sql_row["birthdate"].empty() ? "" : sql_row["birthdate"].c_str(), "dd/MM/yyyy"));
-//     emp.set_job(sql_row["job"].empty() ? "" : sql_row["job"]);
-//     emp.set_executive_status(sql_row["executive_status"].empty() ? false : sql_row["executive_status"] == "1");
-//     emp.set_position(sql_row["position"].empty() ? 0.0f : stof(sql_row["position"]));
-//     emp.set_coefficient(stoi(sql_row["coefficient"]));
-//     emp.set_start_date(QDate::fromString(sql_row["start_date"].empty() ? "" : sql_row["start_date"].c_str(), "dd/MM/yyyy"));
-//     emp.set_manager_id(stoi(sql_row["manager_id"]));
-//     emp.set_prev_plan(sql_row["prev_plan"].empty() ? "" : sql_row["prev_plan"]);
-//     emp.set_signed_plan(sql_row["signed_plan"].empty() ? false : sql_row["signed_plan"] == "1");
-//     return emp;
-// }

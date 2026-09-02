@@ -1,59 +1,66 @@
 #include "formwindow.hpp"
 
-FormWindow::FormWindow()
+FormWindow::FormWindow(const QStringList &managers)
     : QDialog()
 {
     setWindowTitle("Nouveau collaborateur");
+    resize(500, 400);
 
     // Formulaire
     QFormLayout *formLayout = new QFormLayout();
-    m_txtNom = new QLineEdit(this);
-    m_txtNom->setPlaceholderText("Ex: Dupont");
-    m_txtPrenom = new QLineEdit(this);
-    m_txtPrenom->setPlaceholderText("Ex: Julien");
+    m_txtLastname = new QLineEdit(this);
+    m_txtLastname->setPlaceholderText("Ex: Dupont");
+    m_txtFirstname = new QLineEdit(this);
+    m_txtFirstname->setPlaceholderText("Ex: Julien");
 
-    auto *birthDate = new QDateEdit(this);
-    birthDate->setDisplayFormat("dd/MM/yyyy");
-    birthDate->setCalendarPopup(true); // Affiche un calendrier au clic
+    m_birthDate = new QDateEdit(this);
+    m_birthDate->setDisplayFormat("dd/MM/yyyy");
+    m_birthDate->setCalendarPopup(true); // Affiche un calendrier au clic
 
-    auto *jobEdit = new QLineEdit(this);
-    jobEdit->setPlaceholderText("Ex: responsable RH");
+    m_jobEdit = new QLineEdit(this);
+    m_jobEdit->setPlaceholderText("Ex: responsable RH");
 
-    auto *statusBox = new QCheckBox("Statut cadre", this);
-    statusBox->setChecked(false);
+    m_statusBox = new QCheckBox("Statut cadre", this);
+    m_statusBox->setChecked(false);
 
-    auto *posSyntSpinBox = new QDoubleSpinBox(this);
-    posSyntSpinBox->setRange(0.0, 5.0);
-    posSyntSpinBox->setDecimals(1);
-    posSyntSpinBox->setSingleStep(0.1);
-    posSyntSpinBox->setValue(2.1);
+    m_posSyntSpinBox = new QDoubleSpinBox(this);
+    m_posSyntSpinBox->setRange(0.0, 5.0);
+    m_posSyntSpinBox->setDecimals(1);
+    m_posSyntSpinBox->setSingleStep(0.1);
+    m_posSyntSpinBox->setValue(2.1);
 
-    auto *coefSyntSpinBox = new QSpinBox(this);
-    coefSyntSpinBox->setRange(1, 500);
-    coefSyntSpinBox->setValue(130);
+    m_coefSyntSpinBox = new QSpinBox(this);
+    m_coefSyntSpinBox->setRange(1, 500);
+    m_coefSyntSpinBox->setValue(130);
 
-    auto *startDate = new QDateEdit(QDate::currentDate(),this);
-    startDate->setDisplayFormat("dd/MM/yyyy");
-    startDate->setCalendarPopup(true); // Affiche un calendrier au clic
+    m_startDate = new QDateEdit(QDate::currentDate(),this);
+    m_startDate->setDisplayFormat("dd/MM/yyyy");
+    m_startDate->setCalendarPopup(true); // Affiche un calendrier au clic
 
-    auto *planCombo = new QComboBox(this);
-    planCombo->addItems({"", "Plan A", "Plan B", "Plan C"});
+    m_planCombo = new QComboBox(this);
+    m_planCombo->addItems({"", "Plan A", "Plan B", "Plan C"});
 
-    auto *signedPlanBox = new QCheckBox("Plan signé", this);
-    signedPlanBox->setChecked(true);
+    m_manager = new QComboBox(this);
+    m_manager->addItems(managers);
+
+    m_manager->addItems(managers);
+
+    m_signedPlanBox = new QCheckBox("Plan signé", this);
+    m_signedPlanBox->setChecked(true);
 
 
     // Ajout des paires Libellé -> Champ au layout de formulaire
-    formLayout->addRow("Nom :", m_txtNom);
-    formLayout->addRow("Prénom :", m_txtPrenom);
-    formLayout->addRow("Naissance :", birthDate);
-    formLayout->addRow("Poste :", jobEdit);
-    formLayout->addRow("Statut cadre :", statusBox);
-    formLayout->addRow("Position (Syntec) :", posSyntSpinBox);
-    formLayout->addRow("Coefficient (Syntec) :", coefSyntSpinBox);
-    formLayout->addRow("Début:", startDate);
-    formLayout->addRow("Plan de prévention :", planCombo);
-    formLayout->addRow("Plan signé :", signedPlanBox);
+    formLayout->addRow("Nom :", m_txtLastname);
+    formLayout->addRow("Prénom :", m_txtFirstname);
+    formLayout->addRow("Naissance :", m_birthDate);
+    formLayout->addRow("Poste :", m_jobEdit);
+    formLayout->addRow("Statut cadre :", m_statusBox);
+    formLayout->addRow("Manager :", m_manager);
+    formLayout->addRow("Position (Syntec) :", m_posSyntSpinBox);
+    formLayout->addRow("Coefficient (Syntec) :", m_coefSyntSpinBox);
+    formLayout->addRow("Début:", m_startDate);
+    formLayout->addRow("Plan de prévention :", m_planCombo);
+    formLayout->addRow("Plan signé :", m_signedPlanBox);
     formLayout->setItem(formLayout->rowCount(), QFormLayout::SpanningRole,
                         new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)); // stretch space line
 
@@ -75,58 +82,74 @@ FormWindow::FormWindow()
     connect(m_btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-FormWindow::FormWindow(const Employee &e)
+FormWindow::FormWindow(const Employee &e, const QStringList &managers)
     : QDialog()
 {
     setWindowTitle("Modifier collaborateur");
+    resize(500, 400);
 
     // Formulaire
     QFormLayout *formLayout = new QFormLayout();
-    m_txtNom = new QLineEdit(QString::fromStdString(e.lastname()), this);
-    m_txtPrenom = new QLineEdit(QString::fromStdString(e.firstname()), this);
+    m_txtLastname = new QLineEdit(QString::fromStdString(e.lastname()), this);
+    m_txtFirstname = new QLineEdit(QString::fromStdString(e.firstname()), this);
+    m_jobEdit = new QLineEdit(QString::fromStdString(e.job()), this);
 
-    auto *birthDate = new QDateEdit(this);
-    birthDate->setDisplayFormat("dd/MM/yyyy");
-    birthDate->setCalendarPopup(true); // Affiche un calendrier au clic
+    m_birthDate = new QDateEdit(QDate::fromString(QString::fromStdString(e.birthdate().toString()), "dd'/'MM'/'yyyy"),this);
+    m_birthDate->setDisplayFormat("dd/MM/yyyy");
+    m_birthDate->setCalendarPopup(true); // Affiche un calendrier au clic
 
-    auto *jobEdit = new QLineEdit(this);
-    jobEdit->setPlaceholderText("Ex: responsable RH");
+    m_statusBox = new QCheckBox("Statut cadre", this);
+    if(e.is_executive())
+        m_statusBox->setChecked(true);
+    else
+        m_statusBox->setChecked(false);
 
-    auto *statusBox = new QCheckBox("Statut cadre", this);
-    statusBox->setChecked(false);
+    m_posSyntSpinBox = new QDoubleSpinBox(this);
+    m_posSyntSpinBox->setRange(0.0, 5.0);
+    m_posSyntSpinBox->setDecimals(1);
+    m_posSyntSpinBox->setSingleStep(0.1);
+    m_posSyntSpinBox->setValue(e.position());
 
-    auto *posSyntSpinBox = new QDoubleSpinBox(this);
-    posSyntSpinBox->setRange(0.0, 5.0);
-    posSyntSpinBox->setDecimals(1);
-    posSyntSpinBox->setSingleStep(0.1);
-    posSyntSpinBox->setValue(2.1);
+    m_coefSyntSpinBox = new QSpinBox(this);
+    m_coefSyntSpinBox->setRange(1, 500);
+    m_coefSyntSpinBox->setValue(e.coefficient());
 
-    auto *coefSyntSpinBox = new QSpinBox(this);
-    coefSyntSpinBox->setRange(1, 500);
-    coefSyntSpinBox->setValue(130);
+    m_startDate = new QDateEdit(QDate::fromString(QString::fromStdString(e.start_date().toString()), "dd'/'MM'/'yyyy"),this);
+    m_startDate->setDisplayFormat("dd/MM/yyyy");
+    m_startDate->setCalendarPopup(true); // Affiche un calendrier au clic
 
-    auto *startDate = new QDateEdit(QDate::currentDate(),this);
-    startDate->setDisplayFormat("dd/MM/yyyy");
-    startDate->setCalendarPopup(true); // Affiche un calendrier au clic
+    m_planCombo = new QComboBox(this);
+    m_planCombo->addItems({"", "Plan A", "Plan B", "Plan C"});
+    int ind = 0;
+    if(e.prev_plan()=="Plan A")
+        ind = 1;
+    else if(e.prev_plan()=="Plan B")
+            ind = 2;
+    else if(e.prev_plan()=="Plan C")
+        ind = 3;
+    m_planCombo->setCurrentIndex(ind);
 
-    auto *planCombo = new QComboBox(this);
-    planCombo->addItems({"", "Plan A", "Plan B", "Plan C"});
+    m_signedPlanBox = new QCheckBox("Plan signé", this);
+    if(e.signed_plan())
+        m_signedPlanBox->setChecked(true);
+    else
+        m_signedPlanBox->setChecked(false);
 
-    auto *signedPlanBox = new QCheckBox("Plan signé", this);
-    signedPlanBox->setChecked(true);
-
+    m_manager = new QComboBox(this);
+    m_manager->addItems(managers);
 
     // Ajout des paires Libellé -> Champ au layout de formulaire
-    formLayout->addRow("Nom :", m_txtNom);
-    formLayout->addRow("Prénom :", m_txtPrenom);
-    formLayout->addRow("Naissance :", birthDate);
-    formLayout->addRow("Poste :", jobEdit);
-    formLayout->addRow("Statut cadre :", statusBox);
-    formLayout->addRow("Position (Syntec) :", posSyntSpinBox);
-    formLayout->addRow("Coefficient (Syntec) :", coefSyntSpinBox);
-    formLayout->addRow("Début:", startDate);
-    formLayout->addRow("Plan de prévention :", planCombo);
-    formLayout->addRow("Plan signé :", signedPlanBox);
+    formLayout->addRow("Nom :", m_txtLastname);
+    formLayout->addRow("Prénom :", m_txtFirstname);
+    formLayout->addRow("Naissance :", m_birthDate);
+    formLayout->addRow("Poste :", m_jobEdit);
+    formLayout->addRow("Statut cadre :", m_statusBox);
+    formLayout->addRow("Manager :", m_manager);
+    formLayout->addRow("Position (Syntec) :", m_posSyntSpinBox);
+    formLayout->addRow("Coefficient (Syntec) :", m_coefSyntSpinBox);
+    formLayout->addRow("Début:", m_startDate);
+    formLayout->addRow("Plan de prévention :", m_planCombo);
+    formLayout->addRow("Plan signé :", m_signedPlanBox);
     formLayout->setItem(formLayout->rowCount(), QFormLayout::SpanningRole,
                         new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)); // stretch space line
 
@@ -151,7 +174,30 @@ FormWindow::FormWindow(const Employee &e)
 
 }
 
+Employee FormWindow::toEmployee() {
+    Employee e = Employee();
+    e.set_lastname(m_txtLastname->text().toStdString());
+    e.set_firstname(m_txtFirstname->text().toStdString());
 
+    e.set_coefficient(m_coefSyntSpinBox->value());
+    e.set_position(m_posSyntSpinBox->value());
 
-QString FormWindow::getNom() const { return m_txtNom->text(); }
-QString FormWindow::getPrenom() const { return m_txtPrenom->text(); }
+    e.set_birthdate(m_birthDate->text().toStdString());
+    e.set_start_date(m_startDate->text().toStdString());
+
+    if(m_signedPlanBox->isChecked())
+        e.set_signed_plan(1);
+    else
+        e.set_signed_plan(0);
+
+    if(m_statusBox->isChecked())
+        e.set_executive_status(1);
+    else
+        e.set_executive_status(0);
+
+    e.set_prev_plan(m_planCombo->currentText().toStdString());
+
+    e.set_job(m_jobEdit->text().toStdString());
+
+    return e;
+}

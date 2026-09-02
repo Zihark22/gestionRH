@@ -3,7 +3,6 @@
 
 #include "date.hpp"
 
-#include <iostream>
 #include <QMap>
 #include <QDate>
 #include <string>
@@ -15,7 +14,7 @@ using namespace std;
 
 class Employee {
 public:
-    Employee() = default;
+    Employee();
     Employee(const string &json);
 
     // Identifiant unique BDD
@@ -62,17 +61,17 @@ public:
     void display(void) const;
 
 private:
-    int m_id{-1};
+    int m_id;
     string m_firstname;
     string m_lastname;
     Date m_birthdate;
     string m_job;
-    int m_executive_status{0};
+    int m_executive_status;
     float m_position;
-    int m_coefficient{0};
+    int m_coefficient;
     Date m_start_date;
-    int m_manager_id{-1};
-    string m_prev_plan{"Plan A"};
-    int m_signed_plan{0};
+    int m_manager_id;
+    string m_prev_plan;
+    int m_signed_plan;
 };
 #endif // EMPLOYEE_HPP

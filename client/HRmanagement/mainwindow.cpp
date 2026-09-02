@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     // Get DB
     jsonDB = QString::fromUtf8(apiClient->getResponseData());
     parseMyJson();
-
+    extractManagers();
 
     // Ajout des deux onglets
     tabWidget->addTab(createGeneralTab(), "Général");
@@ -54,6 +54,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setCentralWidget(tabWidget);
 }
 
+void MainWindow::extractManagers() {
+    QString fullname = "";
+    managers.append(fullname);
+
+    for(int i=0; i<employees.size(); i++) {
+        Employee e = employees[i];
+        fullname = QString::fromStdString(e.lastname() + " " + e.firstname());
+        if(e.is_executive())
+            managers.append(fullname);
+    }
+    managers.sort();
+}
 
 void MainWindow::parseMyJson() {
 
@@ -85,16 +97,11 @@ void MainWindow::parseMyJson() {
     }
 }
 
-
-
-
 MainWindow::~MainWindow() {}
-
 
 ApiClient* MainWindow::getApi() {
     return this->apiClient;
 }
-
 
 
 // Remplissage du 1er tableau
@@ -221,7 +228,6 @@ QTableWidget* MainWindow::fillGeneralTab(QWidget* tab, const QString& jsonString
         cell = new QTableWidgetItem(start_date_str);
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 6, cell);
-
 
         row++;
     }
@@ -428,20 +434,21 @@ QWidget* MainWindow::createPreventionTab() {
 // Création du Formulaire
 void MainWindow::addingEmployee() {
     // Instanciation du dialogue avec 'this' en parent
-    FormWindow dialog;
+    FormWindow dialog(managers);
 
     // .exec() rend la fenêtre MODALE et bloque le flux jusqu'à la fermerture
     if (dialog.exec() == QDialog::Accepted)
     {
         // L'utilisateur a cliqué sur "Valider"
-        QString nom = dialog.getNom();
-        QString prenom = dialog.getPrenom();
+        Employee e = dialog.toEmployee();
+        // qDebug() << "Formualire saisie :" << e.to_JSON();
+        std::string json = "[" + e.to_JSON() + "]";
 
-        // std::cout << "Saisie validée :" << nom.toStdString() << " " << prenom.toStdString() << std::endl;
-
-        // Ici : Appel de votre service HTTP pour envoyer le JSON au serveur
-        // m_apiService->createCollaborateur(nom, prenom);
-
+        // Appel du service HTTP pour envoyer le JSON au serveur
+        apiClient->sendPostEmployeeRequest(json);
+        generalTableWidget->insertRow(cmptEmployees);
+        generalTableWidget->setItem(cmptEmployees, 0, new QTableWidgetItem(QString::fromStdString(e.firstname())));
+        generalTableWidget->selectRow(cmptEmployees);
     }
     else
     {
@@ -484,20 +491,18 @@ void MainWindow::onTableDoubleClicked(int row, int column)
 
     // 4. Ouvrir le formualire remplit avec les données de l'employé
         Employee e = *it; // Copie de l'objet à modifier
-        FormWindow dialog(e); // ouvre formulaire
+        FormWindow dialog(e, managers); // ouvre formulaire
 
         // .exec() rend la fenêtre MODALE et bloque le flux jusqu'à la fermerture
         if (dialog.exec() == QDialog::Accepted)
         {
             // L'utilisateur a cliqué sur "Valider"
-            QString nom = dialog.getNom();
-            QString prenom = dialog.getPrenom();
+            Employee e = dialog.toEmployee();
+            qDebug() << "Formualire saisie :" << e.to_JSON();
+            std::string json = "[" + e.to_JSON() + "]";
 
-            qDebug() << "Saisie validée :" << nom.toStdString() << " " << prenom.toStdString();
-
-            // Ici : Appel du service HTTP pour envoyer le JSON au serveur
-            // m_apiService->createCollaborateur(nom, prenom);
-
+            // Appel du service HTTP pour envoyer le JSON au serveur
+            apiClient->sendPutEmployeeRequest(json, id);
         }
         else
         {
