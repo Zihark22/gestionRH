@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         QLabel *errorLabel = new QLabel(this);
 
         // 2. Texte de l'erreur (supporte le HTML de base pour la mise en forme)
-        errorLabel->setText("<b>Erreur de connexion :</b> Impossible de joindre la base de données SQL.");
+        errorLabel->setText("<b>Erreur de connexion :</b> Impossible de joindre la base de données SQL.<br><br>Pensez à vérifier la configuration (host/port)...");
 
         // 3. Styliser avec du QSS pour capter l'attention (Rouge, marge...)
         errorLabel->setStyleSheet("color: #d32f2f; font-size: 14px; padding: 10px;");

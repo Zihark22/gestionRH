@@ -1,6 +1,8 @@
 #ifndef APICLIENT_HPP
 #define APICLIENT_HPP
 
+#include "iniparser.hpp"
+
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -12,6 +14,7 @@
 #include <QJsonParseError>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QResource> // pour lecture raw de config.ini
 
 class ApiClient : public QObject {
     Q_OBJECT
@@ -23,6 +26,8 @@ public:
     int sendGetEmployeeRequest(int id); // get employees id=0 for all
     int sendPostEmployeeRequest(const std::string &json); // add employee
     int sendPutEmployeeRequest(const std::string &json, const int &id);  // modify employee
+    int sendGetConfigRequest(); // get config
+    int sendPutConfigRequest(const std::string &json); // put config
 
     // getters
     int getStatus();
@@ -37,6 +42,11 @@ private:
     QNetworkAccessManager *networkManager;
     QByteArray responseData;
     int status;
+    int port = 8080;
+    QString host = "localhost"; // 127.0.0.1
+
+    void load_config(const std::string& file_path);
+
 };
 
 #endif // APICLIENT_HPP

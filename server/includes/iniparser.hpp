@@ -35,6 +35,10 @@ private:
 public:
     // Méthode principale de parsing
     static std::vector<SectionConfig> parse(const std::string& filepath);
+
+    // static std::string serialize_to_json(std::map<std::string, std::string> );
+
+    // static std::map<std::string, std::string> parse_from_json(const std::string &json); 
 };
 
 #endif // INIPARSER_HPP

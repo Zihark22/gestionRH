@@ -19,6 +19,8 @@ Vérifier version cmake :
 Installer Qt6 :
 > sudo apt-get install build-essential libgl1-mesa-dev
 
+Installer GoogleTest (ou direct via CMake) :
+> sudo apt install libgtest-dev
 
 ### Etapes de compilation CMake
 
