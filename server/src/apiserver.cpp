@@ -125,7 +125,7 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
                 result = db_handler.delete_employee(atoi(id.c_str()));
 
                 // reponse en fonction du resultat
-                if(result != 0) {
+                if(result < 0) {
                     messageError = "Erreur lors de la suppression de l'employé";
                     response_status_code = 500;
                     response_msg = "Internal Server Error";
@@ -144,7 +144,7 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
                 result = db_handler.modify_employee(e, id);
 
                 // reponse en fonction du resultat
-                if(result == 0) {                    
+                if(result > -1) {                    
                     response_status_code = 200;
                     response_msg = "OK";
                 }
@@ -176,7 +176,7 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
                 result = db_handler.get_all_employees();
 
                 // reponse en fonction du resultat
-                if(result != 0) {
+                if(result < 0) {
                     messageError = "Erreur lors de la récupération des employées";
                     response_status_code = 500;
                     response_msg = "Internal Server Error";
@@ -195,14 +195,15 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
                 result = db_handler.add_employee(e);
 
                 // reponse en fonction du resultat
-                if(result != 0) {
+                if(result > -1) {
+                    response_status_code = 200;
+                    response_msg = "OK";
+                    rep = "[{\"id\": "+std::to_string(result)+"}]";
+                }
+                else {
                     messageError = "Erreur lors de l'ajout d'un employé";
                     response_status_code = 500;
                     response_msg = "Internal Server Error";
-                }
-                else {
-                    response_status_code = 200;
-                    response_msg = "OK";
                 }
             }
             else if (method == "PUT") {

@@ -54,7 +54,7 @@ int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
 }
 
 int DBhandler::get_all_employees() {
-    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
@@ -65,7 +65,7 @@ int DBhandler::get_all_employees() {
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return 1; // Indiquer qu'il y a eu une erreur
+        return -1; // Indiquer qu'il y a eu une erreur
     }
     std::cout << "All data retrieved successfully" << std::endl;
     return 0; // Indiquer que tout s'est bien passé
@@ -73,7 +73,7 @@ int DBhandler::get_all_employees() {
 
 
 int DBhandler::get_employee(const int &id) {
-    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
@@ -86,7 +86,7 @@ int DBhandler::get_employee(const int &id) {
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return 1; // Indiquer qu'il y a eu une erreur
+        return -1; // Indiquer qu'il y a eu une erreur
     }
 
     std::cout << "All data retrieved successfully" << std::endl;
@@ -94,7 +94,7 @@ int DBhandler::get_employee(const int &id) {
 }
 
 int DBhandler::delete_employee(const int &id) {
-    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
@@ -107,14 +107,14 @@ int DBhandler::delete_employee(const int &id) {
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return 1; // Indiquer qu'il y a eu une erreur
+        return -1; // Indiquer qu'il y a eu une erreur
     }
     std::cout << "Employee successfully deleted" << std::endl;
     return 0; // Indiquer que tout s'est bien passé
 }
 
 int DBhandler::modify_employee(const Employee &e, const std::string &id) {
-    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
@@ -148,7 +148,7 @@ int DBhandler::modify_employee(const Employee &e, const std::string &id) {
 } 
 
 int DBhandler::add_employee(const Employee &e) {
-    if (!this->db) return 1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
 
     // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
@@ -169,10 +169,14 @@ int DBhandler::add_employee(const Employee &e) {
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return 1; // Indiquer qu'il y a eu une erreur
+        return -1; // Indiquer qu'il y a eu une erreur
     }
-    std::cout << "Employee successfully added" << std::endl;
-    return 0; // Indiquer que tout s'est bien passé
+
+    // Récupération de l'ID généré (retourne un sqlite3_int64 / long long)
+    int64_t newId = sqlite3_last_insert_rowid(this->db);
+
+    std::cout << "Employee successfully added with ID: " << newId << std::endl;
+    return newId; // Indiquer que tout s'est bien passé
 }
 
 
