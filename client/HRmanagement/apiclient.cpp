@@ -69,10 +69,34 @@ int ApiClient::sendPostEmployeeRequest(const std::string &json) {
     QNetworkReply *reply = networkManager->post(request, data);
 
     // 5. Gérer la réponse de manière asynchrone
-    QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+    QObject::connect(reply, &QNetworkReply::finished, [this, reply]() {
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseD = reply->readAll();
-            qDebug() << "Succès ! Réponse API :" << responseD;
+            QJsonParseError parseError;
+            QJsonDocument doc{QJsonDocument::fromJson(responseD, &parseError)};
+
+          // Vérification des erreurs de parsing
+            if (parseError.error != QJsonParseError::NoError) {
+                qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
+                return;
+            }
+
+            // 3. Vérifier qu'il s'agit bien d'un tableau JSON (Array)
+            if (doc.isArray()) {
+                QJsonArray jsonArray = doc.array();
+
+                // Vérifier qu'on a bien au moins 1 élément
+                if (jsonArray.size() >= 1) {
+
+                    QJsonObject obj = jsonArray.at(0).toObject();
+
+                    // Extraction des valeurs du premier objet :
+                    int val = obj.value("id").toInt();
+
+                    // Emet le signal connecté à mainwindow
+                    emit employeeAdded(val);
+                }
+            }
         } else {
             qDebug() << "Erreur HTTP :" << reply->errorString();
             qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();

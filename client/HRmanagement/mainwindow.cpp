@@ -5,7 +5,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     // Load data
     apiClient = new ApiClient(); // launch API that get all employees
 
-    cmptEmployees = 0;
+    // Connexion du signal d'ajout à une méthode
+    connect(apiClient, &ApiClient::employeeAdded, this, &MainWindow::onEmployeeAdded);
 
     setWindowTitle("ERP Scalian - RH management");
     resize(900, 800);
@@ -18,7 +19,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QAction *quitAction = fileMenu->addAction(tr("E&xit"));
     quitAction->setShortcuts(QKeySequence::Quit);
     connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
-
 
     if(apiClient->getStatus()) {
         // QTimer::singleShot(0, this, &QMainWindow::close);
@@ -42,9 +42,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     // Widget de gestion des onglets
     auto *tabWidget = new QTabWidget(this);
 
-    // Get DB
-    jsonDB = QString::fromUtf8(apiClient->getResponseData());
+    // Save employees list
     parseMyJson();
+
+    // Extract managers list
     extractManagers();
 
     // Ajout des deux onglets
@@ -54,18 +55,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setCentralWidget(tabWidget);
 }
 
-void MainWindow::extractManagers() {
-    QString fullname = "";
-    managers.append(fullname);
-
-    for(int i=0; i<employees.size(); i++) {
-        Employee e = employees[i];
-        fullname = QString::fromStdString(e.lastname() + " " + e.firstname());
-        if(e.is_executive())
-            managers.append(fullname);
-    }
-    managers.sort();
-}
+MainWindow::~MainWindow() {}
 
 void MainWindow::parseMyJson() {
 
@@ -97,57 +87,58 @@ void MainWindow::parseMyJson() {
     }
 }
 
-MainWindow::~MainWindow() {}
+void MainWindow::extractManagers() {
+    QString fullname = "";
+    managers.clear();
+    managers.append({-1, fullname});
 
-ApiClient* MainWindow::getApi() {
-    return this->apiClient;
+    for(int i=0; i<employees.size(); i++) {
+        Employee e = employees[i];
+        fullname = QString::fromStdString(e.lastname() + " " + e.firstname());
+        if(e.is_executive())
+            managers.append({e.id(),fullname});
+    }
+    // managers.sort();
 }
 
+// Création du premier onglet (Tableau)
+QWidget* MainWindow::createGeneralTab() {
+    auto *tab = new QWidget();
+    auto *layout = new QVBoxLayout(tab);
+
+    generalTableWidget = fillGeneralTab(tab);
+
+    auto *onLine = new QWidget();
+    auto *onLineLayout = new QHBoxLayout(onLine);
+    auto *addButton = new QPushButton("Ajouter");
+    connect(addButton, &QPushButton::clicked, this, &MainWindow::addingEmployee);
+    auto *exportButton = new QPushButton("Exporter");
+    auto *cmptLabel = new QLabel("Nombre collaborateurs : ");
+    counterGeneral = new QLabel(tr("%1").arg(employees.size()));
+
+    // RECOMMANDÉ : Forcer le bouton à dessiner son propre fond
+    this->setAutoFillBackground(true);
+
+    onLineLayout->addWidget(addButton);
+    onLineLayout->addWidget(exportButton);
+    onLineLayout->addStretch();
+    onLineLayout->addWidget(cmptLabel);
+    onLineLayout->addWidget(counterGeneral);
+
+    layout->addWidget(onLine);
+    layout->addWidget(generalTableWidget);
+
+    return tab;
+}
 
 // Remplissage du 1er tableau
-QTableWidget* MainWindow::fillGeneralTab(QWidget* tab, const QString& jsonString)
+QTableWidget* MainWindow::fillGeneralTab(QWidget* tab)
 {
     // Instanciation du tableau (3 lignes, 3 colonnes)
     QTableWidget *tableWidget=nullptr;
 
-    // 1. Désérialisation du QString en document JSON
-    QJsonParseError parseError;
-    QJsonDocument doc;
-
-    if(jsonString.isEmpty()) {
-        qWarning() << "Erreur de parsing JSON : JSON vide";
-        return tableWidget;
-    }
-
-    doc = QJsonDocument::fromJson(jsonString.toUtf8(), &parseError);
-
-    if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
-        return tableWidget;
-    }
-
-    // Vérification que la racine est un tableau
-    if (!doc.isArray()) {
-        qWarning() << "Le JSON fourni n'est pas un tableau.";
-        return tableWidget;
-    }
-    QJsonArray rootArray = doc.array();
-    if (rootArray.isEmpty() || !rootArray.first().isObject()) {
-        qWarning() << "Le tableau JSON est vide ou ne contient pas d'objet.";
-        return tableWidget;
-    }
-
-    tableWidget = new QTableWidget(rootArray.size(), 7, tab);
+    tableWidget = new QTableWidget(employees.size(), 7, tab);
     tableWidget->setHorizontalHeaderLabels({"Prénom", "Naissance", "Poste","Statut cadre", "Position (Syntec)","Coefficient (Syntec)", "Début"});
-
-    // Étirer automatiquement les colonnes sur toute la largeur disponible
-    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    // Cacher les numéros de ligne
-    tableWidget->verticalHeader()->setVisible(false);
-
-    // On récupère le nombre de collaborateurs
-    this->cmptEmployees = rootArray.size();
 
     // 3. Préparation du QTableWidget
     tableWidget->clearContents();
@@ -155,35 +146,22 @@ QTableWidget* MainWindow::fillGeneralTab(QWidget* tab, const QString& jsonString
 
     int row = 0;
 
-    // 4. Parcours de chaque collaborateur dans l'objet
-    for (const QJsonValue& val : rootArray) {
-        if (!val.isObject()) continue;
-        QJsonObject colab = val.toObject();
+    // 4. Parcours de chaque employe
+    for (const Employee &e : employees) {
 
-        // Récupération des données depuis le JSON
-        QString lastname = colab["lastname"].toString();
-        QString firstname = colab["firstname"].toString(); // Si vous voulez combiner Nom + Prénom
-        QString job = colab["job"].toString();
-
-        // Formatage / Conversion Cadre (1 -> "Cadre", 0 -> "Non Cadre")
-        bool executive_status = colab["executive_status"].toBool();
-        QString executive_status_str = executive_status ? "Executive status" : "No executive status";
-
-        QString position = QString::number(colab["position"].toDouble());
-        QString coef = QString::number(colab["coefficient"].toInt());
-
-        // Conversions des dates au format "dd/MM/yyyy"
-        QString start_date_raw = colab["start_date"].toString();
-        QDate start_date = QDate::fromString(start_date_raw, "yyyy-MM-dd");
+        // Récupération des données
+        int id = e.id();
+        QString firstname{e.firstname().c_str()};
+        QString job{e.job().c_str()};
+        QString executive_status_str = e.is_executive() ? "Executive status" : "No executive status";
+        QString position = QString::number(e.position());
+        QString coef = QString::number(e.coefficient());
+        QString start_date_raw {e.start_date().toString().c_str()};
+        QDate start_date = QDate::fromString(start_date_raw, "yyyy-MM-dd");  // Conversions des dates au format "dd/MM/yyyy"
         QString start_date_str = start_date.isValid() ? start_date.toString("dd/MM/yyyy") : start_date_raw;
-
-        QString birthdate_raw = colab["birthdate"].toString();
+        QString birthdate_raw {e.birthdate().toString().c_str()};
         QDate birthdate = QDate::fromString(birthdate_raw, "yyyy-MM-dd");
         QString birthdate_str = birthdate.isValid() ? birthdate.toString("dd/MM/yyyy") : birthdate_raw;
-
-
-        // Récupération des données depuis le JSON
-        int id = colab["id"].toInt();
 
         // Insertion d'une nouvelle ligne dans le tableWidget
         tableWidget->insertRow(row);
@@ -191,18 +169,11 @@ QTableWidget* MainWindow::fillGeneralTab(QWidget* tab, const QString& jsonString
         QTableWidgetItem *firstname_widget = new QTableWidgetItem(firstname);
         firstname_widget->setTextAlignment(Qt::AlignCenter);
 
-        // --- MAGIE ICI ---
-        // On stocke l'ID unique (ou l'index dans la QList) dans les données cachées du widget
+        // On stocke l'ID unique dans les données cachées du widget
         firstname_widget->setData(Qt::UserRole, id);
 
-        // Insertion d'une nouvelle ligne dans le tableWidget
-        tableWidget->insertRow(row);
-
-        // Remplissage des colonnes (Ajustez les indices 0,1,2... selon vos besoins)
+        // Ajout du widget
         tableWidget->setItem(row, 0, firstname_widget);
-
-        // Remplissage des colonnes (Ajustez les indices 0,1,2... selon vos besoins)
-        // tableWidget->setItem(row, 0, new QTableWidgetItem(firstname));
 
         QTableWidgetItem *cell = new QTableWidgetItem(birthdate_str);
         cell->setTextAlignment(Qt::AlignCenter);
@@ -232,163 +203,20 @@ QTableWidget* MainWindow::fillGeneralTab(QWidget* tab, const QString& jsonString
         row++;
     }
 
-    // connect(tableWidget, &QTableWidget::doubleClicked, this, &MainWindow::createFormWindow);
-
+    // 5. Options
     tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers); // rendre le tableau non editable
     tableWidget->setAlternatingRowColors(true);
     tableWidget->setShowGrid(false); // Rend le rendu encore plus moderne et épuré
-
     tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows); // selection par ligne
     tableWidget->setSelectionMode(QAbstractItemView::SingleSelection); // Ne permettre la sélection que d'une seule ligne à la fois
-    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    tableWidget->setSortingEnabled(true);
+    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // Étirer automatiquement les colonnes sur toute la largeur disponible
+    tableWidget->setSortingEnabled(true);  // active le trie sur les headers
+    tableWidget->verticalHeader()->setVisible(false);     // Cacher les numéros de ligne
 
+    // 6. Signal lors du double clic d'une ligne
     connect(tableWidget, &QTableWidget::cellDoubleClicked, this, &MainWindow::onTableDoubleClicked);
 
     return tableWidget;
-}
-
-QString get_manager_name(const QJsonArray rootArray, const int &manager_id) {
-    for (const QJsonValue& val : rootArray) {
-        if (!val.isObject()) continue;
-        QJsonObject colab = val.toObject();
-
-        int id = colab["id"].toInt();
-        if(id==manager_id)
-        {
-            QString lastname = colab["lastname"].toString();
-            QString firstname = colab["firstname"].toString();
-            return firstname + " " + lastname;
-        }
-    }
-    return "Aucun renseigné";
-}
-
-// Remplissage du 2nd tableau
-QTableWidget* MainWindow::fillPreventionTab(QWidget* tab, const QString& jsonString)
-{
-    // Instanciation du tableau (3 lignes, 3 colonnes)
-    QTableWidget *tableWidget=nullptr;
-
-    // 1. Désérialisation du QString en document JSON
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8(), &parseError);
-
-    if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
-        return tableWidget;
-    }
-
-    // 2. Vérification que la racine est un tableau
-    if (!doc.isArray()) {
-        qWarning() << "Le JSON fourni n'est pas un tableau.";
-        return tableWidget;
-    }
-
-    QJsonArray rootArray = doc.array();
-    if (rootArray.isEmpty() || !rootArray.first().isObject()) {
-        qWarning() << "Le tableau JSON est vide ou ne contient pas d'objet.";
-        return tableWidget;
-    }
-
-    tableWidget = new QTableWidget(rootArray.size(), 6, tab);
-    tableWidget->setHorizontalHeaderLabels({"Prénom", "Nom", "Poste", "Manager", "Plan de prévention", "Plan signé"});
-
-
-    // Étirer automatiquement les colonnes sur toute la largeur disponible
-    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    // Cacher les numéros de ligne
-    tableWidget->verticalHeader()->setVisible(false);
-
-    // On récupère le nombre de collaborateurs
-    this->cmptEmployees = rootArray.size();
-
-    // 3. Préparation du QTableWidget
-    tableWidget->clearContents();
-    tableWidget->setRowCount(0); // Réinitialise les lignes
-
-    int row = 0;
-
-    // 4. Parcours de chaque collaborateur dans l'objet
-    for (const QJsonValue& val : rootArray) {
-        if (!val.isObject()) continue;
-        QJsonObject colab = val.toObject();
-
-        // Récupération des données depuis le JSON
-        QString lastname = colab["lastname"].toString();
-        QString firstname = colab["firstname"].toString();
-        QString job = colab["job"].toString();
-        bool signed_plan = (colab["signed_plan"].toBool());
-        QString signed_plan_str = signed_plan ? "Oui" : "Non";
-        QString plan_str = colab["prev_plan"].toString();
-        int manager_id = colab["manager_id"].toInt();
-        QString manager = get_manager_name(rootArray, manager_id);    // A MODIFIER POUR METTRE LE NOM -> parsing du json puis selection dans tableau l'ID correspondant
-
-        // Insertion d'une nouvelle ligne dans le tableWidget
-        tableWidget->insertRow(row);
-
-        // Remplissage des colonnes (Ajustez les indices 0,1,2... selon vos besoins)
-        tableWidget->setItem(row, 0, new QTableWidgetItem(firstname));
-        tableWidget->setItem(row, 1, new QTableWidgetItem(lastname));
-        tableWidget->setItem(row, 2, new QTableWidgetItem(job));
-        tableWidget->setItem(row, 3, new QTableWidgetItem(manager));
-        tableWidget->setItem(row, 4, new QTableWidgetItem(plan_str));
-        tableWidget->setItem(row, 5, new QTableWidgetItem(signed_plan_str));
-
-        row++;
-    }
-
-    tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers); // rendre le tableau non editable
-    tableWidget->setAlternatingRowColors(true);
-    tableWidget->setShowGrid(false); // Rend le rendu encore plus moderne et épuré
-    tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows); // selection par ligne
-    tableWidget->setSelectionMode(QAbstractItemView::SingleSelection); // Ne permettre la sélection que d'une seule ligne à la fois
-    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    return tableWidget;
-}
-
-// Création du premier onglet (Tableau)
-QWidget* MainWindow::createGeneralTab() {
-    auto *tab = new QWidget();
-    auto *layout = new QVBoxLayout(tab);
-
-    generalTableWidget = fillGeneralTab(tab, jsonDB);
-
-    auto *onLine = new QWidget();
-    auto *onLineLayout = new QHBoxLayout(onLine);
-    auto *addButton = new QPushButton("Ajouter");
-    connect(addButton, &QPushButton::clicked, this, &MainWindow::addingEmployee);
-    auto *exportButton = new QPushButton("Exporter");
-    auto *cmptLabel = new QLabel("Nombre collaborateurs : ");
-    auto *cmptVal = new QLabel(tr("%1").arg(this->cmptEmployees));
-
-    // // Couleur bouton "Ajouter"
-    // QPalette palette = addButton->palette();
-    // palette.setColor(QPalette::ButtonText, Qt::white); // Couleur du texte
-    // palette.setColor(QPalette::Button, QColor(0, 122, 204)); // Couleur du fond
-    // addButton->setPalette(palette);
-
-    // // Couleur bouton "Exporter"
-    // palette = exportButton->palette();
-    // palette.setColor(QPalette::ButtonText, Qt::black); // Couleur du texte
-    // palette.setColor(QPalette::Button, QColor(0, 204, 100)); // Couleur du fond
-    // exportButton->setPalette(palette);
-
-    // RECOMMANDÉ : Forcer le bouton à dessiner son propre fond
-    this->setAutoFillBackground(true);
-
-    onLineLayout->addWidget(addButton);
-    onLineLayout->addWidget(exportButton);
-    onLineLayout->addStretch();
-    onLineLayout->addWidget(cmptLabel);
-    onLineLayout->addWidget(cmptVal);
-
-    layout->addWidget(onLine);
-    layout->addWidget(generalTableWidget);
-
-    return tab;
 }
 
 // Création du second onglet (Formulaire)
@@ -396,13 +224,13 @@ QWidget* MainWindow::createPreventionTab() {
     auto *tab = new QWidget();
     auto *layout = new QVBoxLayout(tab);
 
-    auto *tableWidget = fillPreventionTab(tab, jsonDB);
+    preventionTableWidget = fillPreventionTab(tab);
 
     auto *onLine = new QWidget();
     auto *onLineLayout = new QHBoxLayout(onLine);
     auto *exportButton = new QPushButton("Exporter");
     auto *cmptLabel = new QLabel("Nombre collaborateurs : ");
-    auto *cmptVal = new QLabel(tr("%1").arg(this->cmptEmployees));
+    counterPrevention = new QLabel(tr("%1").arg(employees.size()));
 
     // Couleur bouton "Exporter"
     QPalette palette = exportButton->palette();
@@ -416,22 +244,80 @@ QWidget* MainWindow::createPreventionTab() {
     onLineLayout->addWidget(exportButton);
     onLineLayout->addStretch();
     onLineLayout->addWidget(cmptLabel);
-    onLineLayout->addWidget(cmptVal);
+    onLineLayout->addWidget(counterPrevention);
 
     layout->addWidget(onLine);
-
-    // Étirer automatiquement les colonnes sur toute la largeur disponible
-    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    // Cacher les numéros de ligne
-    tableWidget->verticalHeader()->setVisible(false);
-
-    tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers); // rendre le tableau non editable
-    layout->addWidget(tableWidget);
+    layout->addWidget(preventionTableWidget);
     return tab;
 }
 
-// Création du Formulaire
+// Remplissage du 2nd tableau
+QTableWidget* MainWindow::fillPreventionTab(QWidget* tab)
+{
+    // Instanciation du tableau (3 lignes, 3 colonnes)
+    QTableWidget *tableWidget=nullptr;
+
+    tableWidget = new QTableWidget(employees.size(), 6, tab);
+    tableWidget->setHorizontalHeaderLabels({"Prénom", "Nom", "Poste", "Manager", "Plan de prévention", "Plan signé"});
+
+    // 3. Préparation du QTableWidget
+    tableWidget->clearContents();
+    tableWidget->setRowCount(0); // Réinitialise les lignes
+
+    int row = 0;
+
+    // 4. Parcours de chaque collaborateur dans l'objet
+    for (const Employee &e : employees) {
+
+        // Récupération des données        
+        int id = e.id();
+        QString lastname{e.lastname().c_str()};
+        QString firstname{e.firstname().c_str()};
+        QString job{e.job().c_str()};
+        QString signed_plan_str = e.signed_plan() ? "Oui" : "Non";
+        QString plan_str = e.prev_plan().c_str();
+        int manager_id = e.manager_id();
+        QString manager = get_manager_name(manager_id);
+
+        // Insertion d'une nouvelle ligne dans le tableWidget
+        tableWidget->insertRow(row);
+
+        QTableWidgetItem *firstname_widget = new QTableWidgetItem(firstname);
+        firstname_widget->setTextAlignment(Qt::AlignCenter);
+        firstname_widget->setData(Qt::UserRole, id);
+
+        // Remplissage des colonnes (Ajustez les indices 0,1,2... selon vos besoins)
+        tableWidget->setItem(row, 0, firstname_widget);
+        tableWidget->setItem(row, 1, new QTableWidgetItem(lastname));
+        tableWidget->setItem(row, 2, new QTableWidgetItem(job));
+        tableWidget->setItem(row, 3, new QTableWidgetItem(manager));
+        tableWidget->setItem(row, 4, new QTableWidgetItem(plan_str));
+        tableWidget->setItem(row, 5, new QTableWidgetItem(signed_plan_str));
+
+        row++;
+    }
+
+    // 5. Options
+    tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers); // rendre le tableau non editable
+    tableWidget->setAlternatingRowColors(true);
+    tableWidget->setShowGrid(false); // Rend le rendu encore plus moderne et épuré
+    tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows); // selection par ligne
+    tableWidget->setSelectionMode(QAbstractItemView::SingleSelection); // Ne permettre la sélection que d'une seule ligne à la fois
+    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // Étirer automatiquement les colonnes sur toute la largeur disponible
+    tableWidget->setSortingEnabled(true);  // active le trie sur les headers
+    tableWidget->verticalHeader()->setVisible(false);     // Cacher les numéros de ligne
+
+    // 6. Center text in cells
+    for (int row = 0; row < tableWidget->rowCount(); ++row) {
+        for (int col = 0; col < tableWidget->columnCount(); ++col) {
+            tableWidget->item(row, col)->setTextAlignment(Qt::AlignCenter);
+        }
+    }
+
+    return tableWidget;
+}
+
+// Création du Formulaire d'ajout
 void MainWindow::addingEmployee() {
     // Instanciation du dialogue avec 'this' en parent
     FormWindow dialog(managers);
@@ -443,12 +329,10 @@ void MainWindow::addingEmployee() {
         Employee e = dialog.toEmployee();
         // qDebug() << "Formualire saisie :" << e.to_JSON();
         std::string json = "[" + e.to_JSON() + "]";
+        employees.append(e);
 
         // Appel du service HTTP pour envoyer le JSON au serveur
         apiClient->sendPostEmployeeRequest(json);
-        generalTableWidget->insertRow(cmptEmployees);
-        generalTableWidget->setItem(cmptEmployees, 0, new QTableWidgetItem(QString::fromStdString(e.firstname())));
-        generalTableWidget->selectRow(cmptEmployees);
     }
     else
     {
@@ -457,7 +341,7 @@ void MainWindow::addingEmployee() {
     }
 }
 
-// Slot activé lors du clic sur la ligne du premier onglet
+// Slot activé lors du clic sur la ligne du premier onglet pour modification via formulaire
 void MainWindow::onTableDoubleClicked(int row, int column)
 {
     Q_UNUSED(column); // On ignore la colonne cliquée car on veut toute la ligne
@@ -476,16 +360,6 @@ void MainWindow::onTableDoubleClicked(int row, int column)
                                return c.id() == id;
                            });
 
-    // apiClient->sendGetEmployeeRequest(id);
-    // Employee e(QString::fromUtf8(apiClient->getResponseData()).toStdString());
-    // int indice = 0;
-    // for (int var = 0; var < employees.size(); ++var) {
-    //     if(employees[var].id()==id)
-    //         indice = var;
-    // }
-    // Employee e = employees[indice];
-
-
     if (it != employees.end())
     {
 
@@ -498,11 +372,14 @@ void MainWindow::onTableDoubleClicked(int row, int column)
         {
             // L'utilisateur a cliqué sur "Valider"
             Employee e = dialog.toEmployee();
-            qDebug() << "Formualire saisie :" << e.to_JSON();
             std::string json = "[" + e.to_JSON() + "]";
+            // qDebug() << "Formualire saisie :" << e.to_JSON();
+            *it = e;
 
             // Appel du service HTTP pour envoyer le JSON au serveur
             apiClient->sendPutEmployeeRequest(json, id);
+
+            updateRows(row, e); // update in GeneralTab and other tab
         }
         else
         {
@@ -512,4 +389,105 @@ void MainWindow::onTableDoubleClicked(int row, int column)
 
     }
 
+}
+
+// Update local values
+void MainWindow::updateRows(const int &row, const Employee &e) {
+
+    QString executive_status_str = e.is_executive() ? "Executive status" : "No executive status";
+
+    QString plan_signed_str = e.signed_plan() ? "Oui" : "Non";
+
+    QString position = QString::number(e.position());
+    QString coef = QString::number(e.coefficient());
+
+    QTableWidgetItem *firstname_widget = new QTableWidgetItem(QString::fromStdString(e.firstname()));
+    firstname_widget->setData(Qt::UserRole, e.id()); // ajout de l'ID caché
+
+    ///////////////// update General Tab
+    generalTableWidget->setItem(row, 0, firstname_widget);
+    generalTableWidget->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(e.birthdate().toString())));
+    generalTableWidget->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(e.job())));
+    generalTableWidget->setItem(row, 3, new QTableWidgetItem(executive_status_str));
+    generalTableWidget->setItem(row, 4, new QTableWidgetItem(position));
+    generalTableWidget->setItem(row, 5, new QTableWidgetItem(coef));
+    generalTableWidget->setItem(row, 6, new QTableWidgetItem(QString::fromStdString(e.start_date().toString())));
+
+    for (int col = 0; col < generalTableWidget->columnCount(); ++col) {
+        if (auto item = generalTableWidget->item(row, col)) {
+            item->setTextAlignment(Qt::AlignCenter);
+        }
+    }
+    generalTableWidget->selectRow(row);
+
+
+
+    ////////////// update Prevention Table
+
+    // find row of the employee in Prevention tab
+    int rowPrevention = preventionTableWidget->rowCount()-1; // initialise à la dernière ligne si ajout d'un collab
+    QTableWidgetItem *firstCell;
+    for(int iRow=0; iRow<preventionTableWidget->rowCount()-1;iRow++) {
+        firstCell = preventionTableWidget->item(iRow, 0);
+        if (!firstCell) return;
+
+        // Extraire l'ID qu'on avait caché dedans avec Qt::UserRole
+        int id = firstCell->data(Qt::UserRole).toInt();
+
+        if(id==e.id()) {
+            rowPrevention = iRow;
+            break;
+        }
+    }
+    preventionTableWidget->setItem(rowPrevention, 0, firstname_widget->clone());
+    preventionTableWidget->setItem(rowPrevention, 1, new QTableWidgetItem(QString::fromStdString(e.lastname())));
+    preventionTableWidget->setItem(rowPrevention, 2, new QTableWidgetItem(QString::fromStdString(e.job())));
+    preventionTableWidget->setItem(rowPrevention, 3, new QTableWidgetItem(get_manager_name(e.manager_id())));
+    preventionTableWidget->setItem(rowPrevention, 4, new QTableWidgetItem(QString::fromStdString(e.prev_plan())));
+    preventionTableWidget->setItem(rowPrevention, 5, new QTableWidgetItem(plan_signed_str));
+    preventionTableWidget->selectRow(rowPrevention);
+    for (int col = 0; col < preventionTableWidget->columnCount(); ++col) {
+        if (auto item = preventionTableWidget->item(rowPrevention, col)) {
+            item->setTextAlignment(Qt::AlignCenter);
+        }
+    }
+
+}
+
+void MainWindow::onEmployeeAdded(int id) {
+
+    qDebug() << "Employé ajouté dans BDD avec id =" << id;
+
+    employees.back().set_id(id);
+
+    // update en local
+    generalTableWidget->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
+    preventionTableWidget->setSortingEnabled(false);
+
+    generalTableWidget->insertRow(employees.size()-1);
+    preventionTableWidget->insertRow(employees.size()-1);
+
+    updateRows(employees.size()-1, employees.back());
+
+    generalTableWidget->setSortingEnabled(true);
+    preventionTableWidget->setSortingEnabled(true);
+    updateCmpt();
+}
+void MainWindow::updateCmpt() {
+    counterGeneral->setText(QString::fromStdString(to_string(employees.size())));
+    counterPrevention->setText(QString::fromStdString(to_string(employees.size())));
+}
+
+// Get manager name on employee ID
+QString MainWindow::get_manager_name(const int &manager_id) {
+    for (const Employee &e : employees) {
+        int id = e.id();
+        if(id==manager_id)
+        {
+            QString lastname = e.lastname().c_str();
+            QString firstname = e.firstname().c_str();
+            return firstname + " " + lastname;
+        }
+    }
+    return "Aucun renseigné";
 }

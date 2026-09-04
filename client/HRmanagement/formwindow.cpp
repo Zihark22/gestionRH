@@ -1,6 +1,8 @@
 #include "formwindow.hpp"
 
-FormWindow::FormWindow(const QStringList &managers)
+QStringList FormWindow::optionsPlan = {"Plan A", "Plan B", "Plan C"};
+
+FormWindow::FormWindow(const QList<QPair<int, QString>> &managers)
     : QDialog()
 {
     setWindowTitle("Nouveau collaborateur");
@@ -38,16 +40,17 @@ FormWindow::FormWindow(const QStringList &managers)
     m_startDate->setCalendarPopup(true); // Affiche un calendrier au clic
 
     m_planCombo = new QComboBox(this);
-    m_planCombo->addItems({"", "Plan A", "Plan B", "Plan C"});
+    m_planCombo->addItems(FormWindow::optionsPlan);
 
     m_manager = new QComboBox(this);
-    m_manager->addItems(managers);
-
-    m_manager->addItems(managers);
+    for (const auto &pair : managers) {
+        m_manager->addItem(pair.second, pair.first);
+    }
 
     m_signedPlanBox = new QCheckBox("Plan signé", this);
     m_signedPlanBox->setChecked(true);
 
+    m_id = -1;
 
     // Ajout des paires Libellé -> Champ au layout de formulaire
     formLayout->addRow("Nom :", m_txtLastname);
@@ -82,13 +85,16 @@ FormWindow::FormWindow(const QStringList &managers)
     connect(m_btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-FormWindow::FormWindow(const Employee &e, const QStringList &managers)
+FormWindow::FormWindow(const Employee &e, const QList<QPair<int, QString>> &managers)
     : QDialog()
 {
     setWindowTitle("Modifier collaborateur");
     resize(500, 400);
 
     // Formulaire
+
+    m_id = e.id();
+
     QFormLayout *formLayout = new QFormLayout();
     m_txtLastname = new QLineEdit(QString::fromStdString(e.lastname()), this);
     m_txtFirstname = new QLineEdit(QString::fromStdString(e.firstname()), this);
@@ -119,14 +125,9 @@ FormWindow::FormWindow(const Employee &e, const QStringList &managers)
     m_startDate->setCalendarPopup(true); // Affiche un calendrier au clic
 
     m_planCombo = new QComboBox(this);
-    m_planCombo->addItems({"", "Plan A", "Plan B", "Plan C"});
-    int ind = 0;
-    if(e.prev_plan()=="Plan A")
-        ind = 1;
-    else if(e.prev_plan()=="Plan B")
-            ind = 2;
-    else if(e.prev_plan()=="Plan C")
-        ind = 3;
+    m_planCombo->addItems(FormWindow::optionsPlan);
+    // int ind = 0;
+    int ind = FormWindow::optionsPlan.indexOf(e.prev_plan());
     m_planCombo->setCurrentIndex(ind);
 
     m_signedPlanBox = new QCheckBox("Plan signé", this);
@@ -136,7 +137,11 @@ FormWindow::FormWindow(const Employee &e, const QStringList &managers)
         m_signedPlanBox->setChecked(false);
 
     m_manager = new QComboBox(this);
-    m_manager->addItems(managers);
+    for (const auto &pair : managers) {
+        m_manager->addItem(pair.second, pair.first);
+        if(e.manager_id()==pair.first)
+            m_manager->setCurrentIndex(m_manager->count()-1);
+    }
 
     // Ajout des paires Libellé -> Champ au layout de formulaire
     formLayout->addRow("Nom :", m_txtLastname);
@@ -169,9 +174,6 @@ FormWindow::FormWindow(const Employee &e, const QStringList &managers)
     // Relier les boutons aux slots intégrés de QDialog (accept/reject)
     connect(m_btnValider, &QPushButton::clicked, this, &QDialog::accept);
     connect(m_btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
-
-    // qDebug() << "Depuis formulaire\n" << QString::fromUtf8(parent->getApi()->getResponseData()).toStdString();
-
 }
 
 Employee FormWindow::toEmployee() {
@@ -198,6 +200,10 @@ Employee FormWindow::toEmployee() {
     e.set_prev_plan(m_planCombo->currentText().toStdString());
 
     e.set_job(m_jobEdit->text().toStdString());
+
+    e.set_manager_id(m_manager->currentData().toInt());
+
+    e.set_id(m_id);
 
     return e;
 }

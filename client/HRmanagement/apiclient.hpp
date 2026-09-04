@@ -8,6 +8,10 @@
 #include <QUrl>
 #include <QDebug>
 #include <QEventLoop> // Ne pas oublier cet include pour requete bloquante
+#include <QJsonDocument>
+#include <QJsonParseError>
+#include <QJsonArray>
+#include <QJsonObject>
 
 class ApiClient : public QObject {
     Q_OBJECT
@@ -27,6 +31,7 @@ public:
 signals:
     // Signal émis quand la requête est terminée pour indiquer à l'application qu'elle peut quitter
     void finished();
+    void employeeAdded(int newId);
 
 private:
     QNetworkAccessManager *networkManager;

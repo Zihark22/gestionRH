@@ -52,9 +52,6 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    // getters
-    ApiClient* getApi();
-
 private slots:
     void onTableDoubleClicked(int row, int column); // signal pour ouvrir le formulaire en double cliquant sur une ligne
 
@@ -64,21 +61,26 @@ private:
     QWidget* createPreventionTab();
 
     // Remplir les onglets
-    QTableWidget* fillGeneralTab(QWidget* tab, const QString& jsonString);
-    QTableWidget* fillPreventionTab(QWidget* tab, const QString& jsonString);
+    QTableWidget* fillGeneralTab(QWidget* tab);
+    QTableWidget* fillPreventionTab(QWidget* tab);
 
     // Création du formulaire pour ajout
     void addingEmployee();
+    void onEmployeeAdded(int id);
 
     void parseMyJson();
     void extractManagers();
+    void updateRows(const int &row, const Employee &e);
+    void updateCmpt();
+    QString get_manager_name(const int &manager_id);
 
     // Attributs
-    int cmptEmployees; // compteur d'employés
     ApiClient *apiClient; // API features
-    QString jsonDB; // donnees JSON de la BDD transmises en HTTP
     QTableWidget* generalTableWidget; // onglet general
+    QTableWidget* preventionTableWidget; // onglet prevention
     QList<Employee> employees;
-    QStringList managers;
+    QList<QPair<int, QString>> managers;
+    QLabel *counterGeneral;
+    QLabel *counterPrevention;
 };
 #endif // MAINWINDOW_HPP

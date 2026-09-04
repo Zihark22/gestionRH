@@ -122,8 +122,8 @@ Employee::Employee(const string &jsonStr) {
     if (!managerIdStr.empty())    m_manager_id = stoi(managerIdStr);
     if (!startDate.empty())       m_start_date = Date(startDate);
     if (!idStr.empty())           m_id = stoi(idStr); else m_id = -1; // laisse la base de donnée mettre l'id
-
 }
+
 
 
 string Employee::to_JSON() const {
@@ -136,7 +136,7 @@ string Employee::to_JSON() const {
     json += "\"birthdate\":\"" + m_birthdate.toString() + "\",";
     json += "\"job\":\"" + m_job + "\",";
     json += "\"executive_status\":" + string(m_executive_status ? "true" : "false") + ",";
-    json += "\"position\":" + to_string(m_position) + ",";
+    json += "\"position\":" + QString::number(m_position, 'f', 2).toStdString() + ",";
     json += "\"coefficient\":" + to_string(m_coefficient) + ",";
     json += "\"start_date\":\"" + m_start_date.toString() + "\",";
     json += "\"manager_id\":" + to_string(m_manager_id) + ",";
@@ -154,10 +154,11 @@ void Employee::display(void) const {
     qDebug() << "\tBirthdate: " << m_birthdate.toString() ;
     qDebug() << "\tPoste: " << m_job ;
     qDebug() << "\tIs Cadre: " << (m_executive_status ? "Yes" : "No") ;
-    qDebug() << "\tPosition Syntec: " << m_position ;
+    qDebug() << "\tPosition Syntec: " << QString::number(m_position, 'f', 2).toStdString() ;
     qDebug() << "\tCoefficient: " << m_coefficient ;
     qDebug() << "\tStart Date: " << m_start_date.toString() ;
     qDebug() << "\tManager ID: " << m_manager_id ;
     qDebug() << "\tPrev Plan: " << m_prev_plan ;
     qDebug() << "\tSigned Plan: " << (m_signed_plan ? "Yes" : "No") ;
 }
+
