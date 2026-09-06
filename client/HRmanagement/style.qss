@@ -7,6 +7,10 @@ QMainWindow {
     background-color: #F8F9FD; /* Blanc cassé très doux */
 }
 
+QDialog {
+    background-color: #F8F9FD; /* Blanc cassé très doux */
+}
+
 QWidget {
     color: #2D3748; /* Gris anthracite pour un contraste lisible et reposant */
     font-family: "Segoe UI", Arial, sans-serif;
@@ -126,7 +130,7 @@ QPushButton:disabled {
 }
 
 /* --- Champs de saisie (QLineEdit, etc.) --- */
-QLineEdit, QSpinBox, QDateEdit {
+QLineEdit, QSpinBox, QDateEdit, QDoubleSpinBox {
     background-color: #FFFFFF;
     border: 1px solid #CBD5E1;
     border-radius: 6px;
@@ -134,9 +138,75 @@ QLineEdit, QSpinBox, QDateEdit {
     color: #1E293B;
 }
 
-QLineEdit:focus, QSpinBox:focus, QDateEdit:focus {
+QLineEdit:focus, QSpinBox:focus, QDateEdit:focus, QDoubleSpinBox:focus{
     border: 2px solid #7C3AED; /* Focus violet */
 }
+QCheckBox {
+    background-color: #FFFFFF;
+
+}
+QComboBox {
+    background-color: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #1E293B;
+}
+QComboBox::item {
+    background-color: #FFFFFF;
+}
+
+QComboBox::item:selected {
+    background-color: #6D28D9;
+    color: white;
+}
+
+
+
+
+
+
+
+/* Calendar Popup Container */
+QCalendarWidget {
+    background-color: white;
+    border: 1px solid gray;
+}
+
+/* Navigation Bar (Month/Year buttons) */
+QCalendarWidget QWidget#qt_calendar_navigationbar {
+    background-color: #6D28D9;
+}
+
+/* Navigation Buttons */
+QCalendarWidget QToolButton {
+    color: white;
+    background-color: none;
+}
+
+/* Day Grid (Active Days) */
+QCalendarWidget QAbstractItemView:enabled {
+    color: black;
+    background-color: white;
+    selection-background-color: #6D28D9; /* Selected day */
+    selection-color: white;
+}
+
+/* Inactive Days (Previous/Next Month) */
+QCalendarWidget QAbstractItemView:disabled {
+    color: gray;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /* --- Barres de Défilement (QScrollBar) --- */
 QScrollBar:vertical {
