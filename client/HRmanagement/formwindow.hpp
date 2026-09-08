@@ -27,8 +27,9 @@
 class FormWindow : public QDialog
 {
 public:
-    FormWindow(const QList<QPair<int, QString>> &managers);
-    FormWindow(const Employee &e, const QList<QPair<int, QString>> &managers);
+    explicit FormWindow(QWidget *parent = nullptr);
+    explicit FormWindow(const QList<QPair<int, QString>> &managers, QWidget *parent = nullptr);
+    explicit FormWindow(const Employee &e, const QList<QPair<int, QString>> &managers,QWidget *parent = nullptr);
     static QStringList optionsPlan;
 
     // Getters pour récupérer la saisie après validation
@@ -48,6 +49,7 @@ private:
     QSpinBox *m_coefSyntSpinBox;
     QComboBox *m_planCombo;
     QComboBox *m_manager;
+    QFormLayout *formLayout;
     int m_id;
 
 };

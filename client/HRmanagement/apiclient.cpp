@@ -1,10 +1,9 @@
 #include "apiclient.hpp"
 
+// Constructeur
 ApiClient::ApiClient(QObject *parent) : QObject(parent) {
     this->networkManager = new QNetworkAccessManager(this);
     this->load_config(":/config.ini");
-    this->status = this->sendGetConfigRequest();
-    this->status = this->sendGetEmployeeRequest(0); // load everything
 }
 void ApiClient::load_config(const std::string& file_path) {
     QResource res(QString::fromStdString(file_path));
@@ -31,16 +30,15 @@ void ApiClient::load_config(const std::string& file_path) {
             }
         }
     } else {
-        qWarning() << "Impossible de trouver la ressource :/file.in";
+        QString er = "Impossible de trouver la ressource : ";
+        er += file_path;
+        qWarning() << er;
+        errorMsg = er;
     }
 }
-QByteArray ApiClient::getResponseData() {
-    return responseData;
-}
-int ApiClient::getStatus() {
-    return this->status;
-}
-int ApiClient::sendGetEmployeeRequest(int id) {
+
+// Méthode API REST
+void ApiClient::sendGetEmployeeRequest(int id) {
     QString apiURL = "http://"+host+":"+QString::number(port)+"/api/employees";
     if(id>0)
         apiURL += "/"+std::to_string(id);
@@ -68,23 +66,26 @@ int ApiClient::sendGetEmployeeRequest(int id) {
         // // Succès : Affichage dans la console
         // qDebug() << "\n--- Réponse du serveur ---";
         // qDebug() << QString::fromUtf8(responseData).toStdString();
+        status = 0;
+        errorMsg = "";
 
         // Nettoyage
         reply->deleteLater();
         emit finished();
 
-        return 0;
     } else {
         qCritical().noquote() << "Erreur :" << reply->errorString();
+        errorMsg = reply->errorString();
+        status = -1;
+        emit errorReachingApiServer();
 
         // Nettoyage
         reply->deleteLater();
         emit finished();
 
-        return -1;
     }
 }
-int ApiClient::sendPostEmployeeRequest(const std::string &json) {
+void ApiClient::sendPostEmployeeRequest(const std::string &json) {
     QString apiURL = "http://"+host+":"+QString::number(port)+"/api/employees";
     QUrl url(apiURL);
     QNetworkRequest request(url);
@@ -106,7 +107,7 @@ int ApiClient::sendPostEmployeeRequest(const std::string &json) {
           // Vérification des erreurs de parsing
             if (parseError.error != QJsonParseError::NoError) {
                 qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
-                return;
+                status = -1;
             }
 
             // Vérifier qu'il s'agit bien d'un tableau JSON (Array)
@@ -128,15 +129,17 @@ int ApiClient::sendPostEmployeeRequest(const std::string &json) {
         } else {
             qDebug() << "Erreur HTTP :" << reply->errorString();
             qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-            qDebug() << "Détails réponse :" << reply->readAll();
+            qDebug() << "Détails réponse :" << reply->readAll();            
+            status = -1;
+            this->errorMsg = reply->errorString();
         }
 
         // Très important en Qt : libérer la mémoire de la réponse
         reply->deleteLater();
     });
-    return 0;
+    status = 0;
 }
-int ApiClient::sendPutEmployeeRequest(const std::string &json, const int &id) {
+void ApiClient::sendPutEmployeeRequest(const std::string &json, const int &id, const int row, const Employee &e) {
     QString u = "http://"+host+":"+QString::number(port)+"/api/employees/" + QString::number(id);
     QString apiURL(u);
     QUrl url(apiURL);
@@ -150,22 +153,26 @@ int ApiClient::sendPutEmployeeRequest(const std::string &json, const int &id) {
     QNetworkReply *reply = networkManager->put(request, data);
 
     // Gérer la réponse de manière asynchrone
-    QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+    QObject::connect(reply, &QNetworkReply::finished, [this, reply, row, e]() {
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseD = reply->readAll();
             qDebug() << "Succès ! Réponse API :" << responseD;
+            emit employeeModified(row, e);
         } else {
             qDebug() << "Erreur HTTP :" << reply->errorString();
             qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qDebug() << "Détails réponse :" << reply->readAll();
+            this->errorMsg = reply->errorString();
+            status = -1;
+            emit errorReachingApiServer();
         }
 
         // Très important en Qt : libérer la mémoire de la réponse
         reply->deleteLater();
     });
-    return 0;
+    status = 0;
 }
-int ApiClient::sendGetConfigRequest() {
+void ApiClient::sendGetConfigRequest() {
     QString apiURL = "http://"+host+":"+QString::number(port)+"/api/config";
     QUrl url(apiURL);
     QNetworkRequest request(url);
@@ -176,50 +183,90 @@ int ApiClient::sendGetConfigRequest() {
     // Convertir le std::string en QByteArray (garde les octets UTF-8 tels quels)
     QNetworkReply *reply = networkManager->get(request);
 
-    // Gérer la réponse de manière asynchrone
-    QObject::connect(reply, &QNetworkReply::finished, [reply]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            QByteArray responseD = reply->readAll();
-            QJsonParseError parseError;
-            QJsonDocument doc{QJsonDocument::fromJson(responseD, &parseError)};
 
-            // Vérification des erreurs de parsing
-            if (parseError.error != QJsonParseError::NoError) {
-                qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
-                return;
-            }
+    // Création d'une boucle d'événements locale
+    QEventLoop loop;
 
-            // Vérifier qu'il s'agit bien d'un tableau JSON (Array)
-            if (doc.isArray()) {
-                QJsonArray jsonArray = doc.array();
+    // Connexion de la fin de la requête pour débloquer la boucle
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
 
-                // Vérifier qu'on a bien au moins 1 élément
-                if (jsonArray.size() >= 1) {
+    // Bloque l'exécution ICI jusqu'à ce que loop.quit() soit appelé
+    loop.exec();
 
-                    QJsonObject obj = jsonArray.at(0).toObject();
+    // 4. Traitement de la réponse UNE FOIS LA REQUÊTE TERMINÉE
+    if (reply->error() == QNetworkReply::NoError) {
+        responseData = reply->readAll();
 
-                    //Utilisation d'une boucle range-based moderne (C++17/20 & Qt6)
-                    for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
-                        QString key = it.key();
-                        QString valueStr = it.value().toVariant().toString(); // toVariant universel pour convertir même les nombres
+        QJsonParseError parseError;
+        QJsonDocument doc{QJsonDocument::fromJson(responseData, &parseError)};
 
-                        qDebug().noquote() << key << " = " << valueStr;
-                    }
-                }
-            }
-        } else {
-            qDebug() << "Erreur HTTP :" << reply->errorString();
-            qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-            qDebug() << "Détails réponse :" << reply->readAll();
+        // Vérification des erreurs de parsing
+        if (parseError.error != QJsonParseError::NoError) {
+            qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
+            status = -1;
+            errorMsg =  parseError.errorString();
         }
 
-        // Très important en Qt : libérer la mémoire de la réponse
+        // Vérifier qu'il s'agit bien d'un tableau JSON (Array)
+        if (doc.isArray()) {
+            QJsonArray jsonArray = doc.array();
+
+            // Vérifier qu'on a bien au moins 1 élément
+            if (jsonArray.size() >= 1) {
+
+                QJsonObject obj = jsonArray.at(0).toObject();
+
+                //Utilisation d'une boucle range-based moderne (C++17/20 & Qt6)
+                for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
+                    QString key = it.key();
+                    QString valueStr = it.value().toVariant().toString(); // toVariant universel pour convertir même les nombres
+
+                    qDebug().noquote() << key << " = " << valueStr;
+                }
+            }
+        }
+
+        // Nettoyage
         reply->deleteLater();
-    });
-    return 0;
+        emit finished();
+        status = 0;
+    }
+    else {
+        errorMsg = reply->errorString();
+        status = -1;
+        qCritical().noquote() << "Erreur :" << errorMsg;
+
+        // Nettoyage
+        reply->deleteLater();
+        emit finished();
+
+    }
 }
-int ApiClient::sendPutConfigRequest(const std::string &json) {
-    QString apiURL = "http://"+host+":"+QString::number(port)+"/api/employees";
+void ApiClient::sendPutConfigRequest(const std::string &json) {
+    // QJsonParseError parseError;
+    // QJsonDocument doc{QJsonDocument::fromJson(QString::fromStdString(json).toUtf8(), &parseError)};
+
+    // // Vérification des erreurs de parsing
+    // if (parseError.error != QJsonParseError::NoError) {
+    //     qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
+    //     return -1;
+    // }
+
+    // // Vérifier qu'il s'agit bien d'un tableau JSON (Array)
+    // if (!doc.isArray()) {
+    //     qWarning() << "Erreur de JSON : il n'est pas sous forme de array";
+    //     return -1;
+    // }
+    // QJsonArray jsonArray = doc.array();
+
+    // // Vérifier qu'on a bien au moins 1 élément
+    // if (jsonArray.size() >= 1) {
+    //     QJsonObject obj = jsonArray.at(0).toObject();
+    //     port = obj.value("port").toInt();
+    //     host = obj.value("host").toString();
+    // }
+
+    QString apiURL = "http://"+host+":"+QString::number(port)+"/api/config";
     QUrl url(apiURL);
     QNetworkRequest request(url);
 
@@ -228,45 +275,47 @@ int ApiClient::sendPutConfigRequest(const std::string &json) {
 
     // Convertir le std::string en QByteArray (garde les octets UTF-8 tels quels)
     QByteArray data = QByteArray::fromStdString(json);
-    QNetworkReply *reply = networkManager->post(request, data);
+    QNetworkReply *reply = networkManager->put(request, data);
 
     // Gérer la réponse de manière asynchrone
-    QObject::connect(reply, &QNetworkReply::finished, [this, reply]() {
+    QObject::connect(reply, &QNetworkReply::finished, [this, reply, json]() {
         if (reply->error() == QNetworkReply::NoError) {
-            QByteArray responseD = reply->readAll();
-            QJsonParseError parseError;
-            QJsonDocument doc{QJsonDocument::fromJson(responseD, &parseError)};
-
-            // Vérification des erreurs de parsing
-            if (parseError.error != QJsonParseError::NoError) {
-                qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
-                return;
-            }
-
-            // Vérifier qu'il s'agit bien d'un tableau JSON (Array)
-            if (doc.isArray()) {
-                QJsonArray jsonArray = doc.array();
-
-                // Vérifier qu'on a bien au moins 1 élément
-                if (jsonArray.size() >= 1) {
-
-                    QJsonObject obj = jsonArray.at(0).toObject();
-
-                    // Extraction des valeurs du premier objet :
-                    int val = obj.value("id").toInt();
-
-                    // Emet le signal connecté à mainwindow
-                    emit employeeAdded(val);
-                }
-            }
+            emit configModified(json);
         } else {
             qDebug() << "Erreur HTTP :" << reply->errorString();
             qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qDebug() << "Détails réponse :" << reply->readAll();
+            errorMsg = reply->errorString();
+            status = -1;
         }
 
         // Très important en Qt : libérer la mémoire de la réponse
         reply->deleteLater();
     });
-    return 0;
+    status = 0;
+}
+
+// setters
+void ApiClient::setHost(const QString &host) {
+    this->host = host;
+}
+void ApiClient::setPort(const int &port) {
+    this->port = port;
+}
+
+// getters
+int ApiClient::getPort() {
+    return this->port;
+}
+QString ApiClient::getHost() {
+    return this->host;
+}
+QByteArray ApiClient::getResponseData() {
+    return responseData;
+}
+int ApiClient::getStatus() {
+    return this->status;
+}
+QString ApiClient::getMsg() {
+    return this->errorMsg;
 }

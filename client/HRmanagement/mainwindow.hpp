@@ -4,6 +4,8 @@
 #include "apiclient.hpp"
 #include "employee.hpp"
 #include "formwindow.hpp"
+#include "configserverwindow.h"
+#include "configappwindow.h"
 
 // Main
 #include <QApplication>
@@ -67,12 +69,20 @@ private:
     // Création du formulaire pour ajout
     void addingEmployee();
     void onEmployeeAdded(int id);
+    void onEmployeeModified(const int row, const Employee &e);
+    void onConfigModified(const std::string json);
+    void errorDisplay();
 
     void parseMyJson();
     void extractManagers();
     void updateRows(const int &row, const Employee &e);
     void updateCmpt();
     QString get_manager_name(const int &manager_id);
+    void openConfigServerWindow();
+    void openConfigAppWindow();
+
+    void reloadData();
+    void openLogs();
 
     // Attributs
     ApiClient *apiClient; // API features

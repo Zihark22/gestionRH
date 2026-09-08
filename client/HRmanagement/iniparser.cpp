@@ -8,7 +8,7 @@ string IniParser::trim(const string& str) {
     return str.substr(first, (last - first + 1));
 }
 
-// Méthode principale de parsing
+// Méthode principale de parsing depuis le chemin du fichier
 vector<SectionConfig> IniParser::parse(const string& filepath) {
     vector<SectionConfig> sections;
     ifstream file(filepath);
@@ -71,7 +71,7 @@ vector<SectionConfig> IniParser::parse(const string& filepath) {
     return sections;
 }
 
-// Méthode principale de parsing
+// Méthode principale de parsing depuis un flux du fichier
 vector<SectionConfig> IniParser::parseFromString(std::string_view content) {
     vector<SectionConfig> sections;
 

@@ -10,6 +10,8 @@ CONFIG += c++17
 
 SOURCES += \
     apiclient.cpp \
+    configappwindow.cpp \
+    configserverwindow.cpp \
     date.cpp \
     employee.cpp \
     formwindow.cpp \
@@ -19,6 +21,8 @@ SOURCES += \
 
 HEADERS += \
     apiclient.hpp \
+    configappwindow.h \
+    configserverwindow.h \
     date.hpp \
     employee.hpp \
     formwindow.hpp \

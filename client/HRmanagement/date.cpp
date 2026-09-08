@@ -180,8 +180,6 @@ bool operator>=(Date const& a, Date const& b) {
         }
     }
 }
-
-
 std::ostream &operator<<(std::ostream &flux, Date const& m_date) {
     // a faire
     flux << m_date.toString();

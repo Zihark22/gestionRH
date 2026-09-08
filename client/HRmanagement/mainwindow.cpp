@@ -7,59 +7,45 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     // Connexion du signal d'ajout à une méthode
     connect(apiClient, &ApiClient::employeeAdded, this, &MainWindow::onEmployeeAdded);
+    connect(apiClient, &ApiClient::employeeModified, this, &MainWindow::onEmployeeModified);
+    connect(apiClient, &ApiClient::configModified, this, &MainWindow::onConfigModified);
+    connect(apiClient, &ApiClient::errorReachingApiServer, this, &MainWindow::errorDisplay);
 
     setWindowTitle("ERP Scalian - RH management");
     resize(900, 800);
 
     QMenuBar *bar = menuBar();
-    QMenu *fileMenu = bar->addMenu("&Paramètres");
-    QAction *logsAction = fileMenu->addAction(tr("Open &Logs"));
-    QAction *configAppAction = fileMenu->addAction(tr("Config &App"));
-    QAction *configServAction = fileMenu->addAction(tr("Config &Server"));
-    QAction *quitAction = fileMenu->addAction(tr("E&xit"));
+
+    QMenu *appMenu = bar->addMenu("Application");
+    QAction *reloadAction = appMenu->addAction(tr("Reload"));
+    reloadAction->setShortcut(QKeySequence(tr("Ctrl+R")));
+    connect(reloadAction, &QAction::triggered, this, &MainWindow::reloadData);
+    QAction *quitAction = appMenu->addAction(tr("E&xit"));
     quitAction->setShortcuts(QKeySequence::Quit);
     connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
-    if(apiClient->getStatus()) {
-        // QTimer::singleShot(0, this, &QMainWindow::close);
-        // 1. Création d'un QLabel pour l'erreur
-        QLabel *errorLabel = new QLabel(this);
+    QMenu *paramMenu = bar->addMenu("&Paramètres");
+    QAction *logsAction = paramMenu->addAction(tr("Open &Logs"));
+    logsAction->setShortcut(QKeySequence(tr("Ctrl+L")));
+    connect(logsAction, &QAction::triggered, this, &MainWindow::openLogs);
+    QAction *configAppAction = paramMenu->addAction(tr("Config &App"));
+    configAppAction->setShortcut(QKeySequence(tr("Ctrl+A")));
+    connect(configAppAction, &QAction::triggered, this, &MainWindow::openConfigAppWindow);
+    QAction *configServAction = paramMenu->addAction(tr("Config &Server"));
+    configServAction->setShortcut(QKeySequence(tr("Ctrl+S")));
+    connect(configServAction, &QAction::triggered, this, &MainWindow::openConfigServerWindow);
 
-        // 2. Texte de l'erreur (supporte le HTML de base pour la mise en forme)
-        errorLabel->setText("<b>Erreur de connexion :</b> Impossible de joindre la base de données SQL.<br><br>Pensez à vérifier la configuration (host/port)...");
-
-        // 3. Styliser avec du QSS pour capter l'attention (Rouge, marge...)
-        errorLabel->setStyleSheet("color: #d32f2f; font-size: 14px; padding: 10px;");
-
-        // 4. Centrer le texte si besoin
-        errorLabel->setAlignment(Qt::AlignCenter);
-
-        // 5. L'ajouter à votre layout principal
-        setCentralWidget(errorLabel);
-        return;
-    }
-
-    // Widget de gestion des onglets
-    auto *tabWidget = new QTabWidget(this);
-
-    // Save employees list
-    parseMyJson();
-
-    // Extract managers list
-    extractManagers();
-
-    // Ajout des deux onglets
-    tabWidget->addTab(createGeneralTab(), "Général");
-    tabWidget->addTab(createPreventionTab(), "Prévention");
-
-    setCentralWidget(tabWidget);
+    // load data in tabs
+    reloadData();
 }
 
 MainWindow::~MainWindow() {}
 
 void MainWindow::parseMyJson() {
+    // clear for reload data
+    employees.clear();
 
-    // 2. Parser le QString
+    // Parser le QString
     QJsonParseError parseError;
     // QJsonDocument attend un QByteArray en UTF-8
     QJsonDocument doc = QJsonDocument::fromJson(apiClient->getResponseData(), &parseError);
@@ -377,9 +363,7 @@ void MainWindow::onTableDoubleClicked(int row, int column)
             *it = e;
 
             // Appel du service HTTP pour envoyer le JSON au serveur
-            apiClient->sendPutEmployeeRequest(json, id);
-
-            updateRows(row, e); // update in GeneralTab and other tab
+            apiClient->sendPutEmployeeRequest(json, id, row, e);
         }
         else
         {
@@ -391,7 +375,38 @@ void MainWindow::onTableDoubleClicked(int row, int column)
 
 }
 
-// Update local values
+// Actions after sending API requests
+void MainWindow::onEmployeeModified(const int row, const Employee &e) {
+    qDebug() << "Employé modifié dans BDD dont id =" << e.id();
+
+    // update en local
+    generalTableWidget->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
+    preventionTableWidget->setSortingEnabled(false);
+
+    updateRows(row, e);
+
+    generalTableWidget->setSortingEnabled(true);
+    preventionTableWidget->setSortingEnabled(true);
+}
+void MainWindow::onEmployeeAdded(int id) {
+
+    qDebug() << "Employé ajouté dans BDD avec id =" << id;
+
+    employees.back().set_id(id);
+
+    // update en local
+    generalTableWidget->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
+    preventionTableWidget->setSortingEnabled(false);
+
+    generalTableWidget->insertRow(employees.size()-1);
+    preventionTableWidget->insertRow(employees.size()-1);
+
+    updateRows(employees.size()-1, employees.back());
+
+    generalTableWidget->setSortingEnabled(true);
+    preventionTableWidget->setSortingEnabled(true);
+    updateCmpt();
+}
 void MainWindow::updateRows(const int &row, const Employee &e) {
 
     QString executive_status_str = e.is_executive() ? "Executive status" : "No executive status";
@@ -404,7 +419,7 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
     QTableWidgetItem *firstname_widget = new QTableWidgetItem(QString::fromStdString(e.firstname()));
     firstname_widget->setData(Qt::UserRole, e.id()); // ajout de l'ID caché
 
-    ///////////////// update General Tab
+    ///////////////// update General Tab /////////////////
     generalTableWidget->setItem(row, 0, firstname_widget);
     generalTableWidget->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(e.birthdate().toString())));
     generalTableWidget->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(e.job())));
@@ -421,9 +436,7 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
     generalTableWidget->selectRow(row);
 
 
-
-    ////////////// update Prevention Table
-
+    ////////////// update Prevention Table /////////////
     // find row of the employee in Prevention tab
     int rowPrevention = preventionTableWidget->rowCount()-1; // initialise à la dernière ligne si ajout d'un collab
     QTableWidgetItem *firstCell;
@@ -453,29 +466,65 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
     }
 
 }
-
-void MainWindow::onEmployeeAdded(int id) {
-
-    qDebug() << "Employé ajouté dans BDD avec id =" << id;
-
-    employees.back().set_id(id);
-
-    // update en local
-    generalTableWidget->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
-    preventionTableWidget->setSortingEnabled(false);
-
-    generalTableWidget->insertRow(employees.size()-1);
-    preventionTableWidget->insertRow(employees.size()-1);
-
-    updateRows(employees.size()-1, employees.back());
-
-    generalTableWidget->setSortingEnabled(true);
-    preventionTableWidget->setSortingEnabled(true);
-    updateCmpt();
-}
 void MainWindow::updateCmpt() {
     counterGeneral->setText(QString::fromStdString(to_string(employees.size())));
     counterPrevention->setText(QString::fromStdString(to_string(employees.size())));
+}
+void MainWindow::openConfigServerWindow() {
+    ConfigServerWindow configserv;
+
+    if (configserv.exec() == QDialog::Accepted)
+    {
+        // L'utilisateur a cliqué sur "Valider"
+        QString json = configserv.toJson();
+        qDebug() << "Saisie validée :" << json;
+        apiClient->sendPutConfigRequest(json.toStdString());
+    }
+    else
+    {
+        // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
+        qDebug() << "Saisie annulée";
+    }
+}
+void MainWindow::openConfigAppWindow() {
+    ConfigAppWindow configapp(this->apiClient->getPort(), apiClient->getHost());
+
+    if (configapp.exec() == QDialog::Accepted)
+    {
+        // L'utilisateur a cliqué sur "Valider"
+        qDebug() << "Config validée sur http://" << configapp.getHost() << ":" << configapp.getPort();
+        apiClient->setHost(configapp.getHost());
+        apiClient->setPort(configapp.getPort());
+    }
+    else
+    {
+        // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
+        qDebug() << "Saisie annulée";
+    }
+}
+void MainWindow::onConfigModified(const std::string json) {
+    qDebug() << "Configuration modifié côté serveur : " << json;
+
+    QJsonParseError parseError;
+    QJsonDocument doc{QJsonDocument::fromJson(QString::fromStdString(json).toUtf8(), &parseError)};
+
+    // Vérification des erreurs de parsing
+    if (parseError.error != QJsonParseError::NoError) {
+        qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
+        return;
+    }
+
+    // Vérifier qu'il s'agit bien d'un tableau JSON (Array)
+    if (doc.isArray()) {
+        QJsonArray jsonArray = doc.array();
+
+        // Vérifier qu'on a bien au moins 1 élément
+        if (jsonArray.size() >= 1) {
+            QJsonObject obj = jsonArray.at(0).toObject();
+            apiClient->setPort(obj.value("port").toInt());
+            apiClient->setHost(obj.value("host").toString());
+        }
+    }
 }
 
 // Get manager name on employee ID
@@ -490,4 +539,52 @@ QString MainWindow::get_manager_name(const int &manager_id) {
         }
     }
     return "Aucun renseigné";
+}
+
+// display error inside window
+void MainWindow::errorDisplay() {
+    // 1. Création d'un QLabel pour l'erreur
+    QLabel *errorLabel = new QLabel(this);
+
+    // 2. Texte de l'erreur (supporte le HTML de base pour la mise en forme)
+    QString msg("");
+    msg += "<b>Erreur de connexion :</b> ";
+    msg += apiClient->getMsg();
+    msg += "<br><br>Pensez à vérifier la configuration (host/port)...";
+    errorLabel->setText(msg);
+
+    // 3. Styliser avec du QSS pour capter l'attention (Rouge, marge...)
+    errorLabel->setStyleSheet("color: #d32f2f; font-size: 14px; padding: 10px;");
+
+    // 4. Centrer le texte si besoin
+    errorLabel->setAlignment(Qt::AlignCenter);
+
+    // 5. L'ajouter à votre layout principal
+    setCentralWidget(errorLabel);
+}
+
+// load data by recreating tabs and getting all DB
+void MainWindow::reloadData() {
+    apiClient->sendGetEmployeeRequest(0);
+
+    if(apiClient->getStatus()!=0)
+        errorDisplay();
+
+    // Widget de gestion des onglets
+    auto *tabWidget = new QTabWidget(this);
+
+    // Save employees list
+    parseMyJson();
+
+    // Extract managers list
+    extractManagers();
+
+    // Ajout des deux onglets
+    tabWidget->addTab(createGeneralTab(), "Général");
+    tabWidget->addTab(createPreventionTab(), "Prévention");
+
+    setCentralWidget(tabWidget);
+}
+void MainWindow::openLogs() {
+
 }

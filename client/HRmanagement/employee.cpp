@@ -124,8 +124,6 @@ Employee::Employee(const string &jsonStr) {
     if (!idStr.empty())           m_id = stoi(idStr); else m_id = -1; // laisse la base de donnée mettre l'id
 }
 
-
-
 string Employee::to_JSON() const {
     // Implémentez la sérialisation JSON ici
     // Vous pouvez utiliser une bibliothèque JSON comme nlohmann/json pour faciliter cette tâche
