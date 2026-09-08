@@ -14,7 +14,7 @@ ConfigServerWindow::ConfigServerWindow(QWidget *parent)
     m_port->setSingleStep(1);
     m_port->setRange(1,65000);
     m_host->setPlaceholderText("ex : 127.0.0.1");
-    m_db_path->setPlaceholderText("ex: config/mydatabase.db");
+    m_db_path->setPlaceholderText("ex: data/mydatabase.db");
 
     // Ajout des paires Libellé -> Champ au layout de formulaire
     QFormLayout* formLayout = new QFormLayout();

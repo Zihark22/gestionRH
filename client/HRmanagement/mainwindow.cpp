@@ -567,23 +567,25 @@ void MainWindow::errorDisplay() {
 void MainWindow::reloadData() {
     apiClient->sendGetEmployeeRequest(0);
 
-    if(apiClient->getStatus()!=0)
+    if(apiClient->getStatus()!=0){
         errorDisplay();
+    }
+    else {
+        // Widget de gestion des onglets
+        auto *tabWidget = new QTabWidget(this);
 
-    // Widget de gestion des onglets
-    auto *tabWidget = new QTabWidget(this);
+        // Save employees list
+        parseMyJson();
 
-    // Save employees list
-    parseMyJson();
+        // Extract managers list
+        extractManagers();
 
-    // Extract managers list
-    extractManagers();
+        // Ajout des deux onglets
+        tabWidget->addTab(createGeneralTab(), "Général");
+        tabWidget->addTab(createPreventionTab(), "Prévention");
 
-    // Ajout des deux onglets
-    tabWidget->addTab(createGeneralTab(), "Général");
-    tabWidget->addTab(createPreventionTab(), "Prévention");
-
-    setCentralWidget(tabWidget);
+        setCentralWidget(tabWidget);
+    }
 }
 void MainWindow::openLogs() {
 

@@ -2,7 +2,7 @@
 #include <sstream>
 
 
-Server::Server() {
+Server::Server(int argc, char* argv[]) {
     this->config_file_path = "config/config.ini"; // Valeur par défaut
     this->server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
@@ -12,6 +12,12 @@ Server::Server() {
     this->opt = 1;
     load_config(config_file_path);
     this->apiServer = ApiServer(db_path);
+
+    // Sauvegarde du chemin et des arguments
+    m_executablePath = argv[0];
+    for (int i = 0; i < argc; ++i) {
+        m_args.push_back(argv[i]);
+    }
 
     // Server s'abonne à l'API (fonction de Callback)
     apiServer.set_request_handler([this](const std::string& req, const std::string& body) -> std::string {
@@ -32,11 +38,63 @@ std::string Server::handle_action(const std::string &req, const std::string &bod
         return config_to_json();
     else if(req=="modifyconfig") { 
         modify_config_from_json(body);
+        // 2. Déclencher le redémarrage asynchrone
+        this->requestRestart(); // ou serverInstance->requestRestart();
+        
         return "Configuration modifiée avec succès. Veuillez redémarrer le serveur pour appliquer les changements.";
     }
     else
         return "Invalid request";
 }
+
+
+void Server::triggerProcessRestart(char* argv[]) {
+    // 1. Laisser le temps à la réponse HTTP de partir sur le réseau
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+    // 2. Fermer proprement les sockets d'écoute si nécessaire
+    // close(server_socket_fd);
+
+    // 3. Remplacer le processus courant par une nouvelle instance de lui-même
+    std::cout << "Redémarrage du serveur..." << std::endl;
+    execv(argv[0], argv); 
+    
+    // Si on arrive ici, c'est que execv a échoué
+    perror("Erreur lors de l'appel à execv");
+}
+
+
+void Server::requestRestart() {
+    // ⚠️ On lance le redémarrage dans un thread séparé !
+    // Cela permet au thread appelant de finir sa fonction,
+    // de flush la socket HTTP et de renvoyer le 200 OK au client.
+    std::thread([this]() {
+        this->executeRestart();
+    }).detach();
+}
+void Server::executeRestart() {
+    // 1. Laisser 200 à 500 ms pour que le paquet TCP HTTP "200 OK" sorte sur le réseau
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << "[SERVER] Redémarrage du processus en cours..." << std::endl;
+
+    // 2. Reconstruire le tableau char* compatible POSIX attendu par execv
+    std::vector<char*> rawArgs;
+    for (auto& arg : m_args) {
+        rawArgs.push_back(arg.data());
+    }
+    rawArgs.push_back(nullptr); // execv DOIT se terminer par un pointeur null
+
+    // 3. Appel système remplaçant le processus actuel
+    execv(m_executablePath.c_str(), rawArgs.data());
+
+    // Si on arrive ici, l'appel a échoué
+    perror("[SERVER] Échec critique de execv");
+}
+
+
+
+
 std::string Server::config_to_json(){
     std::string rep_json="[{";
     rep_json += "\"host\":\""+host+"\",";

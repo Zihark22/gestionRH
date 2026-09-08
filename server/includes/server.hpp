@@ -1,16 +1,21 @@
 #pragma once // inclusion une seule fois 
 
+#include "apiserver.hpp"
+#include "iniparser.hpp"
+
 #include <iostream>
 #include <sys/socket.h>
 #include <thread>
+#include <unistd.h>
+#include <chrono>
+#include <unistd.h>
 
-#include "apiserver.hpp"
-#include "iniparser.hpp"
+
 
 class Server {
     
 public:
-    Server();
+    Server(int argc, char* argv[]);
     ~Server();
 
     // Règle des 5 : Interdire la copie pour éviter les doubles fermetures de socket
@@ -30,10 +35,15 @@ private:
     std::string db_path;
     std::string log_file;
     ApiServer apiServer; // Instance de ApiServer pour gérer les requêtes API
+    std::string m_executablePath; // Chemin de l'exécutable
+    std::vector<std::string> m_args; // Arguments passés à l'exécutable
 
     // Chargement de la configuration depuis le fichier config.ini
     void load_config(const std::string& file_path);
     std::string config_to_json();
     int modify_config_from_json(const std::string &json);
+    void triggerProcessRestart(char* argv[]);
+    void requestRestart();
+    void executeRestart();
 
 };
