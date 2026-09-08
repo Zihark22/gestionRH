@@ -28,10 +28,14 @@ FormWindow::FormWindow(QWidget *parent)
     m_startDate = new QDateEdit(QDate::currentDate(),this);
     m_startDate->setDisplayFormat("dd/MM/yyyy");
     m_startDate->setCalendarPopup(true); // Affiche un calendrier au clic
+    m_startDate->setMaximumDate(QDate::currentDate());
+    m_startDate->setMinimumDate(QDate(2010, 1, 1));
 
     m_birthDate = new QDateEdit(this);
     m_birthDate->setDisplayFormat("dd/MM/yyyy");
     m_birthDate->setCalendarPopup(true); // Affiche un calendrier au clic
+    m_birthDate->setMaximumDate(QDate::currentDate());
+    m_birthDate->setMinimumDate(QDate(1950, 1, 1));
 
     m_planCombo = new QComboBox(this);
     m_planCombo->addItems(FormWindow::optionsPlan);

@@ -42,7 +42,6 @@ private:
     void load_config(const std::string& file_path);
     std::string config_to_json();
     int modify_config_from_json(const std::string &json);
-    void triggerProcessRestart(char* argv[]);
     void requestRestart();
     void executeRestart();
 

@@ -587,6 +587,7 @@ void MainWindow::reloadData() {
         setCentralWidget(tabWidget);
     }
 }
+
 void MainWindow::openLogs() {
 
 }

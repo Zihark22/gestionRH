@@ -40,29 +40,12 @@ std::string Server::handle_action(const std::string &req, const std::string &bod
         modify_config_from_json(body);
         // 2. Déclencher le redémarrage asynchrone
         this->requestRestart(); // ou serverInstance->requestRestart();
-        
+
         return "Configuration modifiée avec succès. Veuillez redémarrer le serveur pour appliquer les changements.";
     }
     else
         return "Invalid request";
 }
-
-
-void Server::triggerProcessRestart(char* argv[]) {
-    // 1. Laisser le temps à la réponse HTTP de partir sur le réseau
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
-    // 2. Fermer proprement les sockets d'écoute si nécessaire
-    // close(server_socket_fd);
-
-    // 3. Remplacer le processus courant par une nouvelle instance de lui-même
-    std::cout << "Redémarrage du serveur..." << std::endl;
-    execv(argv[0], argv); 
-    
-    // Si on arrive ici, c'est que execv a échoué
-    perror("Erreur lors de l'appel à execv");
-}
-
 
 void Server::requestRestart() {
     // ⚠️ On lance le redémarrage dans un thread séparé !
