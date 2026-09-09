@@ -7,9 +7,6 @@ set(SERVER_CORE_SOURCES
     employees.cpp
     iniparser.cpp
     server.cpp
-    # Ajoutez ici vos autres fichiers .cpp :
-    # Database.cpp
-    # Server.cpp
 )
 
 # 2. Création de la bibliothèque contenant toute la logique métier

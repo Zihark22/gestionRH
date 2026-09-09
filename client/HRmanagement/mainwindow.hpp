@@ -66,23 +66,27 @@ private:
     QTableWidget* fillGeneralTab(QWidget* tab);
     QTableWidget* fillPreventionTab(QWidget* tab);
 
-    // Création du formulaire pour ajout
+    // Méthodes de réponse API
     void addingEmployee();
     void onEmployeeAdded(int id);
     void onEmployeeModified(const int row, const Employee &e);
     void onConfigModified(const std::string json);
-    void errorDisplay();
 
+    // Méthodes de gestion BDD locale
     void parseMyJson();
     void extractManagers();
-    void updateRows(const int &row, const Employee &e);
-    void updateCmpt();
     QString get_manager_name(const int &manager_id);
+
+    // Actions
     void openConfigServerWindow();
     void openConfigAppWindow();
-
-    void reloadData();
     void openLogs();
+
+    // MAJ IHM
+    void updateRows(const int &row, const Employee &e);
+    void updateCmpt();
+    void reloadData();
+    void errorDisplay();
 
     // Attributs
     ApiClient *apiClient; // API features

@@ -36,10 +36,11 @@ public:
     Employee toEmployee();
 
 private:
-    QLineEdit *m_txtFirstname;
-    QLineEdit *m_txtLastname;
+    QFormLayout *formLayout;
     QPushButton *m_btnValider;
     QPushButton *m_btnAnnuler;
+    QLineEdit *m_txtFirstname;
+    QLineEdit *m_txtLastname;
     QDateEdit * m_birthDate;
     QDateEdit *m_startDate;
     QLineEdit *m_jobEdit;
@@ -49,7 +50,6 @@ private:
     QSpinBox *m_coefSyntSpinBox;
     QComboBox *m_planCombo;
     QComboBox *m_manager;
-    QFormLayout *formLayout;
     int m_id;
 
 };

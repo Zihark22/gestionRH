@@ -48,7 +48,7 @@ std::string Server::handle_action(const std::string &req, const std::string &bod
 }
 
 void Server::requestRestart() {
-    // ⚠️ On lance le redémarrage dans un thread séparé !
+    // On lance le redémarrage dans un thread séparé !
     // Cela permet au thread appelant de finir sa fonction,
     // de flush la socket HTTP et de renvoyer le 200 OK au client.
     std::thread([this]() {

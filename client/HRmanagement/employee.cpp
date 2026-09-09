@@ -117,11 +117,11 @@ Employee::Employee(const string &jsonStr) {
     m_executive_status = (executiveStatus == "true" || executiveStatus == "1");
     m_signed_plan = (signedPlan == "true" || signedPlan == "1");
 
-    if (!positionStr.empty())     m_position = stof(positionStr);
-    if (!coefficientStr.empty())  m_coefficient = stoi(coefficientStr);
-    if (!managerIdStr.empty())    m_manager_id = stoi(managerIdStr);
+    if (!positionStr.empty())     m_position = QString::fromStdString(positionStr).toFloat();
+    if (!coefficientStr.empty())  m_coefficient = QString::fromStdString(coefficientStr).toInt();
+    if (!managerIdStr.empty())    m_manager_id = QString::fromStdString(managerIdStr).toInt();
     if (!startDate.empty())       m_start_date = Date(startDate);
-    if (!idStr.empty())           m_id = stoi(idStr); else m_id = -1; // laisse la base de donnée mettre l'id
+    if (!idStr.empty())           m_id = QString::fromStdString(idStr).toInt(); else m_id = -1; // laisse la base de donnée mettre l'id
 }
 
 string Employee::to_JSON() const {
