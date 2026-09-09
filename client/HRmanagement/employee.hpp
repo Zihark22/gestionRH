@@ -2,6 +2,7 @@
 #define EMPLOYEE_HPP
 
 #include "date.hpp"
+#include "iniparser.hpp"
 
 #include <QString>
 #include <QDebug>

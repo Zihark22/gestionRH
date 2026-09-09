@@ -31,11 +31,10 @@ struct SectionConfig {
 };
 
 class IniParser {
-private:
+public:
     // Nettoie les espaces/tabulations inutiles en début et fin de chaîne
     static string trim(const string& str);
 
-public:
     // Méthode principale de parsing
     static vector<SectionConfig> parse(const string& filepath);
     static vector<SectionConfig> parseFromString(std::string_view content);

@@ -2,20 +2,29 @@
 #define EMPLOYEE_HPP
 
 #include "date.hpp"
+#include "iniparser.hpp"
+
 
 #include <iostream>
 #include <map>
 
 class Employee {
+
 public:
+// Constructeurs
+
     Employee() = default;
+
+    /** @brief Crée un objet Employee à partir d'un JSON string (ex: réponse d'une requête API REST)
+     *  @param json Une chaîne JSON représentant l'employé.
+     */
     Employee(const std::string &json);
 
-    // Identifiant unique BDD
+// Getters and Setters
+
     int id() const { return m_id; }
     void set_id(int id) { m_id = id; }
 
-    // Onglet 1 & 2 - Infos de base
     std::string firstname() const { return m_firstname; }
     void set_firstname(const std::string &prenom) { m_firstname = prenom; }
 
@@ -49,25 +58,39 @@ public:
     int signed_plan() const { return m_signed_plan; }
     void set_signed_plan(int signe) { m_signed_plan = signe; }
 
-    // Méthodes de sérialisation JSON pour l'API REST
+// ---------------------------------------------------
+
+    /** @brief Sérialise l'objet Employee en JSON pour l'API REST
+     *  @return Chaîne JSON représentant l'employé
+     */
     std::string to_JSON() const;
 
+// ---------------------------------------------------
+
+    /** @brief Crée un objet Employee à partir d'une ligne de résultat SQL
+     *  @param sql_row Une map représentant une ligne de résultat SQL, où les clés sont les noms des colonnes et les valeurs sont les valeurs correspondantes.
+     *  @return Un objet Employee initialisé avec les données de la ligne SQL
+     */
     static Employee from_sql(const std::map<std::string, std::string> &sql_row);
+
+// ---------------------------------------------------
+
+    /** @brief Affiche les informations de l'employé dans la sortie standard */
     void display(void) const;
 
 private:
-    int m_id{-1};
-    std::string m_firstname;
-    std::string m_lastname;
-    Date m_birthdate;
-    std::string m_job;
-    int m_executive_status{0};
-    float m_position;
-    int m_coefficient{0};
-    Date m_start_date;
-    int m_manager_id{-1};
-    std::string m_prev_plan{"Plan A"};
-    int m_signed_plan{0};
+    int m_id{-1};                        //< Identifiant unique de l'employé
+    std::string m_firstname;             //< Prénom de l'employé
+    std::string m_lastname;              //< Nom de famille de l'employé
+    Date m_birthdate;                    //< Date de naissance de l'employé
+    std::string m_job;                   //< Poste de l'employé
+    int m_executive_status{0};           //< Statut de manager de l'employé
+    float m_position;                    //< Position de l'employé
+    int m_coefficient{0};                //< Coefficient de l'employé
+    Date m_start_date;                   //< Date de début d'activité
+    int m_manager_id{-1};                //< Identifiant du manager
+    std::string m_prev_plan{"Plan A"};   //< Plan précédent
+    int m_signed_plan{0};                //< Plan signé
 };
 
 #endif // EMPLOYEE_HPP

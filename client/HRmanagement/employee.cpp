@@ -18,19 +18,6 @@ Employee::Employee() {
 Employee::Employee(const string &jsonStr) {
     // Créer un Employee à partir du body sous forme JSON lors d'une demande d'ajout à la DB : [{"firstname":"Marc","lastname":"Dumort"}]
 
-    // enleve espaces au debut et fin du json
-    auto trim = [](const string &s) -> string {
-        size_t start = 0;
-        while (start < s.size() && (s[start] == ' ' || s[start] == '\n' || s[start] == '\t' || s[start] == '\r')) {
-            ++start;
-        }
-        size_t end = s.size();
-        while (end > start && (s[end - 1] == ' ' || s[end - 1] == '\n' || s[end - 1] == '\t' || s[end - 1] == '\r')) {
-            --end;
-        }
-        return s.substr(start, end - start);
-    };
-
     // trouver valeur avec cle
     auto getField = [&](const string &obj, const string &key) -> string {
         string pattern = "\"" + key + "\"";
@@ -70,17 +57,17 @@ Employee::Employee(const string &jsonStr) {
         while (valueEnd < obj.size() && obj[valueEnd] != ',' && obj[valueEnd] != '}') {
             ++valueEnd;
         }
-        return trim(obj.substr(valueStart, valueEnd - valueStart));
+        return IniParser::trim(obj.substr(valueStart, valueEnd - valueStart));
     };
 
-    string s = trim(jsonStr);
+    string s = IniParser::trim(jsonStr);
 
     // Format attendu : [{"firstname":"Marc","lastname":"Dumort"}]
     if (s.size() < 2 || s.front() != '[' || s.back() != ']') {
         return;
     }
 
-    string inner = trim(s.substr(1, s.size() - 2));
+    string inner = IniParser::trim(s.substr(1, s.size() - 2));
 
     if (inner.empty()) {
         return;
@@ -90,7 +77,7 @@ Employee::Employee(const string &jsonStr) {
         return;
     }
 
-    string obj = trim(inner.substr(1, inner.size() - 2));
+    string obj = IniParser::trim(inner.substr(1, inner.size() - 2));
 
     // Extraction des attributs
     string firstname = getField(obj, "firstname");
