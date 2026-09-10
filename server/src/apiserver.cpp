@@ -1,7 +1,6 @@
 #include "../includes/apiserver.hpp"
 
 ApiServer::ApiServer(const std::string &db_path) {
-    // Initialisation si nécessaire
     db_handler = DBhandler(db_path);
 }
 
@@ -10,9 +9,7 @@ void ApiServer::set_request_handler(RequestHandler handler) {
 }
 
 void ApiServer::start(int server_fd) {
-    // Implémentez la logique pour démarrer le serveur API ici
-    // Vous pouvez utiliser le socket server_fd pour écouter les requêtes entrantes
-    // et interagir avec la base de données en utilisant db_path
+    // Boucle principale pour accepter les connexions entrantes
     while (true) {
         int client_fd = accept(server_fd, nullptr, nullptr);
         if (client_fd < 0) continue;
@@ -29,11 +26,6 @@ void ApiServer::start(int server_fd) {
 }
 
 void ApiServer::parse_request_http(std::string request, const int client_fd) {
-    /**
-     * @brief Extrait la méthode HTTP et l'endpoint de la requête
-     *  
-     */
-    // std::cout << "start parsing" << std::endl;
     std::string method;
     std::string endpoint;
     
@@ -62,6 +54,7 @@ void ApiServer::parse_request_http(std::string request, const int client_fd) {
     else
         body = "";
 
+
     /*
         code to extract authentification token in user table for future feature and check in DB if user registered
     */
@@ -69,11 +62,13 @@ void ApiServer::parse_request_http(std::string request, const int client_fd) {
     
     if(authentication_ok)
         execute_request(method, endpoint, client_fd);
+    else
+        std::cout << "Authentification failed" << std::endl; 
 
 } 
 
 void ApiServer::execute_request(const std::string &method, const std::string &endpoint, const int client_fd) {
-    std::string jsonOutput; // JSON de sortie de la base de données
+    std::string jsonOutput;
     std::string repbody;
     std::string response;
     int result=-1;
@@ -82,8 +77,15 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
     db_handler.open_db();
     std::cout << "Action demandée par le client : ";
 
+    // count the number of non-digit characters in the endpoint to limit endpoint structure after /api/employees to a maximum of 15 non-digit characters (e.g., /api/employees/123)
+    int nbCarNotDigit = 0;
+    for (size_t i = 0; i < endpoint.length(); ++i) {
+        if (isdigit(endpoint[i])) continue;
+        else nbCarNotDigit++;
+    }
+
     // si le endpoint employees est dans la requete (ex: ID)
-    if (endpoint.rfind("/api/employees", 0) == 0) {
+    if (endpoint.rfind("/api/employees", 0) == 0 && nbCarNotDigit<=15) {
         std::string id = endpoint.substr(std::string("/api/employees").size());
         if(id[0]=='/') id = id.substr(1); // pour gérer avec / ou sans à la fin
         
@@ -209,14 +211,12 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
             else if (method == "PUT") {
                 messageError = "La méthode PUT n'est pas autorisée sur cet endpoint";
                 response_status_code = 405;
-                response_msg = "Method Not Allowed";
-                
+                response_msg = "Method Not Allowed";                
             }
             else if (method == "DELETE") {
                 messageError = "La méthode DELETE n'est pas autorisée sur cet endpoint";
                 response_status_code = 405;
-                response_msg = "Method Not Allowed";
-                
+                response_msg = "Method Not Allowed";                
             }
             else {
                 std::cout << "méthode non supportée " << std::endl;
@@ -227,7 +227,7 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
         } 
     }
     // si le endpoint config est dans la requete
-    else if(endpoint.rfind("/api/config", 0) == 0){
+    else if(endpoint=="/api/config" or endpoint=="/api/config/") {
         if (method == "GET") {
             // Traiter la requête GET /api/employees
             std::cout << "Obtenir config" << std::endl;
@@ -262,7 +262,8 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
                 rep = m_handler("modifyconfig",this->body);
                 std::cout << "reponse : " << rep << std::endl;
                 result = 0;
-            } else {
+            } 
+            else {
                 rep = "ERROR 500: No handler";
                 result = -1;
             }
@@ -287,25 +288,26 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
     } 
     // Route de secours (404 Not Found)
     else {
-        messageError = "Route non trouvée";
+        messageError = "Route invalide : " + endpoint;
         response_status_code = 404;
         response_msg = "Not Found";
+        std::cout << "Non reconnue : " << endpoint << std::endl;
     }
 
-
-    if(response_status_code != 200) {
+    // Construction de la réponse HTTP
+    if(response_status_code != 200) { // Si le code de statut n'est pas 200, on renvoie un message d'erreur
         repbody = "{\"error\": \""+ messageError +"\"}";
         response = 
             "HTTP/1.1 "+ std::to_string(response_status_code) + " " + response_msg +"\r\n"
             "Content-Type: application/json\r\n"
-            "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + 
+            "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
             repbody;
     }
-    else {
+    else {  // si le code de statut est 200, on renvoie le JSON de la base de données ou la réponse du serveur
         if(rep.empty())
             repbody = db_handler.formatter_JSON(); // JSON de sortie de la base de données
         else
-            repbody = rep;
+            repbody = rep; // autre réponse du serveur (ex: config)
 
         response = 
             "HTTP/1.1 "+ std::to_string(response_status_code) + " " + response_msg +"\r\n"
