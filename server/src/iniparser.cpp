@@ -1,6 +1,5 @@
 #include "../includes/iniparser.hpp"
 
-// Nettoie les espaces/tabulations inutiles en début et fin de chaîne
 std::string IniParser::trim(const std::string& str) {
     size_t first = str.find_first_not_of(" \t\r\n");
     if (first == std::string::npos) 
@@ -9,7 +8,47 @@ std::string IniParser::trim(const std::string& str) {
     return str.substr(first, (last - first + 1));
 }
 
-// Méthode principale de parsing
+std::string IniParser::getField(const std::string &obj, const std::string &key) {
+    std::string pattern = "\"" + key + "\"";
+    size_t pos = obj.find(pattern);
+    if (pos == std::string::npos) {
+        return "";
+    }
+
+    size_t colon = obj.find(':', pos + pattern.size());
+    if (colon == std::string::npos) {
+        return "";
+    }
+
+    size_t valueStart = obj.find_first_not_of(" \t\r\n", colon + 1);
+    if (valueStart == std::string::npos) {
+        return "";
+    }
+
+    // Cas chaîne de caractères
+    if (obj[valueStart] == '"') {
+        size_t valueEnd = valueStart + 1;
+        while (valueEnd < obj.size()) {
+            if (obj[valueEnd] == '\\' && valueEnd + 1 < obj.size()) {
+                valueEnd += 2;
+                continue;
+            }
+            if (obj[valueEnd] == '"') {
+                break;
+            }
+            ++valueEnd;
+        }
+        return obj.substr(valueStart + 1, valueEnd - valueStart - 1);
+    }
+
+    // Cas nombre / bool / null
+    size_t valueEnd = valueStart;
+    while (valueEnd < obj.size() && obj[valueEnd] != ',' && obj[valueEnd] != '}') {
+        ++valueEnd;
+    }
+    return IniParser::trim(obj.substr(valueStart, valueEnd - valueStart));
+}
+
 std::vector<SectionConfig> IniParser::parse(const std::string& filepath) {
     std::vector<SectionConfig> sections;
     std::ifstream file(filepath);

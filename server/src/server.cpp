@@ -1,6 +1,4 @@
 #include "../includes/server.hpp"
-#include <sstream>
-
 
 Server::Server(int argc, char* argv[]) {
     this->config_file_path = "config/config.ini"; // Valeur par défaut
@@ -38,10 +36,10 @@ std::string Server::handle_action(const std::string &req, const std::string &bod
         return config_to_json();
     else if(req=="modifyconfig") { 
         modify_config_from_json(body);
-        // 2. Déclencher le redémarrage asynchrone
-        this->requestRestart(); // ou serverInstance->requestRestart();
+        
+        this->requestRestart();  // Déclencher le redémarrage asynchrone
 
-        return "Configuration modifiée avec succès. Veuillez redémarrer le serveur pour appliquer les changements.";
+        return "Configuration modifiée avec succès. Redémarrage du serveur pour appliquer les changements...";
     }
     else
         return "Invalid request";
@@ -75,9 +73,6 @@ void Server::executeRestart() {
     perror("[SERVER] Échec critique de execv");
 }
 
-
-
-
 std::string Server::config_to_json(){
     std::string rep_json="[{";
     rep_json += "\"host\":\""+host+"\",";
@@ -85,84 +80,26 @@ std::string Server::config_to_json(){
     rep_json += "\"db_path\":\""+db_path+"\"";
     return rep_json+"}]" ;
 }
+
 int Server::modify_config_from_json(const std::string &json){
     // ex : json = [{"host":"127.0.0.1","port":8080,"db_path":"../data/employees.db"}]
     std::cout << "modifying ...." << std::endl;
-      
-    auto trim = [](const std::string &s) -> std::string {
-        size_t start = 0;
-        while (start < s.size() && (s[start] == ' ' || s[start] == '\n' || s[start] == '\t' || s[start] == '\r')) {
-            ++start;
-        }
-        size_t end = s.size();
-        while (end > start && (s[end - 1] == ' ' || s[end - 1] == '\n' || s[end - 1] == '\t' || s[end - 1] == '\r')) {
-            --end;
-        }
-        return s.substr(start, end - start);
-    };
+    
+    std::string s = IniParser::trim(json);
 
-    auto getField = [&](const std::string &obj, const std::string &key) -> std::string {
-        std::string pattern = "\"" + key + "\"";
-        size_t pos = obj.find(pattern);
-        if (pos == std::string::npos) {
-            return "";
-        }
-
-        size_t colon = obj.find(':', pos + pattern.size());
-        if (colon == std::string::npos) {
-            return "";
-        }
-
-        size_t valueStart = obj.find_first_not_of(" \t\r\n", colon + 1);
-        if (valueStart == std::string::npos) {
-            return "";
-        }
-
-        // Cas chaîne de caractères
-        if (obj[valueStart] == '"') {
-            size_t valueEnd = valueStart + 1;
-            while (valueEnd < obj.size()) {
-                if (obj[valueEnd] == '\\' && valueEnd + 1 < obj.size()) {
-                    valueEnd += 2;
-                    continue;
-                }
-                if (obj[valueEnd] == '"') {
-                    break;
-                }
-                ++valueEnd;
-            }
-            return obj.substr(valueStart + 1, valueEnd - valueStart - 1);
-        }
-
-        // Cas nombre / bool / null
-        size_t valueEnd = valueStart;
-        while (valueEnd < obj.size() && obj[valueEnd] != ',' && obj[valueEnd] != '}') {
-            ++valueEnd;
-        }
-        return trim(obj.substr(valueStart, valueEnd - valueStart));
-    };
-
-    std::string s = trim(json);
-
-    if (s.size() < 2 || s.front() != '[' || s.back() != ']') {
+    if (s.size() < 2 || s.front() != '[' || s.back() != ']')
         return 1;
-    }
 
-    std::string inner = trim(s.substr(1, s.size() - 2));
+    std::string inner = IniParser::trim(s.substr(1, s.size() - 2));
 
-    if (inner.empty()) {
+    if( inner.empty() || inner.front() != '{' || inner.back() != '}' )
         return 1;
-    }
 
-    if (inner.front() != '{' || inner.back() != '}') {
-        return 1;
-    }
+    std::string obj = IniParser::trim(inner.substr(1, inner.size() - 2));
 
-    std::string obj = trim(inner.substr(1, inner.size() - 2));
-
-    std::string new_host = getField(obj, "host");
-    int new_port = stoi(getField(obj, "port"));
-    std::string new_db_path = getField(obj, "db_path");
+    std::string new_host = IniParser::getField(obj, "host");
+    int new_port = stoi(IniParser::getField(obj, "port"));
+    std::string new_db_path = IniParser::getField(obj, "db_path");
 
     // remplacer config dans fichier (relancer pour activer nouvelle config)
     std::fstream fichier;
@@ -250,12 +187,13 @@ void Server::start() {
     std::cout << "\n============= Serveur démarré sur http://" << host << ":" << port << " ==============" << std::endl;
 
     std::thread monThread([this]() {
+        std::cout << "[Thread API] Démarrage du serveur API..." << std::endl;
         apiServer.start(server_fd);
     });
 
-    // 2. Le thread principal continue son travail en parallèle
-    std::cout << "[Thread Principal] Fait autre chose pendant ce temps...\n";
+    // Le thread principal continue son travail en parallèle
+    std::cout << "[Thread Server] Attente d'une demande du thread API..." << std::endl;
 
-    // 3. Attente bloquante : le main attend que 'monThread' ait fini avant de continuer
+    // Attente bloquante : le main attend que 'monThread' ait fini avant de continuer
     monThread.join();
 }

@@ -1,7 +1,5 @@
 #include "../includes/date.hpp"
 
-
-// Constructeur avec validation
 Date::Date(int day, int month, int year) {
     if (!isValidDate(day, month, year)) {
         throw std::invalid_argument("Date invalide : " + std::to_string(day) + "/" 
@@ -11,9 +9,9 @@ Date::Date(int day, int month, int year) {
     m_month = month;
     m_year = year;
 }
+
 Date::Date(const std::string& dateStr) : Date([&]() {
-        // Implémentez la conversion d'une chaîne de caractères en date
-        // Exemple: "dd/mm/yyyy"
+        // Format: "dd/mm/yyyy" ou "dd-mm-yyyy" ou "yyyy/mm/dd" ou "yyyy-mm-dd"
         size_t firstSlash = dateStr.find('/');
         if(firstSlash == std::string::npos)
             firstSlash = dateStr.find('-');
@@ -63,13 +61,14 @@ bool Date::isValidDate(int d, int m, int y) {
     return d <= daysInMonth[m - 1];
 }
 
-// Sécuriser les setters
+
 void Date::setDay(int day) {
     if (!isValidDate(day, m_month, m_year)) {
-        throw std::invalid_argument("Jour invalide pour cette date : " + std::to_string(day));
+        throw std::invalid_argument("Jour invalide pour cette date : " + std::to_string(day)); // Sécurise la saisie
     }
     m_day = day;
 }
+
 
 std::string Date::toString() const {
     std::string format_day, format_month;

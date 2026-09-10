@@ -9,8 +9,7 @@ DBhandler::DBhandler(const std::string& dbPath) {
 }
 DBhandler::~DBhandler() {
     if (this->db) {
-        // fermeture de la base de données SQLite
-        sqlite3_close(this->db);
+        sqlite3_close(this->db); // fermeture de la base de données SQLite
         this->db = nullptr;
         std::cout << "Connection DB closed" << std::endl;
     }
@@ -28,17 +27,17 @@ void DBhandler::open_db() {
 } 
 void DBhandler::close_db() {
     if (this->db) {
-        // fermeture de la base de données SQLite
         sqlite3_close(this->db);
         std::cout << "Connection DB closed" << std::endl;
     }
 }
 
 
-// Le callback reçoit 'data' qui est notre pointeur 'this'
+
 int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
-    // On re-caste le void* en pointeur d'instance DBhandler*
-    auto* self = static_cast<DBhandler*>(data);
+    // Le callback reçoit 'data' qui est notre pointeur 'this'
+    
+    auto* self = static_cast<DBhandler*>(data); // On re-caste le void* en pointeur d'instance DBhandler*
 
     if (!self) return SQLITE_ERROR;
 
@@ -54,9 +53,8 @@ int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
 }
 
 int DBhandler::get_all_employees() {
-    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1;
 
-    // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
@@ -73,9 +71,8 @@ int DBhandler::get_all_employees() {
 
 
 int DBhandler::get_employee(const int &id) {
-    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1; 
 
-    // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
     std::string query = "SELECT * FROM employees WHERE employees.id=" + std::to_string(id) + ";";
@@ -94,9 +91,8 @@ int DBhandler::get_employee(const int &id) {
 }
 
 int DBhandler::delete_employee(const int &id) {
-    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1;
 
-    // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
     std::string query = "DELETE FROM employees WHERE employees.id=" + std::to_string(id) + ";";
@@ -114,9 +110,8 @@ int DBhandler::delete_employee(const int &id) {
 }
 
 int DBhandler::modify_employee(const Employee &e, const std::string &id) {
-    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1;
 
-    // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
     std::string query = "\
@@ -148,9 +143,8 @@ int DBhandler::modify_employee(const Employee &e, const std::string &id) {
 } 
 
 int DBhandler::add_employee(const Employee &e) {
-    if (!this->db) return -1; // Indiquer que la base de données n'est pas ouverte
+    if (!this->db) return -1;
 
-    // Réinitialiser la liste si vous souhaitez rafraîchir les données
     employees.clear();
 
     std::string query = "INSERT INTO employees (\

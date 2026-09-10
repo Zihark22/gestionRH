@@ -4,8 +4,8 @@
 #include "apiclient.hpp"
 #include "employee.hpp"
 #include "formwindow.hpp"
-#include "configserverwindow.h"
-#include "configappwindow.h"
+#include "configserverwindow.hpp"
+#include "configappwindow.hpp"
 
 // Main
 #include <QApplication>
@@ -55,46 +55,62 @@ public:
     ~MainWindow();
 
 private slots:
-    void onTableDoubleClicked(int row, int column); // signal pour ouvrir le formulaire en double cliquant sur une ligne
+
+    // Signal pour ouvrir le formulaire en double cliquant sur une ligne
+    void onTableDoubleClicked(int row, int column);
 
 private:
-    // Création des onglets (Général et Prévention)
+
+//// Création des onglets (Général et Prévention) ////
+
     QWidget* createGeneralTab();
     QWidget* createPreventionTab();
 
-    // Remplir les onglets
+
+/// Remplir les onglets ///
+
     QTableWidget* fillGeneralTab(QWidget* tab);
     QTableWidget* fillPreventionTab(QWidget* tab);
 
-    // Méthodes de réponse API
+
+/// Méthodes de réponse API ///
+
     void addingEmployee();
     void onEmployeeAdded(int id);
     void onEmployeeModified(const int row, const Employee &e);
     void onConfigModified(const std::string json);
 
-    // Méthodes de gestion BDD locale
+
+/// Méthodes de gestion BDD locale ///
+
     void parseMyJson();
     void extractManagers();
     QString get_manager_name(const int &manager_id);
 
-    // Actions
+
+/// Actions ///
+
     void openConfigServerWindow();
     void openConfigAppWindow();
     void openLogs();
 
-    // MAJ IHM
+
+/// MAJ IHM ///
+
     void updateRows(const int &row, const Employee &e);
     void updateCmpt();
     void reloadData();
     void errorDisplay();
 
-    // Attributs
-    ApiClient *apiClient; // API features
-    QTableWidget* generalTableWidget; // onglet general
-    QTableWidget* preventionTableWidget; // onglet prevention
-    QList<Employee> employees;
-    QList<QPair<int, QString>> managers;
-    QLabel *counterGeneral;
-    QLabel *counterPrevention;
+
+/// Attributs ///
+
+    ApiClient *apiClient;                   ///< API features
+    QTableWidget* generalTableWidget;       ///< Onglet general
+    QTableWidget* preventionTableWidget;    ///< Onglet prevention
+    QList<Employee> employees;              ///< Liste des employés et leurs donénes
+    QList<QPair<int, QString>> managers;    ///< Liste des noms des managers associés à leur ID d'employé
+    QLabel *counterGeneral;                 ///< Label pour le compteur d'employés dans l'onglet général
+    QLabel *counterPrevention;              ///< Label pour le compteur d'employés dans l'onglet prévention
 };
 #endif // MAINWINDOW_HPP

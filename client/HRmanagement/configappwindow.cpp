@@ -1,4 +1,4 @@
-#include "configappwindow.h"
+#include "configappwindow.hpp"
 
 // Constructeur général
 ConfigAppWindow::ConfigAppWindow(QWidget *parent)

@@ -21,8 +21,8 @@ SOURCES += \
 
 HEADERS += \
     apiclient.hpp \
-    configappwindow.h \
-    configserverwindow.h \
+    configappwindow.hpp \
+    configserverwindow.hpp \
     date.hpp \
     employee.hpp \
     formwindow.hpp \

@@ -1,5 +1,6 @@
-#include <gtest/gtest.h>
 #include "../includes/date.hpp"
+
+#include <gtest/gtest.h>
 #include <sstream>
 
 // ==========================================

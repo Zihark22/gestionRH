@@ -35,8 +35,13 @@ public:
     // Nettoie les espaces/tabulations inutiles en début et fin de chaîne
     static string trim(const string& str);
 
-    // Méthode principale de parsing
+    // Fonction pour extraire la valeur d'un champ JSON
+    static std::string getField(const std::string &obj, const std::string &key);
+
+    // Méthode principale de parsing depuis un fichier
     static vector<SectionConfig> parse(const string& filepath);
+
+    // Méthode principale de parsing depuis un string
     static vector<SectionConfig> parseFromString(std::string_view content);
 };
 #endif // INIPARSER_HPP

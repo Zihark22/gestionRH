@@ -18,48 +18,6 @@ Employee::Employee() {
 Employee::Employee(const string &jsonStr) {
     // Créer un Employee à partir du body sous forme JSON lors d'une demande d'ajout à la DB : [{"firstname":"Marc","lastname":"Dumort"}]
 
-    // trouver valeur avec cle
-    auto getField = [&](const string &obj, const string &key) -> string {
-        string pattern = "\"" + key + "\"";
-        size_t pos = obj.find(pattern);
-        if (pos == string::npos) {
-            return "";
-        }
-
-        size_t colon = obj.find(':', pos + pattern.size());
-        if (colon == string::npos) {
-            return "";
-        }
-
-        size_t valueStart = obj.find_first_not_of(" \t\r\n", colon + 1);
-        if (valueStart == string::npos) {
-            return "";
-        }
-
-        // Cas chaîne de caractères
-        if (obj[valueStart] == '"') {
-            size_t valueEnd = valueStart + 1;
-            while (valueEnd < obj.size()) {
-                if (obj[valueEnd] == '\\' && valueEnd + 1 < obj.size()) {
-                    valueEnd += 2;
-                    continue;
-                }
-                if (obj[valueEnd] == '"') {
-                    break;
-                }
-                ++valueEnd;
-            }
-            return obj.substr(valueStart + 1, valueEnd - valueStart - 1);
-        }
-
-        // Cas nombre / bool / null
-        size_t valueEnd = valueStart;
-        while (valueEnd < obj.size() && obj[valueEnd] != ',' && obj[valueEnd] != '}') {
-            ++valueEnd;
-        }
-        return IniParser::trim(obj.substr(valueStart, valueEnd - valueStart));
-    };
-
     string s = IniParser::trim(jsonStr);
 
     // Format attendu : [{"firstname":"Marc","lastname":"Dumort"}]
@@ -80,20 +38,20 @@ Employee::Employee(const string &jsonStr) {
     string obj = IniParser::trim(inner.substr(1, inner.size() - 2));
 
     // Extraction des attributs
-    string firstname = getField(obj, "firstname");
-    string lastname  = getField(obj, "lastname");
-    string birthdate = getField(obj, "birthdate");
-    string job       = getField(obj, "job");
-    string prevPlan  = getField(obj, "prev_plan");
+    string firstname = IniParser::getField(obj, "firstname");
+    string lastname  = IniParser::getField(obj, "lastname");
+    string birthdate = IniParser::getField(obj, "birthdate");
+    string job       = IniParser::getField(obj, "job");
+    string prevPlan  = IniParser::getField(obj, "prev_plan");
 
-    string executiveStatus = getField(obj, "executive_status");
-    string signedPlan      = getField(obj, "signed_plan");
+    string executiveStatus = IniParser::getField(obj, "executive_status");
+    string signedPlan      = IniParser::getField(obj, "signed_plan");
 
-    string positionStr = getField(obj, "position");
-    string coefficientStr = getField(obj, "coefficient");
-    string managerIdStr = getField(obj, "manager_id");
-    string startDate = getField(obj, "start_date");
-    string idStr = getField(obj, "id");
+    string positionStr = IniParser::getField(obj, "position");
+    string coefficientStr = IniParser::getField(obj, "coefficient");
+    string managerIdStr = IniParser::getField(obj, "manager_id");
+    string startDate = IniParser::getField(obj, "start_date");
+    string idStr = IniParser::getField(obj, "id");
 
     if (!firstname.empty()) m_firstname = firstname;
     if (!lastname.empty())  m_lastname = lastname;

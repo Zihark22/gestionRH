@@ -1,4 +1,4 @@
-#include "configserverwindow.h"
+#include "configserverwindow.hpp"
 
 ConfigServerWindow::ConfigServerWindow(QWidget *parent)
     : QDialog(parent)
