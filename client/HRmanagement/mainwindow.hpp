@@ -7,6 +7,8 @@
 #include "configserverwindow.hpp"
 #include "configappwindow.hpp"
 
+#include <memory> // pour unique_ptr
+
 // Main
 #include <QApplication>
 #include <QWidget>
@@ -105,7 +107,7 @@ private:
 
 /// Attributs ///
 
-    ApiClient *apiClient;                   ///< API features
+    std::unique_ptr<ApiClient> apiClient;   ///< API features
     QTableWidget* generalTableWidget;       ///< Onglet general
     QTableWidget* preventionTableWidget;    ///< Onglet prevention
     QList<Employee> employees;              ///< Liste des employés et leurs donénes

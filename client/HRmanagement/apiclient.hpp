@@ -38,7 +38,7 @@ public:
     QString getMsg();
 
     // setters
-    void setHost(const QString &host);
+    void setHost(const QString &newhost);
     void setPort(const int &port);
 
 signals:

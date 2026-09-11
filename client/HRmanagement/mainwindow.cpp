@@ -3,13 +3,13 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     // Load data
-    apiClient = new ApiClient(); // launch API that get all employees
+    this->apiClient = std::make_unique<ApiClient>(); // launch API that get all employees
 
     // Connexion du signal d'ajout à une méthode
-    connect(apiClient, &ApiClient::employeeAdded, this, &MainWindow::onEmployeeAdded);
-    connect(apiClient, &ApiClient::employeeModified, this, &MainWindow::onEmployeeModified);
-    connect(apiClient, &ApiClient::configModified, this, &MainWindow::onConfigModified);
-    connect(apiClient, &ApiClient::errorReachingApiServer, this, &MainWindow::errorDisplay);
+    connect(apiClient.get(), &ApiClient::employeeAdded, this, &MainWindow::onEmployeeAdded);
+    connect(apiClient.get(), &ApiClient::employeeModified, this, &MainWindow::onEmployeeModified);
+    connect(apiClient.get(), &ApiClient::configModified, this, &MainWindow::onConfigModified);
+    connect(apiClient.get(), &ApiClient::errorReachingApiServer, this, &MainWindow::errorDisplay);
 
     setWindowTitle("ERP Scalian - RH management");
     resize(900, 800);
@@ -89,21 +89,18 @@ void MainWindow::extractManagers() {
 
 // Création du premier onglet (Tableau)
 QWidget* MainWindow::createGeneralTab() {
-    auto *tab = new QWidget();
+    auto *tab = new QWidget(this);
     auto *layout = new QVBoxLayout(tab);
 
     generalTableWidget = fillGeneralTab(tab);
 
-    auto *onLine = new QWidget();
+    auto *onLine = new QWidget(this);
     auto *onLineLayout = new QHBoxLayout(onLine);
-    auto *addButton = new QPushButton("Ajouter");
+    auto *addButton = new QPushButton("Ajouter", this);
     connect(addButton, &QPushButton::clicked, this, &MainWindow::addingEmployee);
-    auto *exportButton = new QPushButton("Exporter");
-    auto *cmptLabel = new QLabel("Nombre collaborateurs : ");
-    counterGeneral = new QLabel(tr("%1").arg(employees.size()));
-
-    // RECOMMANDÉ : Forcer le bouton à dessiner son propre fond
-    this->setAutoFillBackground(true);
+    auto *exportButton = new QPushButton("Exporter", this);
+    auto *cmptLabel = new QLabel("Nombre collaborateurs : ", this);
+    counterGeneral = new QLabel(tr("%1").arg(employees.size()), this);
 
     onLineLayout->addWidget(addButton);
     onLineLayout->addWidget(exportButton);
@@ -212,20 +209,11 @@ QWidget* MainWindow::createPreventionTab() {
 
     preventionTableWidget = fillPreventionTab(tab);
 
-    auto *onLine = new QWidget();
+    auto *onLine = new QWidget(tab);
     auto *onLineLayout = new QHBoxLayout(onLine);
-    auto *exportButton = new QPushButton("Exporter");
-    auto *cmptLabel = new QLabel("Nombre collaborateurs : ");
-    counterPrevention = new QLabel(tr("%1").arg(employees.size()));
-
-    // Couleur bouton "Exporter"
-    QPalette palette = exportButton->palette();
-    palette.setColor(QPalette::ButtonText, Qt::black); // Couleur du texte
-    palette.setColor(QPalette::Button, QColor(0, 204, 100)); // Couleur du fond
-    exportButton->setPalette(palette);
-
-    // RECOMMANDÉ : Forcer le bouton à dessiner son propre fond
-    this->setAutoFillBackground(true);
+    auto *exportButton = new QPushButton("Exporter", tab);
+    auto *cmptLabel = new QLabel("Nombre collaborateurs : ", tab);
+    counterPrevention = new QLabel(tr("%1").arg(employees.size()), this);
 
     onLineLayout->addWidget(exportButton);
     onLineLayout->addStretch();
