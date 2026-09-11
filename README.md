@@ -1,6 +1,6 @@
 # 🏢 gestionRH - Mini ERP de Gestion des Ressources Humaines
 
-Système modulaire **Client / Serveur** complet en **C++20 / Qt 6** pour l'administration et la gestion du personnel.  
+Système modulaire **Client / Serveur** complet en **C++17 / Qt 6** pour l'administration et la gestion du personnel.  
 La communication s'effectue au travers d'une **API REST synchrone/asynchrone** échangeant des payloads au format **JSON**.
 
 ---
