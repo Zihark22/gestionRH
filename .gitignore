@@ -1,4 +1,5 @@
-/tests/*/build
-*.excalidraw
+# *.excalidraw
 */build/
 /tests/*/*/build
+# /tests/*/build
+/tests/*
