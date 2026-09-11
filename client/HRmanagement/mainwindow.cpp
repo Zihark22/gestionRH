@@ -17,15 +17,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QMenuBar *bar = menuBar();
 
     QMenu *appMenu = bar->addMenu("Application");
-    QAction *reloadAction = appMenu->addAction(tr("Reload"));
+    QAction *reloadAction = appMenu->addAction(tr("Recharger"));
     reloadAction->setShortcut(QKeySequence(tr("Ctrl+R")));
     connect(reloadAction, &QAction::triggered, this, &MainWindow::reloadData);
-    QAction *quitAction = appMenu->addAction(tr("E&xit"));
+    QAction *quitAction = appMenu->addAction(tr("&Quitter"));
     quitAction->setShortcuts(QKeySequence::Quit);
     connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
     QMenu *paramMenu = bar->addMenu("&Paramètres");
-    QAction *logsAction = paramMenu->addAction(tr("Open &Logs"));
+    QAction *logsAction = paramMenu->addAction(tr("Ouvrir &Logs"));
     logsAction->setShortcut(QKeySequence(tr("Ctrl+L")));
     connect(logsAction, &QAction::triggered, this, &MainWindow::openLogs);
     QAction *configAppAction = paramMenu->addAction(tr("Config &App"));
@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     configServAction->setShortcut(QKeySequence(tr("Ctrl+S")));
     connect(configServAction, &QAction::triggered, this, &MainWindow::openConfigServerWindow);
 
-    // load data in tabs
+    // charger les données dans les onglets
     reloadData();
 }
 
@@ -99,7 +99,7 @@ QWidget* MainWindow::createGeneralTab() {
     auto *addButton = new QPushButton("Ajouter", this);
     connect(addButton, &QPushButton::clicked, this, &MainWindow::addingEmployee);
     auto *exportButton = new QPushButton("Exporter", this);
-    auto *cmptLabel = new QLabel("Nombre collaborateurs : ", this);
+    auto *cmptLabel = new QLabel("Nombre d'employés : ", this);
     counterGeneral = new QLabel(tr("%1").arg(employees.size()), this);
 
     onLineLayout->addWidget(addButton);
@@ -212,7 +212,7 @@ QWidget* MainWindow::createPreventionTab() {
     auto *onLine = new QWidget(tab);
     auto *onLineLayout = new QHBoxLayout(onLine);
     auto *exportButton = new QPushButton("Exporter", tab);
-    auto *cmptLabel = new QLabel("Nombre collaborateurs : ", tab);
+    auto *cmptLabel = new QLabel("Nombre d'employés : ", tab);
     counterPrevention = new QLabel(tr("%1").arg(employees.size()), this);
 
     onLineLayout->addWidget(exportButton);
