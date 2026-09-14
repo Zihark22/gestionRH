@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <cctype>
 
@@ -37,6 +38,9 @@ public:
 
     // Méthode principale de parsing
     static std::vector<SectionConfig> parse(const std::string& filepath);
+
+    // Méthode principale de parsing depuis un string
+    static std::vector<SectionConfig> parseFromString(std::string_view content);
 };
 
 #endif // INIPARSER_HPP
