@@ -3,13 +3,12 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     // Load data
-    this->apiClient = std::make_unique<ApiClient>(); // launch API that get all employees
 
     // Connexion du signal d'ajout à une méthode
-    connect(apiClient.get(), &ApiClient::employeeAdded, this, &MainWindow::onEmployeeAdded);
-    connect(apiClient.get(), &ApiClient::employeeModified, this, &MainWindow::onEmployeeModified);
-    connect(apiClient.get(), &ApiClient::configModified, this, &MainWindow::onConfigModified);
-    connect(apiClient.get(), &ApiClient::errorReachingApiServer, this, &MainWindow::errorDisplay);
+    connect(&apiClient, &ApiClient::employeeAdded, this, &MainWindow::onEmployeeAdded);
+    connect(&apiClient, &ApiClient::employeeModified, this, &MainWindow::onEmployeeModified);
+    connect(&apiClient, &ApiClient::configModified, this, &MainWindow::onConfigModified);
+    connect(&apiClient, &ApiClient::errorReachingApiServer, this, &MainWindow::errorDisplay);
 
     setWindowTitle("ERP Scalian - RH management");
     resize(900, 800);
@@ -48,7 +47,7 @@ void MainWindow::parseMyJson() {
     // Parser le QString
     QJsonParseError parseError;
     // QJsonDocument attend un QByteArray en UTF-8
-    QJsonDocument doc = QJsonDocument::fromJson(apiClient->getResponseData(), &parseError);
+    QJsonDocument doc = QJsonDocument::fromJson(apiClient.getResponseData(), &parseError);
 
     // Vérification des erreurs de parsing
     if (parseError.error != QJsonParseError::NoError) {
@@ -306,7 +305,7 @@ void MainWindow::addingEmployee() {
         employees.append(e);
 
         // Appel du service HTTP pour envoyer le JSON au serveur
-        apiClient->sendPostEmployeeRequest(json);
+        apiClient.sendPostEmployeeRequest(json);
     }
     else
     {
@@ -351,7 +350,7 @@ void MainWindow::onTableDoubleClicked(int row, int column)
             *it = e;
 
             // Appel du service HTTP pour envoyer le JSON au serveur
-            apiClient->sendPutEmployeeRequest(json, id, row, e);
+            apiClient.sendPutEmployeeRequest(json, id, row, e);
         }
         else
         {
@@ -466,7 +465,7 @@ void MainWindow::openConfigServerWindow() {
         // L'utilisateur a cliqué sur "Valider"
         QString json = configserv.toJson();
         qDebug() << "Saisie validée :" << json;
-        apiClient->sendPutConfigRequest(json.toStdString());
+        apiClient.sendPutConfigRequest(json.toStdString());
     }
     else
     {
@@ -475,14 +474,14 @@ void MainWindow::openConfigServerWindow() {
     }
 }
 void MainWindow::openConfigAppWindow() {
-    ConfigAppWindow configapp(this->apiClient->getPort(), apiClient->getHost());
+    ConfigAppWindow configapp(this->apiClient.getPort(), apiClient.getHost());
 
     if (configapp.exec() == QDialog::Accepted)
     {
         // L'utilisateur a cliqué sur "Valider"
         qDebug() << "Config validée sur http://" << configapp.getHost() << ":" << configapp.getPort();
-        apiClient->setHost(configapp.getHost());
-        apiClient->setPort(configapp.getPort());
+        apiClient.setHost(configapp.getHost());
+        apiClient.setPort(configapp.getPort());
     }
     else
     {
@@ -509,8 +508,8 @@ void MainWindow::onConfigModified(const std::string json) {
         // Vérifier qu'on a bien au moins 1 élément
         if (jsonArray.size() >= 1) {
             QJsonObject obj = jsonArray.at(0).toObject();
-            apiClient->setPort(obj.value("port").toInt());
-            apiClient->setHost(obj.value("host").toString());
+            apiClient.setPort(obj.value("port").toInt());
+            apiClient.setHost(obj.value("host").toString());
         }
     }
 }
@@ -537,7 +536,7 @@ void MainWindow::errorDisplay() {
     // 2. Texte de l'erreur (supporte le HTML de base pour la mise en forme)
     QString msg("");
     msg += "<b>Erreur de connexion :</b> ";
-    msg += apiClient->getMsg();
+    msg += apiClient.getMsg();
     msg += "<br><br>Pensez à vérifier la configuration (host/port)...";
     errorLabel->setText(msg);
 
@@ -553,9 +552,9 @@ void MainWindow::errorDisplay() {
 
 // load data by recreating tabs and getting all DB
 void MainWindow::reloadData() {
-    apiClient->sendGetEmployeeRequest(0);
+    apiClient.sendGetEmployeeRequest(0);
 
-    if(apiClient->getStatus()!=0){
+    if(apiClient.getStatus()!=0){
         errorDisplay();
     }
     else {
