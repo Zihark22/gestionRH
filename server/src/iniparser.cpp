@@ -2,28 +2,28 @@
 
 std::string IniParser::trim(const std::string& str) {
     size_t first = str.find_first_not_of(" \t\r\n");
+
     if (first == std::string::npos) 
         return "";
     size_t last = str.find_last_not_of(" \t\r\n");
+
     return str.substr(first, (last - first + 1));
 }
 
 std::string IniParser::getField(const std::string &obj, const std::string &key) {
     std::string pattern = "\"" + key + "\"";
     size_t pos = obj.find(pattern);
-    if (pos == std::string::npos) {
+
+    if (pos == std::string::npos)
         return "";
-    }
 
     size_t colon = obj.find(':', pos + pattern.size());
-    if (colon == std::string::npos) {
+    if (colon == std::string::npos)
         return "";
-    }
 
     size_t valueStart = obj.find_first_not_of(" \t\r\n", colon + 1);
-    if (valueStart == std::string::npos) {
+    if (valueStart == std::string::npos)
         return "";
-    }
 
     // Cas chaîne de caractères
     if (obj[valueStart] == '"') {
@@ -33,9 +33,9 @@ std::string IniParser::getField(const std::string &obj, const std::string &key) 
                 valueEnd += 2;
                 continue;
             }
-            if (obj[valueEnd] == '"') {
+            if (obj[valueEnd] == '"')
                 break;
-            }
+            
             ++valueEnd;
         }
         return obj.substr(valueStart + 1, valueEnd - valueStart - 1);
@@ -43,9 +43,9 @@ std::string IniParser::getField(const std::string &obj, const std::string &key) 
 
     // Cas nombre / bool / null
     size_t valueEnd = valueStart;
-    while (valueEnd < obj.size() && obj[valueEnd] != ',' && obj[valueEnd] != '}') {
+    while (valueEnd < obj.size() && obj[valueEnd] != ',' && obj[valueEnd] != '}')
         ++valueEnd;
-    }
+
     return IniParser::trim(obj.substr(valueStart, valueEnd - valueStart));
 }
 
@@ -74,9 +74,9 @@ std::vector<SectionConfig> IniParser::parse(const std::string& filepath) {
         // 2. Ligne de commentaire (commence par ';' ou '#')
         if (trimmedLine[0] == ';' || trimmedLine[0] == '#') {
             std::string commentContent = trim(trimmedLine.substr(1));
-            if (!accumulatedComments.empty()) {
+            if (!accumulatedComments.empty())
                 accumulatedComments += " "; // Séparateur si commentaire multi-lignes
-            }
+            
             accumulatedComments += commentContent;
             continue;
         }
@@ -133,9 +133,9 @@ std::vector<SectionConfig> IniParser::parseFromString(std::string_view content) 
         // 2. Ligne de commentaire (commence par ';' ou '#')
         if (trimmedLine[0] == ';' || trimmedLine[0] == '#') {
             std::string commentContent = trim(trimmedLine.substr(1));
-            if (!accumulatedComments.empty()) {
+            if (!accumulatedComments.empty())
                 accumulatedComments += " "; // Séparateur si commentaire multi-lignes
-            }
+            
             accumulatedComments += commentContent;
             continue;
         }

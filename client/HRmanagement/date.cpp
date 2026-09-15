@@ -1,12 +1,11 @@
 #include "date.hpp"
 
-
 // Constructeur avec validation
 Date::Date(int day, int month, int year) {
-    if (!isValidDate(day, month, year)) {
+    if (!isValidDate(day, month, year))
         throw std::invalid_argument("Date invalide : " + std::to_string(day) + "/"
                                     + std::to_string(month) + "/" + std::to_string(year));
-    }
+
     m_day = day;
     m_month = month;
     m_year = year;
@@ -65,9 +64,9 @@ bool Date::isValidDate(int d, int m, int y) {
 
 // Sécuriser les setters
 void Date::setDay(int day) {
-    if (!isValidDate(day, m_month, m_year)) {
+    if (!isValidDate(day, m_month, m_year))
         throw std::invalid_argument("Jour invalide pour cette date : " + std::to_string(day));
-    }
+
     m_day = day;
 }
 
@@ -89,16 +88,13 @@ std::string Date::toString() const {
 /* ------------------- Opérateurs ------------------- */
 
 ///////// COMPARAISONS //////////
-bool operator==(Date const& a, Date const& b)
-{
+bool operator==(Date const& a, Date const& b) {
     return (a.day() == b.day() && a.month() == b.month() && a.year() == b.year());
 }
-bool operator!=(Date const& a, Date const& b)
-{
+bool operator!=(Date const& a, Date const& b) {
     return !(a.day()==b.day() and a.month()==b.month() and a.year()==b.year());
 }
-bool operator>(Date const& a, Date const& b)
-{
+bool operator>(Date const& a, Date const& b) {
     if(a.year() > b.year())      // année plus grande que b
         return true;
     else if(a.year() < b.year()) // année plus petite que b
@@ -118,8 +114,7 @@ bool operator>(Date const& a, Date const& b)
         }
     }
 }
-bool operator<(Date const& a, Date const& b)
-{
+bool operator<(Date const& a, Date const& b) {
     if(a.year() < b.year())      // année plus petite que b
         return true;
     else if(a.year() > b.year()) // année plus grande que b

@@ -2,8 +2,6 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
-    // Load data
-
     // Connexion du signal d'ajout à une méthode
     connect(&apiClient, &ApiClient::employeeAdded, this, &MainWindow::onEmployeeAdded);
     connect(&apiClient, &ApiClient::employeeModified, this, &MainWindow::onEmployeeModified);
@@ -38,7 +36,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     reloadData();
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow() {
+
+}
 
 void MainWindow::parseMyJson() {
     // clear for reload data
@@ -114,8 +114,7 @@ QWidget* MainWindow::createGeneralTab() {
 }
 
 // Remplissage du 1er tableau
-QTableWidget* MainWindow::fillGeneralTab(QWidget* tab)
-{
+QTableWidget* MainWindow::fillGeneralTab(QWidget* tab) {
     // Instanciation du tableau (3 lignes, 3 colonnes)
     QTableWidget *tableWidget=nullptr;
 
@@ -225,8 +224,7 @@ QWidget* MainWindow::createPreventionTab() {
 }
 
 // Remplissage du 2nd tableau
-QTableWidget* MainWindow::fillPreventionTab(QWidget* tab)
-{
+QTableWidget* MainWindow::fillPreventionTab(QWidget* tab) {
     // Instanciation du tableau (3 lignes, 3 colonnes)
     QTableWidget *tableWidget=nullptr;
 
@@ -282,9 +280,8 @@ QTableWidget* MainWindow::fillPreventionTab(QWidget* tab)
 
     // 6. Center text in cells
     for (int row = 0; row < tableWidget->rowCount(); ++row) {
-        for (int col = 0; col < tableWidget->columnCount(); ++col) {
+        for (int col = 0; col < tableWidget->columnCount(); ++col)
             tableWidget->item(row, col)->setTextAlignment(Qt::AlignCenter);
-        }
     }
 
     return tableWidget;
@@ -310,39 +307,37 @@ void MainWindow::addingEmployee() {
     else
     {
         // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
+        // Ajouter une fenêtre de confirmation
         // std::cout << "Saisie annulée" << std::endl;
     }
 }
 
 // Slot activé lors du clic sur la ligne du premier onglet pour modification via formulaire
-void MainWindow::onTableDoubleClicked(int row, int column)
-{
+void MainWindow::onTableDoubleClicked(int row, int column) {
     Q_UNUSED(column); // On ignore la colonne cliquée car on veut toute la ligne
 
     // 1. Récupérer l'item de la 1ère colonne de cette ligne
     QTableWidgetItem *firstItem = generalTableWidget->item(row, 0);
-    if (!firstItem) return;
+    if (!firstItem)
+        return;
 
     // 2. Extraire l'ID qu'on avait caché dedans avec Qt::UserRole
     int id = firstItem->data(Qt::UserRole).toInt();
     // qDebug() << "Collaborateur ID:" << id;
 
     // 3. Chercher le collaborateur correspondant dans votre QList
-    auto it = std::find_if(employees.begin(), employees.end(),
-                           [id](const Employee &c) {
-                               return c.id() == id;
-                           });
+    auto it = std::find_if(employees.begin(), employees.end(), [id](const Employee &c) {
+       return c.id() == id;
+    });
 
-    if (it != employees.end())
-    {
+    if (it != employees.end()) {
 
     // 4. Ouvrir le formualire remplit avec les données de l'employé
         Employee e = *it; // Copie de l'objet à modifier
         FormWindow dialog(e, managers); // ouvre formulaire
 
         // .exec() rend la fenêtre MODALE et bloque le flux jusqu'à la fermerture
-        if (dialog.exec() == QDialog::Accepted)
-        {
+        if (dialog.exec() == QDialog::Accepted) {
             // L'utilisateur a cliqué sur "Valider"
             Employee e = dialog.toEmployee();
             std::string json = "[" + e.to_JSON() + "]";
@@ -352,8 +347,7 @@ void MainWindow::onTableDoubleClicked(int row, int column)
             // Appel du service HTTP pour envoyer le JSON au serveur
             apiClient.sendPutEmployeeRequest(json, id, row, e);
         }
-        else
-        {
+        else {
             // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
             // std::cout << "Saisie annulée" << std::endl;
         }
@@ -416,9 +410,8 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
     generalTableWidget->setItem(row, 6, new QTableWidgetItem(QString::fromStdString(e.start_date().toString())));
 
     for (int col = 0; col < generalTableWidget->columnCount(); ++col) {
-        if (auto item = generalTableWidget->item(row, col)) {
+        if (auto item = generalTableWidget->item(row, col))
             item->setTextAlignment(Qt::AlignCenter);
-        }
     }
     generalTableWidget->selectRow(row);
 
@@ -429,7 +422,8 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
     QTableWidgetItem *firstCell;
     for(int iRow=0; iRow<preventionTableWidget->rowCount()-1;iRow++) {
         firstCell = preventionTableWidget->item(iRow, 0);
-        if (!firstCell) return;
+        if (!firstCell)
+            return;
 
         // Extraire l'ID qu'on avait caché dedans avec Qt::UserRole
         int id = firstCell->data(Qt::UserRole).toInt();
@@ -447,9 +441,8 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
     preventionTableWidget->setItem(rowPrevention, 5, new QTableWidgetItem(plan_signed_str));
     preventionTableWidget->selectRow(rowPrevention);
     for (int col = 0; col < preventionTableWidget->columnCount(); ++col) {
-        if (auto item = preventionTableWidget->item(rowPrevention, col)) {
+        if (auto item = preventionTableWidget->item(rowPrevention, col))
             item->setTextAlignment(Qt::AlignCenter);
-        }
     }
 
 }
@@ -460,15 +453,13 @@ void MainWindow::updateCmpt() {
 void MainWindow::openConfigServerWindow() {
     ConfigServerWindow configserv;
 
-    if (configserv.exec() == QDialog::Accepted)
-    {
+    if (configserv.exec() == QDialog::Accepted) {
         // L'utilisateur a cliqué sur "Valider"
         QString json = configserv.toJson();
         qDebug() << "Saisie validée :" << json;
         apiClient.sendPutConfigRequest(json.toStdString());
     }
-    else
-    {
+    else {
         // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
         qDebug() << "Saisie annulée";
     }
@@ -476,15 +467,13 @@ void MainWindow::openConfigServerWindow() {
 void MainWindow::openConfigAppWindow() {
     ConfigAppWindow configapp(this->apiClient.getPort(), apiClient.getHost());
 
-    if (configapp.exec() == QDialog::Accepted)
-    {
+    if (configapp.exec() == QDialog::Accepted) {
         // L'utilisateur a cliqué sur "Valider"
         qDebug() << "Config validée sur http://" << configapp.getHost() << ":" << configapp.getPort();
         apiClient.setHost(configapp.getHost());
         apiClient.setPort(configapp.getPort());
     }
-    else
-    {
+    else {
         // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
         qDebug() << "Saisie annulée";
     }
@@ -554,9 +543,8 @@ void MainWindow::errorDisplay() {
 void MainWindow::reloadData() {
     apiClient.sendGetEmployeeRequest(0);
 
-    if(apiClient.getStatus()!=0){
+    if(apiClient.getStatus()!=0)
         errorDisplay();
-    }
     else {
         // Widget de gestion des onglets
         auto *tabWidget = new QTabWidget(this);

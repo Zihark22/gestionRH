@@ -19,7 +19,8 @@ void ApiClient::load_config(const std::string& file_path) {
                 if (auto var = section.getVariable("port")) {
                     try {
                         this->port = stoi(var->valeur);
-                    } catch (...) {
+                    }
+                    catch (...) {
                         qDebug() << "[loadConfig] Invalid port value: " << var->valeur;
                     }
                 }
@@ -73,7 +74,8 @@ void ApiClient::sendGetEmployeeRequest(int id) {
         reply->deleteLater();
         emit finished();
 
-    } else {
+    }
+    else {
         qCritical().noquote() << "Erreur :" << reply->errorString();
         this->errorMsg = reply->errorString();
         this->status = -1;
@@ -158,7 +160,8 @@ void ApiClient::sendPutEmployeeRequest(const std::string &json, const int &id, c
             QByteArray responseD = reply->readAll();
             qDebug() << "Succès ! Réponse API :" << responseD;
             emit employeeModified(row, e);
-        } else {
+        }
+        else {
             qDebug() << "Erreur HTTP :" << reply->errorString();
             qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qDebug() << "Détails réponse :" << reply->readAll();
@@ -258,7 +261,8 @@ void ApiClient::sendPutConfigRequest(const std::string &json) {
     QObject::connect(reply, &QNetworkReply::finished, [this, reply, json]() {
         if (reply->error() == QNetworkReply::NoError) {
             emit configModified(json);
-        } else {
+        }
+        else {
             qDebug() << "Erreur HTTP :" << reply->errorString();
             qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qDebug() << "Détails réponse :" << reply->readAll();

@@ -10,9 +10,10 @@ void ApiServer::set_request_handler(RequestHandler handler) {
 
 void ApiServer::start(int server_fd) {
     // Boucle principale pour accepter les connexions entrantes
-    while (true) {
+    while (_isRunning) {
         int client_fd = accept(server_fd, nullptr, nullptr);
-        if (client_fd < 0) continue;
+        if (client_fd < 0) 
+            continue;
 
         char buffer[2048] = {0};
         read(client_fd, buffer, sizeof(buffer) - 1);
@@ -31,17 +32,15 @@ void ApiServer::parse_request_http(std::string request, const int client_fd) {
     
     // Extraction de la méthode HTTP (GET, POST, DELETE, PUT, etc.)
     size_t space_pos = request.find(" ");
-    if (space_pos != std::string::npos) {
+    if (space_pos != std::string::npos)
         method = request.substr(0, space_pos);
-    }
     
     // Extraction de l'endpoint (entre le premier et le deuxième espace)
     size_t first_space = request.find(" ");
     size_t second_space = request.find(" ", first_space + 1);
     
-    if (first_space != std::string::npos && second_space != std::string::npos) {
+    if (first_space != std::string::npos && second_space != std::string::npos)
         endpoint = request.substr(first_space + 1, second_space - first_space - 1);
-    }
 
     // Extraction du body si présent
     size_t content_pos = request.find("Content-Length:");
@@ -80,14 +79,17 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
     // count the number of non-digit characters in the endpoint to limit endpoint structure after /api/employees to a maximum of 15 non-digit characters (e.g., /api/employees/123)
     int nbCarNotDigit = 0;
     for (size_t i = 0; i < endpoint.length(); ++i) {
-        if (isdigit(endpoint[i])) continue;
-        else nbCarNotDigit++;
+        if (isdigit(endpoint[i])) 
+            continue;
+        else 
+            nbCarNotDigit++;
     }
 
     // si le endpoint employees est dans la requete (ex: ID)
     if (endpoint.rfind("/api/employees", 0) == 0 && nbCarNotDigit<=15) {
         std::string id = endpoint.substr(std::string("/api/employees").size());
-        if(id[0]=='/') id = id.substr(1); // pour gérer avec / ou sans à la fin
+        if(id[0]=='/') 
+            id = id.substr(1); // pour gérer avec / ou sans à la fin
         
         // si ID à la fin du endpoint
         if (!id.empty() && id.find_first_not_of("0123456789") == std::string::npos) {
@@ -237,7 +239,8 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
                 rep = m_handler("getconfig", "");
                 std::cout << "reponse : " << rep << std::endl;
                 result = 0;
-            } else {
+            } 
+            else {
                 rep = "ERROR 500: No handler";
                 result = -1;
             }

@@ -110,26 +110,22 @@ int Server::modify_config_from_json(const std::string &json){
         std::string contenu;
         fichier.seekg(0);
         while (getline(fichier, ligne)) {
-            if (ligne.find("host =") != std::string::npos) {
+            if (ligne.find("host =") != std::string::npos)
                 contenu += "host = " + new_host + "\n";
-            } 
-            else if (ligne.find("port =") != std::string::npos) {
+            else if (ligne.find("port =") != std::string::npos)
                 contenu += "port = " + std::to_string(new_port) + "\n";
-            }
-            else if (ligne.find("db_path =") != std::string::npos) {
+            else if (ligne.find("db_path =") != std::string::npos)
                 contenu += "db_path = " + new_db_path + "\n";
-            }            
-            else {
+            else
                 contenu += ligne + "\n";
-            }
         }
         fichier.clear();
         fichier.seekp(0);
         fichier.write(contenu.c_str(), contenu.length());
         fichier.close();
-    } else {
+    } 
+    else
         std::cerr << "Impossible d'ouvrir le fichier en écriture." << std::endl;
-    }
 
     return 0;
 } 
@@ -145,19 +141,16 @@ void Server::load_config(const std::string& file_path) {
                     std::cerr << "[loadConfig] Invalid port value: " << var->valeur << std::endl;
                 }
             }
-            if (auto var = section.getVariable("host")) {
+            if (auto var = section.getVariable("host"))
                 this->host = var->valeur;
-            }
         }
         else if (section.nom == "Database") {
-            if (auto var = section.getVariable("db_path")) {
+            if (auto var = section.getVariable("db_path"))
                 this->db_path = var->valeur;
-            }
         }
         else if (section.nom == "Logging") {
-            if (auto var = section.getVariable("log_file")) {
+            if (auto var = section.getVariable("log_file"))
                 this->log_file = var->valeur;
-            }
         }
     }
 
@@ -182,7 +175,6 @@ void Server::start() {
         close(server_fd);
         return;
     }
-
 
     std::cout << "\n============= Serveur démarré sur http://" << host << ":" << port << " ==============" << std::endl;
 

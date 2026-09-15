@@ -1,8 +1,6 @@
 #include "configserverwindow.hpp"
 
-ConfigServerWindow::ConfigServerWindow(QWidget *parent)
-    : QDialog(parent)
-{
+ConfigServerWindow::ConfigServerWindow(QWidget *parent) : QDialog(parent) {
     resize(400, 200);
     setWindowTitle("Configuration serveur");
 

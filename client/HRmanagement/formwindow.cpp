@@ -2,9 +2,7 @@
 
 QStringList FormWindow::optionsPlan = {"Plan A", "Plan B", "Plan C"};
 
-FormWindow::FormWindow(QWidget *parent)
-    : QDialog(parent)
-{
+FormWindow::FormWindow(QWidget *parent) : QDialog(parent) {
     formLayout = new QFormLayout();
     resize(500, 400);
 
@@ -77,9 +75,7 @@ FormWindow::FormWindow(QWidget *parent)
     connect(m_btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-FormWindow::FormWindow(const QList<QPair<int, QString>> &managers, QWidget *parent)
-    : FormWindow(parent)
-{
+FormWindow::FormWindow(const QList<QPair<int, QString>> &managers, QWidget *parent) : FormWindow(parent) {
     setWindowTitle("Nouveau collaborateur");
 
     // Formulaire
@@ -91,14 +87,11 @@ FormWindow::FormWindow(const QList<QPair<int, QString>> &managers, QWidget *pare
     m_coefSyntSpinBox->setValue(100);
     m_signedPlanBox->setChecked(true);
 
-    for (const auto &pair : managers) {
+    for (const auto &pair : managers)
         m_manager->addItem(pair.second, pair.first);
-    }
 }
 
-FormWindow::FormWindow(const Employee &e, const QList<QPair<int, QString>> &managers, QWidget *parent)
-    : FormWindow(parent)
-{
+FormWindow::FormWindow(const Employee &e, const QList<QPair<int, QString>> &managers, QWidget *parent) : FormWindow(parent) {
     setWindowTitle("Modifier collaborateur");
 
     m_id = e.id();

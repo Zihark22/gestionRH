@@ -1,9 +1,7 @@
 #include "configappwindow.hpp"
 
 // Constructeur général
-ConfigAppWindow::ConfigAppWindow(QWidget *parent)
-    : QDialog(parent)
-{
+ConfigAppWindow::ConfigAppWindow(QWidget *parent) : QDialog(parent) {
     resize(400, 200);
     setWindowTitle("Configuration Application");
 
@@ -40,17 +38,15 @@ ConfigAppWindow::ConfigAppWindow(QWidget *parent)
 }
 
 // Spécifie les valeurs à préremplir à partir de la config
-ConfigAppWindow::ConfigAppWindow(const int port, const QString host, QWidget *parent)
-    : ConfigAppWindow(parent)
-{
+ConfigAppWindow::ConfigAppWindow(const int port, const QString host, QWidget *parent) : ConfigAppWindow(parent) {
     this->m_host->setText(host);
     this->m_port->setValue(port);
 }
 
-
 int ConfigAppWindow::getPort() {
     return this->m_port->value();
 }
+
 QString ConfigAppWindow::getHost() {
     return this->m_host->text();
 }

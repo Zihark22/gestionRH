@@ -36,6 +36,7 @@ private:
     std::string body="";            //< body des requêtes HTTP
     DBhandler db_handler;           //< Handler pour interagir avec la base de données
     RequestHandler m_handler;       //< Handler pour traiter les requêtes spécifiques
+    bool _isRunning = true;         //< Indique si le serveur est en cours d'exécution
 
     
     ///////// Méthodes /////////

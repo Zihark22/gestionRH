@@ -21,9 +21,8 @@ struct SectionConfig {
 
     // Méthode utilitaire pour chercher une variable par son nom
     const VariableConfig* getVariable(const std::string& varName) const {
-        for (const auto& var : variables) {
+        for (const auto& var : variables)
             if (var.nom == varName) return &var;
-        }
         return nullptr;
     }
 };

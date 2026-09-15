@@ -6,19 +6,16 @@ Employee::Employee(const std::string &jsonStr) {
     std::string s = IniParser::trim(jsonStr);
 
     // Format attendu : [{"firstname":"Marc","lastname":"Dumort"}]
-    if (s.size() < 2 || s.front() != '[' || s.back() != ']') {
+    if (s.size() < 2 || s.front() != '[' || s.back() != ']')
         return;
-    }
 
     std::string inner = IniParser::trim(s.substr(1, s.size() - 2));
 
-    if (inner.empty()) {
+    if (inner.empty())
         return;
-    }
 
-    if (inner.front() != '{' || inner.back() != '}') {
+    if (inner.front() != '{' || inner.back() != '}')
         return;
-    }
 
     std::string obj = IniParser::trim(inner.substr(1, inner.size() - 2));
 
@@ -38,20 +35,30 @@ Employee::Employee(const std::string &jsonStr) {
     std::string startDate = IniParser::getField(obj, "start_date");
     std::string idStr = IniParser::getField(obj, "id");
 
-    if (!firstname.empty()) m_firstname = firstname;
-    if (!lastname.empty())  m_lastname = lastname;
-    if (!birthdate.empty()) m_birthdate = Date(birthdate);
-    if (!job.empty())      m_job = job;
-    if (!prevPlan.empty()) m_prev_plan = prevPlan;
+    if (!firstname.empty()) 
+        m_firstname = firstname;
+    if (!lastname.empty())  
+        m_lastname = lastname;
+    if (!birthdate.empty()) 
+        m_birthdate = Date(birthdate);
+    if (!job.empty()) 
+        m_job = job;
+    if (!prevPlan.empty()) 
+        m_prev_plan = prevPlan;
 
     m_executive_status = (executiveStatus == "true" || executiveStatus == "1");
     m_signed_plan = (signedPlan == "true" || signedPlan == "1");
 
-    if (!positionStr.empty())     m_position = stof(positionStr);
-    if (!coefficientStr.empty())  m_coefficient = stoi(coefficientStr);
-    if (!managerIdStr.empty())    m_manager_id = stoi(managerIdStr);
-    if (!startDate.empty())       m_start_date = Date(startDate);
-    if (!idStr.empty())           m_id = stoi(idStr); else m_id = -1; // laisse la base de donnée mettre l'id
+    if (!positionStr.empty())     
+        m_position = stof(positionStr);
+    if (!coefficientStr.empty())  
+        m_coefficient = stoi(coefficientStr);
+    if (!managerIdStr.empty())    
+        m_manager_id = stoi(managerIdStr);
+    if (!startDate.empty())       
+        m_start_date = Date(startDate);
+    if (!idStr.empty())           
+        m_id = stoi(idStr); else m_id = -1; // laisse la base de donnée mettre l'id
 
 } 
 
@@ -94,14 +101,12 @@ Employee Employee::from_sql(const std::map<std::string, std::string> &sql_row) {
     // Fonction lambda pour convertir une chaîne en entier avec une valeur par défaut
     auto to_int_or_default = [&](const std::string& key, int defaultValue) -> int {
         const auto it = sql_row.find(key);
-        if (it == sql_row.end()) {
+        if (it == sql_row.end())
             return defaultValue;
-        }
 
         const std::string& value = it->second;
-        if (value.empty() || value == "NULL" || value == "null") {
+        if (value.empty() || value == "NULL" || value == "null")
             return defaultValue;
-        }
 
         try {
             return stoi(value);

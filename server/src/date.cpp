@@ -1,10 +1,10 @@
 #include "../includes/date.hpp"
 
 Date::Date(int day, int month, int year) {
-    if (!isValidDate(day, month, year)) {
+    if (!isValidDate(day, month, year))
         throw std::invalid_argument("Date invalide : " + std::to_string(day) + "/" 
                                     + std::to_string(month) + "/" + std::to_string(year));
-    }
+
     m_day = day;
     m_month = month;
     m_year = year;
@@ -26,16 +26,12 @@ Date::Date(const std::string& dateStr) : Date([&]() {
             int thirdPart  = stoi(dateStr.substr(secondSlash + 1));
 
             if(firstPart>1000) // yyyy/MM/dd
-            {
                 return Date(thirdPart, secondPart, firstPart); // Appelle la validation du constructeur (int, int, int)
-            }
-            else {
+            else
                 return Date(firstPart, secondPart, thirdPart);
-            }
         }
-        else {
+        else
             throw std::invalid_argument("Format de la date non conforme (dd/MM/yyyy ou dd-MM-yyyy ou yyyy/MM/dd) : " + dateStr);
-        } 
         
     }()) 
 {
@@ -47,25 +43,23 @@ bool Date::isLeapYear(int year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 bool Date::isValidDate(int d, int m, int y) {
-    if (y < 1 || m < 1 || m > 12 || d < 1) {
+    if (y < 1 || m < 1 || m > 12 || d < 1)
         return false;
-    }
 
     // Nombre de jours par mois
     std::array<int, 12> daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     
-    if (m == 2 && isLeapYear(y)) {
+    if (m == 2 && isLeapYear(y))
         daysInMonth[1] = 29; // Février année bissextile
-    }
 
     return d <= daysInMonth[m - 1];
 }
 
 
 void Date::setDay(int day) {
-    if (!isValidDate(day, m_month, m_year)) {
+    if (!isValidDate(day, m_month, m_year))
         throw std::invalid_argument("Jour invalide pour cette date : " + std::to_string(day)); // Sécurise la saisie
-    }
+    
     m_day = day;
 }
 
@@ -88,16 +82,13 @@ std::string Date::toString() const {
 /* ------------------- Opérateurs ------------------- */
 
 ///////// COMPARAISONS //////////
-bool operator==(Date const& a, Date const& b)
-{
+bool operator==(Date const& a, Date const& b) {
     return (a.day() == b.day() && a.month() == b.month() && a.year() == b.year());
 }
-bool operator!=(Date const& a, Date const& b)
-{
+bool operator!=(Date const& a, Date const& b) {
     return !(a.day()==b.day() and a.month()==b.month() and a.year()==b.year());
 }
-bool operator>(Date const& a, Date const& b)
-{
+bool operator>(Date const& a, Date const& b) {
     if(a.year() > b.year())      // année plus grande que b
         return true;
     else if(a.year() < b.year()) // année plus petite que b
@@ -117,8 +108,7 @@ bool operator>(Date const& a, Date const& b)
         }
     }
 }
-bool operator<(Date const& a, Date const& b)
-{
+bool operator<(Date const& a, Date const& b) {
     if(a.year() < b.year())      // année plus petite que b
         return true;
     else if(a.year() > b.year()) // année plus grande que b

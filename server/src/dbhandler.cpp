@@ -21,9 +21,8 @@ void DBhandler::open_db() {
         std::cerr << "Error opening DB: " << sqlite3_errmsg(this->db) << std::endl;
         sqlite3_close(this->db);
         this->db = nullptr;
-    } else {
+    } else
         std::cout << "--- Connection Database: connected ---" << std::endl;
-    }
 } 
 void DBhandler::close_db() {
     if (this->db) {
@@ -39,12 +38,13 @@ int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
     
     auto* self = static_cast<DBhandler*>(data); // On re-caste le void* en pointeur d'instance DBhandler*
 
-    if (!self) return SQLITE_ERROR;
+    if (!self) 
+        return SQLITE_ERROR;
 
     std::map<std::string, std::string> row;
-    for (int i = 0; i < argc; i++) {
+    for (int i = 0; i < argc; i++)
         row[azColName[i]] = argv[i] ? argv[i] : "NULL";
-    }
+
 
     // On remplit le vecteur de L'INSTANCE courante
     self->employees.emplace_back(Employee::from_sql(row));
@@ -71,7 +71,8 @@ int DBhandler::get_all_employees() {
 
 
 int DBhandler::get_employee(const int &id) {
-    if (!this->db) return -1; 
+    if (!this->db) 
+        return -1; 
 
     employees.clear();
 
@@ -91,7 +92,8 @@ int DBhandler::get_employee(const int &id) {
 }
 
 int DBhandler::delete_employee(const int &id) {
-    if (!this->db) return -1;
+    if (!this->db) 
+        return -1;
 
     employees.clear();
 
@@ -110,7 +112,8 @@ int DBhandler::delete_employee(const int &id) {
 }
 
 int DBhandler::modify_employee(const Employee &e, const std::string &id) {
-    if (!this->db) return -1;
+    if (!this->db) 
+        return -1;
 
     employees.clear();
 
@@ -143,7 +146,8 @@ int DBhandler::modify_employee(const Employee &e, const std::string &id) {
 } 
 
 int DBhandler::add_employee(const Employee &e) {
-    if (!this->db) return -1;
+    if (!this->db) 
+        return -1;
 
     employees.clear();
 
@@ -175,9 +179,8 @@ int DBhandler::add_employee(const Employee &e) {
 
 
 void DBhandler::display_employees(void) {
-    for (const auto& emp : employees) {
+    for (const auto& emp : employees)
         emp.display();
-    }
 }
 
 int DBhandler::count_employees(void){
@@ -188,9 +191,8 @@ std::string DBhandler::formatter_JSON() {
     std::string json = "[";
     for (size_t i = 0; i < employees.size(); ++i) {
         json += employees[i].to_JSON();
-        if (i < employees.size() - 1) {
+        if (i < employees.size() - 1)
             json += ",";
-        }
     }
     json += "]";
     return json;
