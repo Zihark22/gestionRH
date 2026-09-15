@@ -83,7 +83,9 @@ void MainWindow::extractManagers() {
         if(e.isExecutive())
             managers.append({e.id(),fullname});
     }
-    // managers.sort();
+    std::sort(managers.begin(), managers.end(), [](const QPair<int, QString> &m1, const QPair<int, QString> &m2) {
+        return m1.second < m2.second;
+    });
 }
 
 // Création du premier onglet (Tableau)
