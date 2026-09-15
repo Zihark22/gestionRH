@@ -4,7 +4,6 @@
 #include "date.hpp"
 #include "iniparser.hpp"
 
-
 #include <iostream>
 #include <map>
 
@@ -79,15 +78,15 @@ public:
     void display(void) const;
 
 private:
-    int mId{-1};                        //< Identifiant unique de l'employé
-    std::string mFirstname;             //< Prénom de l'employé
-    std::string mLastname;              //< Nom de famille de l'employé
-    Date mBirthdate;                    //< Date de naissance de l'employé
-    std::string mJob;                   //< Poste de l'employé
+    int mId{-1};                       //< Identifiant unique de l'employé
+    std::string mFirstname{""};        //< Prénom de l'employé
+    std::string mLastname{""};         //< Nom de famille de l'employé
+    Date mBirthdate{"01/01/2000"};     //< Date de naissance de l'employé
+    std::string mJob{""};              //< Poste de l'employé
     int mExecutiveStatus{0};           //< Statut de manager de l'employé
-    float mPosition;                    //< Position de l'employé
-    int mCoefficient{0};                //< Coefficient de l'employé
-    Date mStartDate;                   //< Date de début d'activité
+    float mPosition{0.0};              //< Position de l'employé
+    int mCoefficient{0};               //< Coefficient de l'employé
+    Date mStartDate{"01/01/2010"};     //< Date de début d'activité
     int mManagerId{-1};                //< Identifiant du manager
     std::string mPrevPlan{"Plan A"};   //< Plan précédent
     int mSignedPlan{0};                //< Plan signé
