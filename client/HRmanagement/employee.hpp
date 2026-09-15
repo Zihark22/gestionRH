@@ -11,64 +11,87 @@ using namespace std;
 
 class Employee {
 public:
-    Employee();
+    // Constructeurs
+
+    Employee() = default;
+
+    /** @brief Crée un objet Employee à partir d'un JSON string (ex: réponse d'une requête API REST)
+     *  @param json Une chaîne JSON représentant l'employé.
+     */
     Employee(const std::string &json);
 
+    // Getters and Setters
+
     // Identifiant unique BDD
-    int id() const { return m_id; }
-    void set_id(int id) { m_id = id; }
+    int id() const { return mId; }
+    void setId(int id) { mId = id; }
 
-    // Onglet 1 & 2 - Infos de base
-    std::string firstname() const { return m_firstname; }
-    void set_firstname(const std::string &prenom) { m_firstname = prenom; }
+    std::string firstname() const { return mFirstname; }
+    void setFirstname(const std::string &prenom) { mFirstname = prenom; }
 
-    std::string lastname() const { return m_lastname; }
-    void set_lastname(const std::string &nom) { m_lastname = nom; }
+    std::string lastname() const { return mLastname; }
+    void setLastname(const std::string &nom) { mLastname = nom; }
 
-    Date birthdate() const { return m_birthdate; }
-    void set_birthdate(const Date &date) { m_birthdate = date; }
+    Date birthdate() const { return mBirthdate; }
+    void setBirthdate(const Date &date) { mBirthdate = date; }
 
-    std::string job() const { return m_job; }
-    void set_job(const std::string &poste) { m_job = poste; }
+    std::string job() const { return mJob; }
+    void setJob(const std::string &poste) { mJob = poste; }
 
-    int is_executive() const { return m_executive_status; }
-    void set_executive_status(int cadre) { m_executive_status = cadre; }
+    int isExecutive() const { return mExecutiveStatus; }
+    void setExecutiveStatus(int cadre) { mExecutiveStatus = cadre; }
 
-    float position() const { return m_position; }
-    void set_position(const float &pos) { m_position = pos; }
+    float position() const { return mPosition; }
+    void setPosition(const float &pos) { mPosition = pos; }
 
-    int coefficient() const { return m_coefficient; }
-    void set_coefficient(int coeff) { m_coefficient = coeff; }
+    int coefficient() const { return mCoefficient; }
+    void setCoefficient(int coeff) { mCoefficient = coeff; }
 
-    Date start_date() const { return m_start_date; }
-    void set_start_date(const Date &date) { m_start_date = date; }
+    Date startDate() const { return mStartDate; }
+    void setStartDate(const Date &date) { mStartDate = date; }
 
-    int manager_id() const { return m_manager_id; }
-    void set_manager_id(int id) { m_manager_id = id; }
+    int managerId() const { return mManagerId; }
+    void setManagerId(int id) { mManagerId = id; }
 
-    std::string prev_plan() const { return m_prev_plan; }
-    void set_prev_plan(std::string plan) { m_prev_plan = plan; }
+    std::string prevPlan() const { return mPrevPlan; }
+    void setPrevPlan(std::string plan) { mPrevPlan = plan; }
 
-    int signed_plan() const { return m_signed_plan; }
-    void set_signed_plan(int signe) { m_signed_plan = signe; }
+    int signedPlan() const { return mSignedPlan; }
+    void setSignedPlan(int signe) { mSignedPlan = signe; }
 
-    // Méthodes de sérialisation JSON pour l'API REST
-    std::string to_JSON() const;
 
+    // ---------------------------------------------------
+
+    /** @brief Sérialise l'objet Employee en JSON pour l'API REST
+     *  @return Chaîne JSON représentant l'employé
+     */
+    std::string toJson() const;
+
+    // ---------------------------------------------------
+
+    /** @brief Crée un objet Employee à partir d'une ligne de résultat SQL
+     *  @param sql_row Une map représentant une ligne de résultat SQL, où les clés sont les noms des colonnes et les valeurs sont les valeurs correspondantes.
+     *  @return Un objet Employee initialisé avec les données de la ligne SQL
+     */
+    static Employee fromSql(const std::map<std::string, std::string> &sql_row);
+
+    // ---------------------------------------------------
+
+    /** @brief Affiche les informations de l'employé dans la sortie standard */
     void display(void) const;
 
 private:
-    int m_id;
-    std::string m_firstname;
-    std::string m_lastname;
-    Date m_birthdate;
-    std::string m_job;
-    int m_executive_status;
-    float m_position;
-    int m_coefficient;
-    Date m_start_date;
-    int m_manager_id;
-    std::string m_prev_plan;
-    int m_signed_plan;
+    int mId{-1};                        //< Identifiant unique de l'employé
+    std::string mFirstname;             //< Prénom de l'employé
+    std::string mLastname;              //< Nom de famille de l'employé
+    Date mBirthdate;                    //< Date de naissance de l'employé
+    std::string mJob;                   //< Poste de l'employé
+    int mExecutiveStatus{0};           //< Statut de manager de l'employé
+    float mPosition;                    //< Position de l'employé
+    int mCoefficient{0};                //< Coefficient de l'employé
+    Date mStartDate;                   //< Date de début d'activité
+    int mManagerId{-1};                //< Identifiant du manager
+    std::string mPrevPlan{"Plan A"};   //< Plan précédent
+    int mSignedPlan{0};                //< Plan signé
 };
 #endif // EMPLOYEE_HPP

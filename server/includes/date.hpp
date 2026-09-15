@@ -31,21 +31,21 @@ public:
 
     /////// Getters ///////
 
-    int day() const { return m_day; }
-    int month() const { return m_month; }
-    int year() const { return m_year; }
+    int day() const { return myDay; }
+    int month() const { return myMonth; }
+    int year() const { return myYear; }
 
 
     /////// Setters ///////
     
     void setDay(int day);
-    void setMonth(int month) { m_month = month; }
-    void setYear(int year) { m_year = year; }
+    void setMonth(int month) { myMonth = month; }
+    void setYear(int year) { myYear = year; }
 
 private:
-    int m_day{1};
-    int m_month{1};
-    int m_year{2000};
+    int myDay{1};
+    int myMonth{1};
+    int myYear{2000};
 };
 
 /* ------------------- Opérateurs ------------------- */

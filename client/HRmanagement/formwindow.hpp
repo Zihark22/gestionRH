@@ -37,20 +37,20 @@ public:
 
 private:
     QFormLayout *formLayout;
-    QPushButton *m_btnValider;
-    QPushButton *m_btnAnnuler;
-    QLineEdit *m_txtFirstname;
-    QLineEdit *m_txtLastname;
-    QDateEdit * m_birthDate;
-    QDateEdit *m_startDate;
-    QLineEdit *m_jobEdit;
-    QCheckBox *m_signedPlanBox;
-    QCheckBox *m_statusBox;
-    QDoubleSpinBox *m_posSyntSpinBox;
-    QSpinBox *m_coefSyntSpinBox;
-    QComboBox *m_planCombo;
-    QComboBox *m_manager;
-    int m_id;
+    QPushButton *btnValider;
+    QPushButton *btnAnnuler;
+    QLineEdit *mFirstname;
+    QLineEdit *mLastname;
+    QDateEdit * mBirthdate;
+    QDateEdit *mStartDate;
+    QLineEdit *mJobEdit;
+    QCheckBox *mSignedPlanBox;
+    QCheckBox *mStatusBox;
+    QDoubleSpinBox *mPositionBox;
+    QSpinBox *mCoefBox;
+    QComboBox *mPlanCombo;
+    QComboBox *mManager;
+    int mId;
 
 };
 

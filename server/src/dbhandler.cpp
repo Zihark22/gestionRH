@@ -1,12 +1,13 @@
 #include "../includes/dbhandler.hpp"
 
 DBhandler::DBhandler() {
-    db_path = "";
+    dbPath = "";
 }
 
-DBhandler::DBhandler(const std::string& dbPath) {
-    db_path = dbPath;
+DBhandler::DBhandler(const std::string& newdbPath) {
+    this->dbPath = newdbPath;
 }
+
 DBhandler::~DBhandler() {
     if (this->db) {
         sqlite3_close(this->db); // fermeture de la base de données SQLite
@@ -14,26 +15,27 @@ DBhandler::~DBhandler() {
         std::cout << "Connection DB closed" << std::endl;
     }
 }
-void DBhandler::open_db() {
-    int exit = sqlite3_open(db_path.c_str(), &this->db);
+
+void DBhandler::openDB() {
+    int exit = sqlite3_open(dbPath.c_str(), &this->db);
     
     if (exit != SQLITE_OK) {
         std::cerr << "Error opening DB: " << sqlite3_errmsg(this->db) << std::endl;
         sqlite3_close(this->db);
         this->db = nullptr;
-    } else
+    } 
+    else
         std::cout << "--- Connection Database: connected ---" << std::endl;
 } 
-void DBhandler::close_db() {
+
+void DBhandler::closeDB() {
     if (this->db) {
         sqlite3_close(this->db);
         std::cout << "Connection DB closed" << std::endl;
     }
 }
 
-
-
-int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
+int DBhandler::saveData(void* data, int argc, char** argv, char** azColName) {
     // Le callback reçoit 'data' qui est notre pointeur 'this'
     
     auto* self = static_cast<DBhandler*>(data); // On re-caste le void* en pointeur d'instance DBhandler*
@@ -47,18 +49,19 @@ int DBhandler::save_data(void* data, int argc, char** argv, char** azColName) {
 
 
     // On remplit le vecteur de L'INSTANCE courante
-    self->employees.emplace_back(Employee::from_sql(row));
+    self->employees.emplace_back(Employee::fromSql(row));
 
     return SQLITE_OK;
 }
 
-int DBhandler::get_all_employees() {
-    if (!this->db) return -1;
+int DBhandler::getAllEmployees() {
+    if (!this->db) 
+        return -1;
 
     employees.clear();
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
-    int rc = sqlite3_exec(this->db, "SELECT * FROM employees ORDER BY id ASC;", DBhandler::save_data, static_cast<void*>(this), &messageError);
+    int rc = sqlite3_exec(this->db, "SELECT * FROM employees ORDER BY id ASC;", DBhandler::saveData, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
@@ -69,8 +72,7 @@ int DBhandler::get_all_employees() {
     return 0; // Indiquer que tout s'est bien passé
 }
 
-
-int DBhandler::get_employee(const int &id) {
+int DBhandler::getEmployee(const int &id) {
     if (!this->db) 
         return -1; 
 
@@ -79,7 +81,7 @@ int DBhandler::get_employee(const int &id) {
     std::string query = "SELECT * FROM employees WHERE employees.id=" + std::to_string(id) + ";";
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
-    int rc = sqlite3_exec(this->db, query.c_str(), DBhandler::save_data, static_cast<void*>(this), &messageError);
+    int rc = sqlite3_exec(this->db, query.c_str(), DBhandler::saveData, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
@@ -91,7 +93,7 @@ int DBhandler::get_employee(const int &id) {
     return 0; // Indiquer que tout s'est bien passé
 }
 
-int DBhandler::delete_employee(const int &id) {
+int DBhandler::deleteEmployee(const int &id) {
     if (!this->db) 
         return -1;
 
@@ -111,7 +113,7 @@ int DBhandler::delete_employee(const int &id) {
     return 0; // Indiquer que tout s'est bien passé
 }
 
-int DBhandler::modify_employee(const Employee &e, const std::string &id) {
+int DBhandler::modifyEmployee(const Employee &e, const std::string &id) {
     if (!this->db) 
         return -1;
 
@@ -124,13 +126,13 @@ int DBhandler::modify_employee(const Employee &e, const std::string &id) {
             lastname=\'"+e.lastname()+"\', \
             birthdate=\'"+e.birthdate().toString()+"\', \
             job=\'"+e.job()+"\', \
-            executive_status=" + std::to_string(e.is_executive())+", \
+            executive_status=" + std::to_string(e.isExecutive())+", \
             position=" + std::to_string(e.position())+", \
             coefficient=" + std::to_string(e.coefficient())+", \
-            start_date=\'"+e.start_date().toString()+"\', \
-            manager_id=" + std::to_string(e.manager_id())+", \
-            prev_plan=\'"+e.prev_plan()+"\',\
-            signed_plan=" + std::to_string(e.signed_plan())+" \
+            start_date=\'"+e.startDate().toString()+"\', \
+            manager_id=" + std::to_string(e.managerId())+", \
+            prev_plan=\'"+e.prevPlan()+"\',\
+            signed_plan=" + std::to_string(e.signedPlan())+" \
         WHERE id="+id+";";
  
     // On passe 'this' en 4ème paramètre à sqlite3_exec
@@ -145,7 +147,7 @@ int DBhandler::modify_employee(const Employee &e, const std::string &id) {
     return 0; // Indiquer que tout s'est bien passé
 } 
 
-int DBhandler::add_employee(const Employee &e) {
+int DBhandler::addEmployee(const Employee &e) {
     if (!this->db) 
         return -1;
 
@@ -156,9 +158,9 @@ int DBhandler::add_employee(const Employee &e) {
         position, coefficient, start_date, \
         manager_id, prev_plan, signed_plan\
     ) VALUES (\
-        '"+e.firstname()+"', '"+e.lastname()+"', '"+e.birthdate().toString()+"', '"+e.job()+"', " + std::to_string(e.is_executive())+", \
-        '"+ std::to_string(e.position())+"', " + std::to_string(e.coefficient())+", '"+e.start_date().toString()+"', \
-        " + std::to_string(e.manager_id())+", '"+e.prev_plan()+"', " + std::to_string(e.signed_plan())+"\
+        '"+e.firstname()+"', '"+e.lastname()+"', '"+e.birthdate().toString()+"', '"+e.job()+"', " + std::to_string(e.isExecutive())+", \
+        '"+ std::to_string(e.position())+"', " + std::to_string(e.coefficient())+", '"+e.startDate().toString()+"', \
+        " + std::to_string(e.managerId())+", '"+e.prevPlan()+"', " + std::to_string(e.signedPlan())+"\
     );";
 
     // On passe 'this' en 4ème paramètre à sqlite3_exec
@@ -178,19 +180,19 @@ int DBhandler::add_employee(const Employee &e) {
 }
 
 
-void DBhandler::display_employees(void) {
+void DBhandler::displayEmployees(void) {
     for (const auto& emp : employees)
         emp.display();
 }
 
-int DBhandler::count_employees(void){
+int DBhandler::countEmployees(void){
     return employees.size();
 } 
 
-std::string DBhandler::formatter_JSON() {
+std::string DBhandler::formatterJson() {
     std::string json = "[";
     for (size_t i = 0; i < employees.size(); ++i) {
-        json += employees[i].to_JSON();
+        json += employees[i].toJson();
         if (i < employees.size() - 1)
             json += ",";
     }

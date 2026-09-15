@@ -30,10 +30,10 @@ class ConfigAppWindow : public QDialog
         QString getHost();
 
     private:
-        QSpinBox *m_port;
-        QLineEdit *m_host;
-        QPushButton *m_btnValider;
-        QPushButton *m_btnAnnuler;
+        QSpinBox *mPort;
+        QLineEdit *mHost;
+        QPushButton *btnValider;
+        QPushButton *btnAnnuler;
 
 };
 

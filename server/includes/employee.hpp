@@ -22,48 +22,48 @@ public:
 
 // Getters and Setters
 
-    int id() const { return m_id; }
-    void set_id(int id) { m_id = id; }
+    int id() const { return mId; }
+    void setId(int id) { mId = id; }
 
-    std::string firstname() const { return m_firstname; }
-    void set_firstname(const std::string &prenom) { m_firstname = prenom; }
+    std::string firstname() const { return mFirstname; }
+    void setFirstname(const std::string &prenom) { mFirstname = prenom; }
 
-    std::string lastname() const { return m_lastname; }
-    void set_lastname(const std::string &nom) { m_lastname = nom; }
+    std::string lastname() const { return mLastname; }
+    void setLastname(const std::string &nom) { mLastname = nom; }
 
-    Date birthdate() const { return m_birthdate; }
-    void set_birthdate(const Date &date) { m_birthdate = date; }
+    Date birthdate() const { return mBirthdate; }
+    void setBirthdate(const Date &date) { mBirthdate = date; }
 
-    std::string job() const { return m_job; }
-    void set_job(const std::string &poste) { m_job = poste; }
+    std::string job() const { return mJob; }
+    void setJob(const std::string &poste) { mJob = poste; }
 
-    int is_executive() const { return m_executive_status; }
-    void set_executive_status(int cadre) { m_executive_status = cadre; }
+    int isExecutive() const { return mExecutiveStatus; }
+    void setExecutiveStatus(int cadre) { mExecutiveStatus = cadre; }
 
-    float position() const { return m_position; }
-    void set_position(const float &pos) { m_position = pos; }
+    float position() const { return mPosition; }
+    void setPosition(const float &pos) { mPosition = pos; }
 
-    int coefficient() const { return m_coefficient; }
-    void set_coefficient(int coeff) { m_coefficient = coeff; }
+    int coefficient() const { return mCoefficient; }
+    void setCoefficient(int coeff) { mCoefficient = coeff; }
 
-    Date start_date() const { return m_start_date; }
-    void set_start_date(const Date &date) { m_start_date = date; }
+    Date startDate() const { return mStartDate; }
+    void setStartDate(const Date &date) { mStartDate = date; }
 
-    int manager_id() const { return m_manager_id; }
-    void set_manager_id(int id) { m_manager_id = id; }
+    int managerId() const { return mManagerId; }
+    void setManagerId(int id) { mManagerId = id; }
 
-    std::string prev_plan() const { return m_prev_plan; }
-    void set_prev_plan(std::string plan) { m_prev_plan = plan; }
+    std::string prevPlan() const { return mPrevPlan; }
+    void setPrevPlan(std::string plan) { mPrevPlan = plan; }
 
-    int signed_plan() const { return m_signed_plan; }
-    void set_signed_plan(int signe) { m_signed_plan = signe; }
+    int signedPlan() const { return mSignedPlan; }
+    void setSignedPlan(int signe) { mSignedPlan = signe; }
 
 // ---------------------------------------------------
 
     /** @brief Sérialise l'objet Employee en JSON pour l'API REST
      *  @return Chaîne JSON représentant l'employé
      */
-    std::string to_JSON() const;
+    std::string toJson() const;
 
 // ---------------------------------------------------
 
@@ -71,7 +71,7 @@ public:
      *  @param sql_row Une map représentant une ligne de résultat SQL, où les clés sont les noms des colonnes et les valeurs sont les valeurs correspondantes.
      *  @return Un objet Employee initialisé avec les données de la ligne SQL
      */
-    static Employee from_sql(const std::map<std::string, std::string> &sql_row);
+    static Employee fromSql(const std::map<std::string, std::string> &sql_row);
 
 // ---------------------------------------------------
 
@@ -79,18 +79,18 @@ public:
     void display(void) const;
 
 private:
-    int m_id{-1};                        //< Identifiant unique de l'employé
-    std::string m_firstname;             //< Prénom de l'employé
-    std::string m_lastname;              //< Nom de famille de l'employé
-    Date m_birthdate;                    //< Date de naissance de l'employé
-    std::string m_job;                   //< Poste de l'employé
-    int m_executive_status{0};           //< Statut de manager de l'employé
-    float m_position;                    //< Position de l'employé
-    int m_coefficient{0};                //< Coefficient de l'employé
-    Date m_start_date;                   //< Date de début d'activité
-    int m_manager_id{-1};                //< Identifiant du manager
-    std::string m_prev_plan{"Plan A"};   //< Plan précédent
-    int m_signed_plan{0};                //< Plan signé
+    int mId{-1};                        //< Identifiant unique de l'employé
+    std::string mFirstname;             //< Prénom de l'employé
+    std::string mLastname;              //< Nom de famille de l'employé
+    Date mBirthdate;                    //< Date de naissance de l'employé
+    std::string mJob;                   //< Poste de l'employé
+    int mExecutiveStatus{0};           //< Statut de manager de l'employé
+    float mPosition;                    //< Position de l'employé
+    int mCoefficient{0};                //< Coefficient de l'employé
+    Date mStartDate;                   //< Date de début d'activité
+    int mManagerId{-1};                //< Identifiant du manager
+    std::string mPrevPlan{"Plan A"};   //< Plan précédent
+    int mSignedPlan{0};                //< Plan signé
 };
 
 #endif // EMPLOYEE_HPP

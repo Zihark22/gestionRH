@@ -1,20 +1,5 @@
 #include "employee.hpp"
 
-Employee::Employee() {
-    this->m_birthdate = Date("01/01/2000");
-    this->m_start_date = Date("01/01/2000");
-    this->m_coefficient = 100;
-    this->m_position = 2.1;
-    this->m_firstname = "";
-    this->m_lastname = "";
-    this->m_executive_status = 0;
-    this->m_signed_plan = 0;
-    this->m_manager_id = -1;
-    this->m_id = -1;
-    this->m_prev_plan = "";
-    this->m_job = "";
-}
-
 Employee::Employee(const string &jsonStr) {
     // Créer un Employee à partir du body sous forme JSON lors d'une demande d'ajout à la DB : [{"firstname":"Marc","lastname":"Dumort"}]
 
@@ -47,68 +32,104 @@ Employee::Employee(const string &jsonStr) {
     string positionStr = IniParser::getField(obj, "position");
     string coefficientStr = IniParser::getField(obj, "coefficient");
     string managerIdStr = IniParser::getField(obj, "manager_id");
-    string startDate = IniParser::getField(obj, "start_date");
+    string startDate = IniParser::getField(obj, "startDate");
     string idStr = IniParser::getField(obj, "id");
 
     if (!firstname.empty())
-            m_firstname = firstname;
+            mFirstname = firstname;
     if (!lastname.empty())
-            m_lastname = lastname;
+            mLastname = lastname;
     if (!birthdate.empty())
-            m_birthdate = Date(birthdate);
+            mBirthdate = Date(birthdate);
     if (!job.empty())
-            m_job = job;
+            mJob = job;
     if (!prevPlan.empty())
-            m_prev_plan = prevPlan;
+            mPrevPlan = prevPlan;
 
-    m_executive_status = (executiveStatus == "true" || executiveStatus == "1");
-    m_signed_plan = (signedPlan == "true" || signedPlan == "1");
+    mExecutiveStatus = (executiveStatus == "true" || executiveStatus == "1");
+    mSignedPlan = (signedPlan == "true" || signedPlan == "1");
 
     if (!positionStr.empty())
-            m_position = QString::fromStdString(positionStr).toFloat();
+            mPosition = QString::fromStdString(positionStr).toFloat();
     if (!coefficientStr.empty())
-            m_coefficient = QString::fromStdString(coefficientStr).toInt();
+            mCoefficient = QString::fromStdString(coefficientStr).toInt();
     if (!managerIdStr.empty())
-            m_manager_id = QString::fromStdString(managerIdStr).toInt();
+            mManagerId = QString::fromStdString(managerIdStr).toInt();
     if (!startDate.empty())
-            m_start_date = Date(startDate);
+            mStartDate = Date(startDate);
+
     if (!idStr.empty())
-            m_id = QString::fromStdString(idStr).toInt(); else m_id = -1; // laisse la base de donnée mettre l'id
+            mId = QString::fromStdString(idStr).toInt();
+    else
+        mId = -1; // laisse la base de donnée mettre l'id
 }
 
-string Employee::to_JSON() const {
-    // Implémentez la sérialisation JSON ici
-    // Vous pouvez utiliser une bibliothèque JSON comme nlohmann/json pour faciliter cette tâche
-    string json = "{";
-    json += "\"id\":" + to_string(m_id) + ",";
-    json += "\"firstname\":\"" + m_firstname + "\",";
-    json += "\"lastname\":\"" + m_lastname + "\",";
-    json += "\"birthdate\":\"" + m_birthdate.toString() + "\",";
-    json += "\"job\":\"" + m_job + "\",";
-    json += "\"executive_status\":" + string(m_executive_status ? "true" : "false") + ",";
-    json += "\"position\":" + QString::number(m_position, 'f', 2).toStdString() + ",";
-    json += "\"coefficient\":" + to_string(m_coefficient) + ",";
-    json += "\"start_date\":\"" + m_start_date.toString() + "\",";
-    json += "\"manager_id\":" + to_string(m_manager_id) + ",";
-    json += "\"prev_plan\":\"" + m_prev_plan + "\",";
-    json += "\"signed_plan\":" + string(m_signed_plan ? "true" : "false");
+std::string Employee::toJson() const {
+    std::string json = "{";
+    json += "\"id\":" + std::to_string(mId) + ",";
+    json += "\"firstname\":\"" + mFirstname + "\",";
+    json += "\"lastname\":\"" + mLastname + "\",";
+    json += "\"birthdate\":\"" + mBirthdate.toString() + "\",";
+    json += "\"job\":\"" + mJob + "\",";
+    json += "\"executive_status\":" + std::string(mExecutiveStatus ? "true" : "false") + ",";
+    json += "\"position\":" + QString::number(mPosition, 'f', 2).toStdString() + ",";
+    json += "\"coefficient\":" + std::to_string(mCoefficient) + ",";
+    json += "\"startDate\":\"" + mStartDate.toString() + "\",";
+    json += "\"manager_id\":" + std::to_string(mManagerId) + ",";
+    json += "\"prevPlan\":\"" + mPrevPlan + "\",";
+    json += "\"signed_plan\":" + std::string(mSignedPlan ? "true" : "false");
     json += "}";
     return json;
 }
 
 void Employee::display(void) const {
     qDebug() << "Employee: " ;
-    qDebug() << "\tID: " << m_id ;
-    qDebug() << "\tFirstname: " << m_firstname ;
-    qDebug() << "\tLastname: " << m_lastname ;
-    qDebug() << "\tBirthdate: " << m_birthdate.toString() ;
-    qDebug() << "\tPoste: " << m_job ;
-    qDebug() << "\tIs Cadre: " << (m_executive_status ? "Yes" : "No") ;
-    qDebug() << "\tPosition Syntec: " << QString::number(m_position, 'f', 2).toStdString() ;
-    qDebug() << "\tCoefficient: " << m_coefficient ;
-    qDebug() << "\tStart Date: " << m_start_date.toString() ;
-    qDebug() << "\tManager ID: " << m_manager_id ;
-    qDebug() << "\tPrev Plan: " << m_prev_plan ;
-    qDebug() << "\tSigned Plan: " << (m_signed_plan ? "Yes" : "No") ;
+    qDebug() << "\tID: " << mId ;
+    qDebug() << "\tFirstname: " << mFirstname ;
+    qDebug() << "\tLastname: " << mLastname ;
+    qDebug() << "\tBirthdate: " << mBirthdate.toString() ;
+    qDebug() << "\tPoste: " << mJob ;
+    qDebug() << "\tIs Cadre: " << (mExecutiveStatus ? "Yes" : "No") ;
+    qDebug() << "\tPosition Syntec: " << mPosition ;
+    qDebug() << "\tCoefficient: " << mCoefficient ;
+    qDebug() << "\tStart Date: " << mStartDate.toString() ;
+    qDebug() << "\tManager ID: " << mManagerId ;
+    qDebug() << "\tPrev Plan: " << mPrevPlan ;
+    qDebug() << "\tSigned Plan: " << (mSignedPlan ? "Yes" : "No") ;
+}
+
+Employee Employee::fromSql(const std::map<std::string, std::string> &sql_row) {
+
+    // Fonction lambda pour convertir une chaîne en entier avec une valeur par défaut
+    auto to_int_or_default = [&](const std::string& key, int defaultValue) -> int {
+        const auto it = sql_row.find(key);
+        if (it == sql_row.end())
+            return defaultValue;
+
+        const std::string& value = it->second;
+        if (value.empty() || value == "NULL" || value == "null")
+            return defaultValue;
+
+        try {
+            return stoi(value);
+        } catch (const std::exception&) {
+            return defaultValue;
+        }
+    };
+
+    Employee emp;
+    emp.setId(to_int_or_default("id", -1));
+    emp.setFirstname(sql_row.at("firstname").empty() ? "" : sql_row.at("firstname"));
+    emp.setLastname(sql_row.at("lastname").empty() ? "" : sql_row.at("lastname"));
+    emp.setBirthdate(Date(sql_row.at("birthdate").empty() ? "" : sql_row.at("birthdate")));
+    emp.setJob(sql_row.at("job").empty() ? "" : sql_row.at("job"));
+    emp.setExecutiveStatus(sql_row.at("executive_status").empty() ? false : sql_row.at("executive_status") == "1");
+    emp.setPosition(sql_row.at("position").empty() ? 0.0f : stof(sql_row.at("position")));
+    emp.setCoefficient(to_int_or_default("coefficient", 0));
+    emp.setStartDate(Date(sql_row.at("startDate").empty() ? "" : sql_row.at("startDate")));
+    emp.setManagerId(to_int_or_default("manager_id", -1));
+    emp.setPrevPlan(sql_row.at("prevPlan").empty() ? "" : sql_row.at("prevPlan"));
+    emp.setSignedPlan(sql_row.at("signed_plan").empty() ? false : sql_row.at("signed_plan") == "1");
+    return emp;
 }
 

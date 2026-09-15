@@ -29,11 +29,11 @@ class ConfigServerWindow : public QDialog
 
 
     private:
-        QSpinBox *m_port;
-        QLineEdit *m_host;
-        QLineEdit *m_db_path;
-        QPushButton *m_btnValider;
-        QPushButton *m_btnAnnuler;
+        QSpinBox *mPort;
+        QLineEdit *mHost;
+        QLineEdit *mDbPath;
+        QPushButton *btnValider;
+        QPushButton *btnAnnuler;
 };
 
 #endif // CONFIGSERVERWINDOW_H

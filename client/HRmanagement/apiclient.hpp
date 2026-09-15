@@ -57,7 +57,7 @@ private:
     int port;
     QString host;
 
-    void load_config(const std::string& file_path);
+    void loadConfig(const std::string& file_path);
 
 };
 

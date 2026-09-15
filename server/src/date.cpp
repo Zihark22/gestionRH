@@ -5,9 +5,9 @@ Date::Date(int day, int month, int year) {
         throw std::invalid_argument("Date invalide : " + std::to_string(day) + "/" 
                                     + std::to_string(month) + "/" + std::to_string(year));
 
-    m_day = day;
-    m_month = month;
-    m_year = year;
+    myDay = day;
+    myMonth = month;
+    myYear = year;
 }
 
 Date::Date(const std::string& dateStr) : Date([&]() {
@@ -57,25 +57,25 @@ bool Date::isValidDate(int d, int m, int y) {
 
 
 void Date::setDay(int day) {
-    if (!isValidDate(day, m_month, m_year))
+    if (!isValidDate(day, myMonth, myYear))
         throw std::invalid_argument("Jour invalide pour cette date : " + std::to_string(day)); // Sécurise la saisie
     
-    m_day = day;
+    myDay = day;
 }
 
 
 std::string Date::toString() const {
     std::string format_day, format_month;
 
-    if(m_day<10) 
+    if(myDay<10) 
         format_day = "0";
-    format_day += std::to_string(m_day);
+    format_day += std::to_string(myDay);
 
-    if(m_month<10) 
+    if(myMonth<10) 
         format_month = "0";
-    format_month += std::to_string(m_month);
+    format_month += std::to_string(myMonth);
     
-    return format_day + "/" + format_month + "/" + std::to_string(m_year);
+    return format_day + "/" + format_month + "/" + std::to_string(myYear);
 }
 
 

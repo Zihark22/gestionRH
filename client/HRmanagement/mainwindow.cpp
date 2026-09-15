@@ -80,7 +80,7 @@ void MainWindow::extractManagers() {
     for(int i=0; i<employees.size(); i++) {
         Employee e = employees[i];
         fullname = QString::fromStdString(e.lastname() + " " + e.firstname());
-        if(e.is_executive())
+        if(e.isExecutive())
             managers.append({e.id(),fullname});
     }
     // managers.sort();
@@ -134,12 +134,12 @@ QTableWidget* MainWindow::fillGeneralTab(QWidget* tab) {
         int id = e.id();
         QString firstname{e.firstname().c_str()};
         QString job{e.job().c_str()};
-        QString executive_status_str = e.is_executive() ? "Executive status" : "No executive status";
+        QString executive_status_str = e.isExecutive() ? "Executive status" : "No executive status";
         QString position = QString::number(e.position());
         QString coef = QString::number(e.coefficient());
-        QString start_date_raw {e.start_date().toString().c_str()};
-        QDate start_date = QDate::fromString(start_date_raw, "yyyy-MM-dd");  // Conversions des dates au format "dd/MM/yyyy"
-        QString start_date_str = start_date.isValid() ? start_date.toString("dd/MM/yyyy") : start_date_raw;
+        QString startDate_raw {e.startDate().toString().c_str()};
+        QDate startDate = QDate::fromString(startDate_raw, "yyyy-MM-dd");  // Conversions des dates au format "dd/MM/yyyy"
+        QString startDate_str = startDate.isValid() ? startDate.toString("dd/MM/yyyy") : startDate_raw;
         QString birthdate_raw {e.birthdate().toString().c_str()};
         QDate birthdate = QDate::fromString(birthdate_raw, "yyyy-MM-dd");
         QString birthdate_str = birthdate.isValid() ? birthdate.toString("dd/MM/yyyy") : birthdate_raw;
@@ -177,7 +177,7 @@ QTableWidget* MainWindow::fillGeneralTab(QWidget* tab) {
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 5, cell);
 
-        cell = new QTableWidgetItem(start_date_str);
+        cell = new QTableWidgetItem(startDate_str);
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 6, cell);
 
@@ -245,9 +245,9 @@ QTableWidget* MainWindow::fillPreventionTab(QWidget* tab) {
         QString lastname{e.lastname().c_str()};
         QString firstname{e.firstname().c_str()};
         QString job{e.job().c_str()};
-        QString signed_plan_str = e.signed_plan() ? "Oui" : "Non";
-        QString plan_str = e.prev_plan().c_str();
-        int manager_id = e.manager_id();
+        QString signed_plan_str = e.signedPlan() ? "Oui" : "Non";
+        QString plan_str = e.prevPlan().c_str();
+        int manager_id = e.managerId();
         QString manager = get_manager_name(manager_id);
 
         // Insertion d'une nouvelle ligne dans le tableWidget
@@ -297,8 +297,8 @@ void MainWindow::addingEmployee() {
     {
         // L'utilisateur a cliqué sur "Valider"
         Employee e = dialog.toEmployee();
-        // qDebug() << "Formualire saisie :" << e.to_JSON();
-        std::string json = "[" + e.to_JSON() + "]";
+        // qDebug() << "Formualire saisie :" << e.toJson();
+        std::string json = "[" + e.toJson() + "]";
         employees.append(e);
 
         // Appel du service HTTP pour envoyer le JSON au serveur
@@ -340,8 +340,8 @@ void MainWindow::onTableDoubleClicked(int row, int column) {
         if (dialog.exec() == QDialog::Accepted) {
             // L'utilisateur a cliqué sur "Valider"
             Employee e = dialog.toEmployee();
-            std::string json = "[" + e.to_JSON() + "]";
-            // qDebug() << "Formualire saisie :" << e.to_JSON();
+            std::string json = "[" + e.toJson() + "]";
+            // qDebug() << "Formualire saisie :" << e.toJson();
             *it = e;
 
             // Appel du service HTTP pour envoyer le JSON au serveur
@@ -373,7 +373,7 @@ void MainWindow::onEmployeeAdded(int id) {
 
     qDebug() << "Employé ajouté dans BDD avec id =" << id;
 
-    employees.back().set_id(id);
+    employees.back().setId(id);
 
     // update en local
     generalTableWidget->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
@@ -390,9 +390,9 @@ void MainWindow::onEmployeeAdded(int id) {
 }
 void MainWindow::updateRows(const int &row, const Employee &e) {
 
-    QString executive_status_str = e.is_executive() ? "Executive status" : "No executive status";
+    QString executive_status_str = e.isExecutive() ? "Executive status" : "No executive status";
 
-    QString plan_signed_str = e.signed_plan() ? "Oui" : "Non";
+    QString plan_signed_str = e.signedPlan() ? "Oui" : "Non";
 
     QString position = QString::number(e.position());
     QString coef = QString::number(e.coefficient());
@@ -407,7 +407,7 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
     generalTableWidget->setItem(row, 3, new QTableWidgetItem(executive_status_str));
     generalTableWidget->setItem(row, 4, new QTableWidgetItem(position));
     generalTableWidget->setItem(row, 5, new QTableWidgetItem(coef));
-    generalTableWidget->setItem(row, 6, new QTableWidgetItem(QString::fromStdString(e.start_date().toString())));
+    generalTableWidget->setItem(row, 6, new QTableWidgetItem(QString::fromStdString(e.startDate().toString())));
 
     for (int col = 0; col < generalTableWidget->columnCount(); ++col) {
         if (auto item = generalTableWidget->item(row, col))
@@ -436,8 +436,8 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
     preventionTableWidget->setItem(rowPrevention, 0, firstname_widget->clone());
     preventionTableWidget->setItem(rowPrevention, 1, new QTableWidgetItem(QString::fromStdString(e.lastname())));
     preventionTableWidget->setItem(rowPrevention, 2, new QTableWidgetItem(QString::fromStdString(e.job())));
-    preventionTableWidget->setItem(rowPrevention, 3, new QTableWidgetItem(get_manager_name(e.manager_id())));
-    preventionTableWidget->setItem(rowPrevention, 4, new QTableWidgetItem(QString::fromStdString(e.prev_plan())));
+    preventionTableWidget->setItem(rowPrevention, 3, new QTableWidgetItem(get_manager_name(e.managerId())));
+    preventionTableWidget->setItem(rowPrevention, 4, new QTableWidgetItem(QString::fromStdString(e.prevPlan())));
     preventionTableWidget->setItem(rowPrevention, 5, new QTableWidgetItem(plan_signed_str));
     preventionTableWidget->selectRow(rowPrevention);
     for (int col = 0; col < preventionTableWidget->columnCount(); ++col) {

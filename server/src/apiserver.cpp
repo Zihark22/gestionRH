@@ -1,11 +1,11 @@
 #include "../includes/apiserver.hpp"
 
-ApiServer::ApiServer(const std::string &db_path) {
-    db_handler = DBhandler(db_path);
+ApiServer::ApiServer(const std::string &dbPath) {
+    dbHandler = DBhandler(dbPath);
 }
 
-void ApiServer::set_request_handler(RequestHandler handler) {
-    m_handler = handler;
+void ApiServer::setRequestHandler(RequestHandler handler) {
+    myHandler = handler;
 }
 
 void ApiServer::start(int server_fd) {
@@ -20,13 +20,13 @@ void ApiServer::start(int server_fd) {
 
         std::string request(buffer);
         std::cout << "\n============ Requête reçue ============\n" << request << "\n" << std::endl;
-        parse_request_http(request, client_fd);
+        parseRequestHttp(request, client_fd);
 
         close(client_fd);
     }
 }
 
-void ApiServer::parse_request_http(std::string request, const int client_fd) {
+void ApiServer::parseRequestHttp(std::string request, const int client_fd) {
     std::string method;
     std::string endpoint;
     
@@ -57,23 +57,23 @@ void ApiServer::parse_request_http(std::string request, const int client_fd) {
     /*
         code to extract authentification token in user table for future feature and check in DB if user registered
     */
-    authentication_ok = true; // remove after implementation of login function
+    authenticationOk = true; // remove after implementation of login function
     
-    if(authentication_ok)
-        execute_request(method, endpoint, client_fd);
+    if(authenticationOk)
+        executeRequest(method, endpoint, client_fd);
     else
         std::cout << "Authentification failed" << std::endl; 
 
 } 
 
-void ApiServer::execute_request(const std::string &method, const std::string &endpoint, const int client_fd) {
+void ApiServer::executeRequest(const std::string &method, const std::string &endpoint, const int client_fd) {
     std::string jsonOutput;
     std::string repbody;
     std::string response;
     int result=-1;
     std::string rep;
 
-    db_handler.open_db();
+    dbHandler.openDB();
     std::cout << "Action demandée par le client : ";
 
     // count the number of non-digit characters in the endpoint to limit endpoint structure after /api/employees to a maximum of 15 non-digit characters (e.g., /api/employees/123)
@@ -99,26 +99,26 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
                 std::cout << "Obtenir employé dont ID = " << id << std::endl;
 
                 // commande
-                result = db_handler.get_employee(atoi(id.c_str()));
+                result = dbHandler.getEmployee(atoi(id.c_str()));
 
                 // reponse en fonction du resultat
                 if(result == 0) {
-                    int nbE = db_handler.count_employees();
+                    int nbE = dbHandler.countEmployees();
                     if(nbE<1){
-                        response_status_code = 404;
-                        response_msg = "Not found";
+                        responseStatusCode = 404;
+                        responseMsg = "Not found";
                         messageError = "L'employé avec ID = "+id+" n'est pas dans la BDD"; 
                     
                     }
                     else {
-                        response_status_code = 200;
-                        response_msg = "OK";
+                        responseStatusCode = 200;
+                        responseMsg = "OK";
                     }
                 }
                 else {
                     messageError = "Erreur lors de la récupération de l'employé"; 
-                    response_status_code = 500;
-                    response_msg = "Internal Server Error";
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
                 }
             }
             else if (method == "DELETE") {
@@ -126,17 +126,17 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
                 std::cout << "supprimer employé dont ID = " << id << std::endl;
 
                 // commande
-                result = db_handler.delete_employee(atoi(id.c_str()));
+                result = dbHandler.deleteEmployee(atoi(id.c_str()));
 
                 // reponse en fonction du resultat
                 if(result < 0) {
                     messageError = "Erreur lors de la suppression de l'employé";
-                    response_status_code = 500;
-                    response_msg = "Internal Server Error";
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
                 }
                 else {
-                    response_status_code = 200;
-                    response_msg = "OK";
+                    responseStatusCode = 200;
+                    responseMsg = "OK";
                 }
             }
             else if (method == "PUT") {
@@ -145,29 +145,29 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
 
                  // commande
                 Employee e(this->body);
-                result = db_handler.modify_employee(e, id);
+                result = dbHandler.modifyEmployee(e, id);
 
                 // reponse en fonction du resultat
                 if(result > -1) {                    
-                    response_status_code = 200;
-                    response_msg = "OK";
+                    responseStatusCode = 200;
+                    responseMsg = "OK";
                 }
                 else {
                     messageError = "Erreur lors de la modification de l'employé";
-                    response_status_code = 500;
-                    response_msg = "Internal Server Error";
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
                 }
             }
             else if (method == "POST") {
                 messageError = "La méthode POST n'est pas autorisée sur cet endpoint";
-                response_status_code = 405;
-                response_msg = "Method Not Allowed";
+                responseStatusCode = 405;
+                responseMsg = "Method Not Allowed";
             }
             else{
                 std::cout << "méthode non supportée " << std::endl;
                 messageError = "Requête non implémentée";
-                response_status_code = 501;
-                response_msg = "Not implemented";
+                responseStatusCode = 501;
+                responseMsg = "Not implemented";
             } 
         }
         // si la requete concerne tout les employes
@@ -177,17 +177,17 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
                 std::cout << "Obtenir employés" << std::endl;
 
                 // commande
-                result = db_handler.get_all_employees();
+                result = dbHandler.getAllEmployees();
 
                 // reponse en fonction du resultat
                 if(result < 0) {
                     messageError = "Erreur lors de la récupération des employées";
-                    response_status_code = 500;
-                    response_msg = "Internal Server Error";
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
                 }
                 else {
-                    response_status_code = 200;
-                    response_msg = "OK";
+                    responseStatusCode = 200;
+                    responseMsg = "OK";
                 }
             }
             else if (method == "POST") {
@@ -196,35 +196,35 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
 
                 // commande
                 Employee e(this->body);
-                result = db_handler.add_employee(e);
+                result = dbHandler.addEmployee(e);
 
                 // reponse en fonction du resultat
                 if(result > -1) {
-                    response_status_code = 200;
-                    response_msg = "OK";
+                    responseStatusCode = 200;
+                    responseMsg = "OK";
                     rep = "[{\"id\": "+std::to_string(result)+"}]";
                 }
                 else {
                     messageError = "Erreur lors de l'ajout d'un employé";
-                    response_status_code = 500;
-                    response_msg = "Internal Server Error";
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
                 }
             }
             else if (method == "PUT") {
                 messageError = "La méthode PUT n'est pas autorisée sur cet endpoint";
-                response_status_code = 405;
-                response_msg = "Method Not Allowed";                
+                responseStatusCode = 405;
+                responseMsg = "Method Not Allowed";                
             }
             else if (method == "DELETE") {
                 messageError = "La méthode DELETE n'est pas autorisée sur cet endpoint";
-                response_status_code = 405;
-                response_msg = "Method Not Allowed";                
+                responseStatusCode = 405;
+                responseMsg = "Method Not Allowed";                
             }
             else {
                 std::cout << "méthode non supportée " << std::endl;
                 messageError = "Requête non implémentée";
-                response_status_code = 501;
-                response_msg = "Not implemented";
+                responseStatusCode = 501;
+                responseMsg = "Not implemented";
             } 
         } 
     }
@@ -235,8 +235,8 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
             std::cout << "Obtenir config" << std::endl;
 
             // commande en appelant le serveur
-             if (m_handler) {
-                rep = m_handler("getconfig", "");
+             if (myHandler) {
+                rep = myHandler("getconfig", "");
                 std::cout << "reponse : " << rep << std::endl;
                 result = 0;
             } 
@@ -248,12 +248,12 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
             // reponse en fonction du resultat
             if(result != 0) {
                 messageError = "Erreur lors de la récupération de la config";
-                response_status_code = 500;
-                response_msg = "Internal Server Error";
+                responseStatusCode = 500;
+                responseMsg = "Internal Server Error";
             }
             else {
-                response_status_code = 200;
-                response_msg = "OK";
+                responseStatusCode = 200;
+                responseMsg = "OK";
             }
         }
         else if (method == "PUT") {
@@ -261,8 +261,8 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
             std::cout << "Modifier config" << std::endl;
 
             // envoi de la requete au serveur pour modifier le fichier config.ini
-             if (m_handler) {
-                rep = m_handler("modifyconfig",this->body);
+             if (myHandler) {
+                rep = myHandler("modifyconfig",this->body);
                 std::cout << "reponse : " << rep << std::endl;
                 result = 0;
             } 
@@ -274,52 +274,52 @@ void ApiServer::execute_request(const std::string &method, const std::string &en
             // reponse en fonction du resultat
             if(result != 0) {
                 messageError = "Erreur lors de la modification de la config";
-                response_status_code = 500;
-                response_msg = "Internal Server Error";
+                responseStatusCode = 500;
+                responseMsg = "Internal Server Error";
             }
             else {
-                response_status_code = 200;
-                response_msg = "rep";
+                responseStatusCode = 200;
+                responseMsg = "rep";
             }
         }
         else {
             std::cout << "méthode non supportée " << std::endl;
             messageError = "Requête non implémentée";
-            response_status_code = 501;
-            response_msg = "Not implemented";
+            responseStatusCode = 501;
+            responseMsg = "Not implemented";
         } 
     } 
     // Route de secours (404 Not Found)
     else {
         messageError = "Route invalide : " + endpoint;
-        response_status_code = 404;
-        response_msg = "Not Found";
+        responseStatusCode = 404;
+        responseMsg = "Not Found";
         std::cout << "Non reconnue : " << endpoint << std::endl;
     }
 
     // Construction de la réponse HTTP
-    if(response_status_code != 200) { // Si le code de statut n'est pas 200, on renvoie un message d'erreur
+    if(responseStatusCode != 200) { // Si le code de statut n'est pas 200, on renvoie un message d'erreur
         repbody = "{\"error\": \""+ messageError +"\"}";
         response = 
-            "HTTP/1.1 "+ std::to_string(response_status_code) + " " + response_msg +"\r\n"
+            "HTTP/1.1 "+ std::to_string(responseStatusCode) + " " + responseMsg +"\r\n"
             "Content-Type: application/json\r\n"
             "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
             repbody;
     }
     else {  // si le code de statut est 200, on renvoie le JSON de la base de données ou la réponse du serveur
         if(rep.empty())
-            repbody = db_handler.formatter_JSON(); // JSON de sortie de la base de données
+            repbody = dbHandler.formatterJson(); // JSON de sortie de la base de données
         else
             repbody = rep; // autre réponse du serveur (ex: config)
 
         response = 
-            "HTTP/1.1 "+ std::to_string(response_status_code) + " " + response_msg +"\r\n"
+            "HTTP/1.1 "+ std::to_string(responseStatusCode) + " " + responseMsg +"\r\n"
             "Access-Control-Allow-Origin: *\r\n"
-            "Content-Typexecute_requeste: application/json\r\n"
+            "Content-TypexecuteRequeste: application/json\r\n"
             "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
             repbody;
     }
 
     write(client_fd, response.c_str(), response.length());
-    db_handler.close_db();
+    dbHandler.closeDB();
 } 

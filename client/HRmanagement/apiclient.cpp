@@ -3,9 +3,9 @@
 // Constructeur
 ApiClient::ApiClient(QObject *parent) : QObject(parent) {
     this->networkManager = new QNetworkAccessManager(this);
-    this->load_config(":/config.ini");
+    this->loadConfig(":/config.ini");
 }
-void ApiClient::load_config(const std::string& file_path) {
+void ApiClient::loadConfig(const std::string& file_path) {
     QResource res(QString::fromStdString(file_path));
     if (res.isValid()) {
         // res.data() renvoie un const uchar* directement mappé dans l'exécutable

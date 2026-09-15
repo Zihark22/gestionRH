@@ -1,25 +1,25 @@
 #include "../includes/server.hpp"
 
 Server::Server(int argc, char* argv[]) {
-    this->config_file_path = "config/config.ini"; // Valeur par défaut
+    this->configFilePath = "config/config.ini"; // Valeur par défaut
     this->server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
         std::cerr << "Erreur création socket" << std::endl;
         exit(EXIT_FAILURE);
     }
     this->opt = 1;
-    load_config(config_file_path);
-    this->apiServer = ApiServer(db_path);
+    loadConfig(configFilePath);
+    this->apiServer = ApiServer(dbPath);
 
     // Sauvegarde du chemin et des arguments
-    m_executablePath = argv[0];
+    executablePath = argv[0];
     for (int i = 0; i < argc; ++i) {
-        m_args.push_back(argv[i]);
+        args.push_back(argv[i]);
     }
 
     // Server s'abonne à l'API (fonction de Callback)
-    apiServer.set_request_handler([this](const std::string& req, const std::string& body) -> std::string {
-        return this->handle_action(req, body);
+    apiServer.setRequestHandler([this](const std::string& req, const std::string& body) -> std::string {
+        return this->handleAction(req, body);
     });
 }
 Server::~Server(){
@@ -29,13 +29,13 @@ Server::~Server(){
     }
 
 } 
-std::string Server::handle_action(const std::string &req, const std::string &body) {
+std::string Server::handleAction(const std::string &req, const std::string &body) {
     std::string msg="OK";
 
     if(req=="getconfig")
-        return config_to_json();
+        return configToJson();
     else if(req=="modifyconfig") { 
-        modify_config_from_json(body);
+        modifyConfigFromJson(body);
         
         this->requestRestart();  // Déclencher le redémarrage asynchrone
 
@@ -61,28 +61,28 @@ void Server::executeRestart() {
 
     // 2. Reconstruire le tableau char* compatible POSIX attendu par execv
     std::vector<char*> rawArgs;
-    for (auto& arg : m_args) {
+    for (auto& arg : args) {
         rawArgs.push_back(arg.data());
     }
     rawArgs.push_back(nullptr); // execv DOIT se terminer par un pointeur null
 
     // 3. Appel système remplaçant le processus actuel
-    execv(m_executablePath.c_str(), rawArgs.data());
+    execv(executablePath.c_str(), rawArgs.data());
 
     // Si on arrive ici, l'appel a échoué
     perror("[SERVER] Échec critique de execv");
 }
 
-std::string Server::config_to_json(){
+std::string Server::configToJson(){
     std::string rep_json="[{";
     rep_json += "\"host\":\""+host+"\",";
     rep_json += "\"port\":" + std::to_string(port) + ",";
-    rep_json += "\"db_path\":\""+db_path+"\"";
+    rep_json += "\"dbPath\":\""+dbPath+"\"";
     return rep_json+"}]" ;
 }
 
-int Server::modify_config_from_json(const std::string &json){
-    // ex : json = [{"host":"127.0.0.1","port":8080,"db_path":"../data/employees.db"}]
+int Server::modifyConfigFromJson(const std::string &json){
+    // ex : json = [{"host":"127.0.0.1","port":8080,"dbPath":"../data/employees.db"}]
     std::cout << "modifying ...." << std::endl;
     
     std::string s = IniParser::trim(json);
@@ -99,13 +99,13 @@ int Server::modify_config_from_json(const std::string &json){
 
     std::string new_host = IniParser::getField(obj, "host");
     int new_port = stoi(IniParser::getField(obj, "port"));
-    std::string new_db_path = IniParser::getField(obj, "db_path");
+    std::string new_dbPath = IniParser::getField(obj, "dbPath");
 
     // remplacer config dans fichier (relancer pour activer nouvelle config)
     std::fstream fichier;
-    fichier.open(config_file_path.c_str(), std::ios::in | std::ios::out);
+    fichier.open(configFilePath.c_str(), std::ios::in | std::ios::out);
     if (fichier.is_open()) {
-        std::cout << "Fichier ouvert pour modification dont chemin: " << config_file_path << std::endl;
+        std::cout << "Fichier ouvert pour modification dont chemin: " << configFilePath << std::endl;
         std::string ligne;
         std::string contenu;
         fichier.seekg(0);
@@ -114,8 +114,8 @@ int Server::modify_config_from_json(const std::string &json){
                 contenu += "host = " + new_host + "\n";
             else if (ligne.find("port =") != std::string::npos)
                 contenu += "port = " + std::to_string(new_port) + "\n";
-            else if (ligne.find("db_path =") != std::string::npos)
-                contenu += "db_path = " + new_db_path + "\n";
+            else if (ligne.find("dbPath =") != std::string::npos)
+                contenu += "dbPath = " + new_dbPath + "\n";
             else
                 contenu += ligne + "\n";
         }
@@ -129,7 +129,7 @@ int Server::modify_config_from_json(const std::string &json){
 
     return 0;
 } 
-void Server::load_config(const std::string& file_path) {
+void Server::loadConfig(const std::string& file_path) {
     auto config = IniParser::parse(file_path);
 
     for (const auto& section : config) {
@@ -146,15 +146,15 @@ void Server::load_config(const std::string& file_path) {
         }
         else if (section.nom == "Database") {
             if (auto var = section.getVariable("db_path"))
-                this->db_path = var->valeur;
+                this->dbPath = var->valeur;
         }
         else if (section.nom == "Logging") {
             if (auto var = section.getVariable("log_file"))
-                this->log_file = var->valeur;
+                this->logFile = var->valeur;
         }
     }
 
-    std::cout << "[Server] Config loaded: host=" << (host.empty()?"(none)":host) << " port=" << port << " db_path=" << (db_path.empty()?"(none)":db_path) << " log_file=" << (log_file.empty()?"(none)":log_file) << std::endl;
+    std::cout << "[Server] Config loaded: host=" << (host.empty()?"(none)":host) << " port=" << port << " dbPath=" << (dbPath.empty()?"(none)":dbPath) << " logFile=" << (logFile.empty()?"(none)":logFile) << std::endl;
 }
 void Server::start() {
     // Réutilisation du port pour éviter l'erreur "Address already in use"
