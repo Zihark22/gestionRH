@@ -27,7 +27,8 @@ HEADERS += \
     employee.hpp \
     formwindow.hpp \
     iniparser.hpp \
-    mainwindow.hpp
+    mainwindow.hpp \
+    parameters.hpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

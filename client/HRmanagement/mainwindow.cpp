@@ -2,17 +2,16 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
+    setWindowTitle("ERP Scalian - RH management");
+    resize(900, 800);
+
     // Connexion du signal d'ajout à une méthode
     connect(&apiClient, &ApiClient::employeeAdded, this, &MainWindow::onEmployeeAdded);
     connect(&apiClient, &ApiClient::employeeModified, this, &MainWindow::onEmployeeModified);
     connect(&apiClient, &ApiClient::configModified, this, &MainWindow::onConfigModified);
     connect(&apiClient, &ApiClient::errorReachingApiServer, this, &MainWindow::errorDisplay);
 
-    setWindowTitle("ERP Scalian - RH management");
-    resize(900, 800);
-
     QMenuBar *bar = menuBar();
-
     QMenu *appMenu = bar->addMenu("Application");
     QAction *reloadAction = appMenu->addAction(tr("Recharger"));
     reloadAction->setShortcut(QKeySequence(tr("Ctrl+R")));
@@ -36,10 +35,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     reloadData();
 }
 
-MainWindow::~MainWindow() {
-
-}
-
 void MainWindow::parseMyJson() {
     // clear for reload data
     employees.clear();
@@ -61,7 +56,6 @@ void MainWindow::parseMyJson() {
 
         // Vérifier qu'on a bien au moins 2 éléments
         for (int i = 0; i < jsonArray.size(); ++i) {
-
             QJsonObject empl_json = jsonArray.at(i).toObject();
             QJsonDocument empl_array(empl_json);
             std::string e_str = QString::fromUtf8(empl_array.toJson(QJsonDocument::Compact)).toStdString();
@@ -471,9 +465,21 @@ void MainWindow::openConfigAppWindow() {
 
     if (configapp.exec() == QDialog::Accepted) {
         // L'utilisateur a cliqué sur "Valider"
-        qDebug() << "Config validée sur http://" << configapp.getHost() << ":" << configapp.getPort();
+        qDebug() << "Config désirée sur http://" << configapp.getHost() << ":" << configapp.getPort();
         apiClient.setHost(configapp.getHost());
         apiClient.setPort(configapp.getPort());
+
+        // Sauvegarde de la nouvelle config dans le fichier config.ini
+        QMap<QString, QString> map;
+        map[HOST_KEY] = configapp.getHost();
+        map[PORT_KEY] = QString::fromStdString(to_string(configapp.getPort()));
+        if(IniParser::saveConfig(CONFIG_FILE_NAME, map))
+            qDebug() << "Configuration modifiée avec succès";
+        else{
+            qDebug() << "Erreur de sauvegarde de la nouvelle config";
+            errorDisplay("Erreur de sauvegarde de la nouvelle config");
+        }
+        reloadData();
     }
     else {
         // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
@@ -499,8 +505,8 @@ void MainWindow::onConfigModified(const std::string json) {
         // Vérifier qu'on a bien au moins 1 élément
         if (jsonArray.size() >= 1) {
             QJsonObject obj = jsonArray.at(0).toObject();
-            apiClient.setPort(obj.value("port").toInt());
-            apiClient.setHost(obj.value("host").toString());
+            apiClient.setPort(obj.value(PORT_KEY).toInt());
+            apiClient.setHost(obj.value(HOST_KEY).toString());
         }
     }
 }
@@ -520,19 +526,15 @@ QString MainWindow::get_manager_name(const int &manager_id) {
 }
 
 // display error inside window
-void MainWindow::errorDisplay() {
+void MainWindow::errorDisplay(const QString &msg) {
     // 1. Création d'un QLabel pour l'erreur
     QLabel *errorLabel = new QLabel(this);
 
     // 2. Texte de l'erreur (supporte le HTML de base pour la mise en forme)
-    QString msg("");
-    msg += "<b>Erreur de connexion :</b> ";
-    msg += apiClient.getMsg();
-    msg += "<br><br>Pensez à vérifier la configuration (host/port)...";
     errorLabel->setText(msg);
 
     // 3. Styliser avec du QSS pour capter l'attention (Rouge, marge...)
-    errorLabel->setStyleSheet("color: #d32f2f; font-size: 14px; padding: 10px;");
+    errorLabel->setStyleSheet("color: #d32f2f; font-size: 22px; padding: 10px;");
 
     // 4. Centrer le texte si besoin
     errorLabel->setAlignment(Qt::AlignCenter);
@@ -545,8 +547,13 @@ void MainWindow::errorDisplay() {
 void MainWindow::reloadData() {
     apiClient.sendGetEmployeeRequest(0);
 
-    if(apiClient.getStatus()!=0)
-        errorDisplay();
+    if(apiClient.getStatus()!=0){
+        QString msg("");
+        msg += "<b>Erreur de connexion :</b> ";
+        msg += apiClient.getMsg();
+        msg += "<br><br>Pensez à vérifier la configuration (host/port)...";
+        errorDisplay(msg);
+    }
     else {
         // Widget de gestion des onglets
         auto *tabWidget = new QTabWidget(this);

@@ -1,11 +1,20 @@
 #ifndef INIPARSER_HPP
 #define INIPARSER_HPP
 
-#include <QDebug>
+#include "parameters.hpp"
+
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <cctype>
+
+#include <QSettings>
+#include <QDebug>
+#include <QMap>
+#include <QString>
+#include <QStandardPaths>
+#include <QDir>
+#include <QCoreApplication>
 
 using namespace std;
 
@@ -42,5 +51,13 @@ public:
 
     // Méthode principale de parsing depuis un string
     static vector<SectionConfig> parseFromString(std::string_view content);
+
+    //Méthode de lecture de fichier de configuration
+    static QMap<QString, QString> loadConfig(const QString &cheminFichier);
+
+    // Méthode de sauvegarde d'une configuration dans un fichier .ini
+    static bool saveConfig(const QString &cheminFichier, const QMap<QString, QString> &map);
+
+    static QString getConfigPath(const QString &nomFichier);
 };
 #endif // INIPARSER_HPP

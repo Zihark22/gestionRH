@@ -3,39 +3,13 @@
 // Constructeur
 ApiClient::ApiClient(QObject *parent) : QObject(parent) {
     this->networkManager = new QNetworkAccessManager(this);
-    this->loadConfig(":/config.ini");
+    this->loadConfig("config.ini");
 }
 void ApiClient::loadConfig(const std::string& file_path) {
-    QResource res(QString::fromStdString(file_path));
-    if (res.isValid()) {
-        // res.data() renvoie un const uchar* directement mappé dans l'exécutable
-        std::string_view content(reinterpret_cast<const char*>(res.data()), res.size());
-
-        // Vous passez le contenu au parser standard C++
-        auto config = IniParser::parseFromString(content);
-
-        for (const auto& section : config) {
-            if (section.nom == "Server") {
-                if (auto var = section.getVariable("port")) {
-                    try {
-                        this->port = stoi(var->valeur);
-                    }
-                    catch (...) {
-                        qDebug() << "[loadConfig] Invalid port value: " << var->valeur;
-                    }
-                }
-                if (auto var = section.getVariable("host")) {
-                    this->host = QString::fromStdString(var->valeur);
-                }
-                qDebug() << "[Client] Config loaded: host=" << (this->host.isEmpty()?"(none)":this->host) << " port=" << this->port;
-            }
-        }
-    } else {
-        QString er = "Impossible de trouver la ressource : ";
-        er += file_path;
-        qWarning() << er;
-        this->errorMsg = er;
-    }
+    QString cheminConfig = IniParser::getConfigPath(QString::fromStdString(file_path));
+    QMap<QString, QString> config = IniParser::loadConfig(cheminConfig);
+    this->port = config["port"].toInt();
+    this->host = config["host"];
 }
 
 // Méthode API REST
@@ -79,7 +53,10 @@ void ApiClient::sendGetEmployeeRequest(int id) {
         qCritical().noquote() << "Erreur :" << reply->errorString();
         this->errorMsg = reply->errorString();
         this->status = -1;
-        emit errorReachingApiServer();
+        QString msg("");
+        msg += "<b>Erreur de connexion à l'API :</b> ";
+        msg += "<br><br>Pensez à vérifier la configuration (host/port)...";
+        emit errorReachingApiServer(msg);
 
         // Nettoyage
         reply->deleteLater();
@@ -128,12 +105,17 @@ void ApiClient::sendPostEmployeeRequest(const std::string &json) {
                     emit employeeAdded(val);
                 }
             }
-        } else {
+        }
+        else {
             qDebug() << "Erreur HTTP :" << reply->errorString();
             qDebug() << "Code statut HTTP :" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
             qDebug() << "Détails réponse :" << reply->readAll();            
             this->status = -1;
             this->errorMsg = reply->errorString();
+            QString msg("");
+            msg += "<b>Erreur de connexion à l'API :</b> ";
+            msg += "<br><br>Pensez à vérifier la configuration (host/port)...";
+            emit errorReachingApiServer(msg);
         }
 
         // Très important en Qt : libérer la mémoire de la réponse
@@ -167,7 +149,10 @@ void ApiClient::sendPutEmployeeRequest(const std::string &json, const int &id, c
             qDebug() << "Détails réponse :" << reply->readAll();
             this->errorMsg = reply->errorString();
             this->status = -1;
-            emit errorReachingApiServer();
+            QString msg("");
+            msg += "<b>Erreur de connexion à l'API :</b> ";
+            msg += "<br><br>Pensez à vérifier la configuration (host/port)...";
+            emit errorReachingApiServer(msg);
         }
 
         // Très important en Qt : libérer la mémoire de la réponse
@@ -241,7 +226,10 @@ void ApiClient::sendGetConfigRequest() {
 
         // Nettoyage
         reply->deleteLater();
-        emit finished();
+        QString msg("");
+        msg += "<b>Erreur de connexion à l'API :</b> ";
+        msg += "<br><br>Pensez à vérifier la configuration (host/port)...";
+        emit errorReachingApiServer(msg);
 
     }
 }
@@ -268,6 +256,10 @@ void ApiClient::sendPutConfigRequest(const std::string &json) {
             qDebug() << "Détails réponse :" << reply->readAll();
             this->errorMsg = reply->errorString();
             this->status = -1;
+            QString msg("");
+            msg += "<b>Erreur de connexion à l'API :</b> ";
+            msg += "<br><br>Pensez à vérifier la configuration (host/port)...";
+            emit errorReachingApiServer(msg);
         }
 
         // Très important en Qt : libérer la mémoire de la réponse

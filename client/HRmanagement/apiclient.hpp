@@ -47,7 +47,7 @@ signals:
     void employeeAdded(int newId);
     void employeeModified(const int row, const Employee &e);
     void configModified(const std::string &json);
-    void errorReachingApiServer();
+    void errorReachingApiServer(const QString &msg);
 
 private:
     QNetworkAccessManager *networkManager;

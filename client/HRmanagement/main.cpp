@@ -5,7 +5,7 @@
 #include <QApplication>
 
 void applyStyleSheet(QApplication &app) {
-    QFile file(":/style.qss");
+    QFile file(STYLE_FILE_NAME);
 
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         app.setStyleSheet(QLatin1String(file.readAll()));

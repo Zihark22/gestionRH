@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
+#include "parameters.hpp"
 #include "apiclient.hpp"
 #include "employee.hpp"
 #include "formwindow.hpp"
@@ -54,7 +55,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() = default;
 
 private slots:
 
@@ -102,7 +103,7 @@ private:
     void updateRows(const int &row, const Employee &e);
     void updateCmpt();
     void reloadData();
-    void errorDisplay();
+    void errorDisplay(const QString &msg);
 
 
 /// Attributs ///
