@@ -10,7 +10,7 @@
 class DBhandler {
 
 public:
-    DBhandler();
+    DBhandler() = default;
     
     // Constructeur qui initialise le gestionnaire de base de données avec le chemin fourni
     DBhandler(const std::string& newdbPath);
@@ -38,7 +38,7 @@ public:
 private:
     sqlite3* db = nullptr;                      //< Pointeur vers la base de données SQLite
     char* messageError = nullptr;               //< Pointeur vers le message d'erreur de retour de la BDD lors d'une requête
-    std::string dbPath;                        //< chemin de la BDD
+    std::string dbPath = "";                    //< chemin de la BDD
     std::vector<Employee> employees;            //< Vecteur pour stocker les employés récupérés de la base de données
 
 

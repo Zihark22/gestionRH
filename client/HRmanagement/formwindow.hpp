@@ -30,7 +30,11 @@ public:
     explicit FormWindow(QWidget *parent = nullptr);
     explicit FormWindow(const QList<QPair<int, QString>> &managers, QWidget *parent = nullptr);
     explicit FormWindow(const Employee &e, const QList<QPair<int, QString>> &managers,QWidget *parent = nullptr);
+
     static QStringList optionsPlan;
+
+    void initAttributes();
+    void configAttributes();
 
     // Getters pour récupérer la saisie après validation
     Employee toEmployee();

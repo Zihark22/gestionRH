@@ -1,9 +1,5 @@
 #include "../includes/dbhandler.hpp"
 
-DBhandler::DBhandler() {
-    dbPath = "";
-}
-
 DBhandler::DBhandler(const std::string& newdbPath) {
     this->dbPath = newdbPath;
 }

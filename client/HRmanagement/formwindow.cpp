@@ -3,44 +3,66 @@
 QStringList FormWindow::optionsPlan = {"Plan A", "Plan B", "Plan C"};
 
 FormWindow::FormWindow(QWidget *parent) : QDialog(parent) {
-    formLayout = new QFormLayout();
+
     resize(500, 400);
 
+    initAttributes();
+
+    configAttributes();
+
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    btnLayout->addWidget(btnValider);
+    btnLayout->addWidget(btnAnnuler);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addLayout(formLayout);
+    mainLayout->addLayout(btnLayout);
+
+    // Relier les boutons aux slots intégrés de QDialog (accept/reject)
+    connect(btnValider, &QPushButton::clicked, this, &QDialog::accept);
+    connect(btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
+}
+
+void FormWindow::initAttributes() {
+
+    formLayout = new QFormLayout();
     mLastname = new QLineEdit(this);
     mFirstname = new QLineEdit(this);
     mJobEdit = new QLineEdit(this);
-
     mSignedPlanBox = new QCheckBox("Plan signé", this);
     mStatusBox = new QCheckBox("Statut cadre", this);
-
-
     mCoefBox = new QSpinBox(this);
+    mPositionBox = new QDoubleSpinBox(this);
+    mStartDate = new QDateEdit(QDate::currentDate(),this);
+    mBirthdate = new QDateEdit(this);
+    mPlanCombo = new QComboBox(this);
+    mManager = new QComboBox(this);
+    mId = -1;
+
+    // Boutons de validation
+    btnValider = new QPushButton("Valider", this);
+    btnAnnuler = new QPushButton("Annuler", this);
+}
+
+void FormWindow::configAttributes() {
     mCoefBox->setRange(90, 270);
     mCoefBox->setSingleStep(5);
 
-    mPositionBox = new QDoubleSpinBox(this);
     mPositionBox->setRange(1.0, 3.3);
     mPositionBox->setDecimals(1);
     mPositionBox->setSingleStep(0.1);
 
-    mStartDate = new QDateEdit(QDate::currentDate(),this);
     mStartDate->setDisplayFormat("dd/MM/yyyy");
     mStartDate->setCalendarPopup(true); // Affiche un calendrier au clic
     mStartDate->setMaximumDate(QDate::currentDate());
     mStartDate->setMinimumDate(QDate(2010, 1, 1));
 
-    mBirthdate = new QDateEdit(this);
     mBirthdate->setDisplayFormat("dd/MM/yyyy");
     mBirthdate->setCalendarPopup(true); // Affiche un calendrier au clic
     mBirthdate->setMaximumDate(QDate::currentDate());
     mBirthdate->setMinimumDate(QDate(1950, 1, 1));
 
-    mPlanCombo = new QComboBox(this);
     mPlanCombo->addItems(FormWindow::optionsPlan);
-
-    mManager = new QComboBox(this);
-    mId = -1;
-
 
     // Ajout des paires Libellé -> Champ au layout de formulaire
     formLayout->addRow("Nom :", mLastname);
@@ -56,23 +78,6 @@ FormWindow::FormWindow(QWidget *parent) : QDialog(parent) {
     formLayout->addRow("Plan signé :", mSignedPlanBox);
     formLayout->setItem(formLayout->rowCount(), QFormLayout::SpanningRole,
                         new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)); // stretch space line
-
-
-    // Boutons de validation
-    btnValider = new QPushButton("Valider", this);
-    btnAnnuler = new QPushButton("Annuler", this);
-
-    QHBoxLayout *btnLayout = new QHBoxLayout();
-    btnLayout->addWidget(btnValider);
-    btnLayout->addWidget(btnAnnuler);
-
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->addLayout(formLayout);
-    mainLayout->addLayout(btnLayout);
-
-    // Relier les boutons aux slots intégrés de QDialog (accept/reject)
-    connect(btnValider, &QPushButton::clicked, this, &QDialog::accept);
-    connect(btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
 }
 
 FormWindow::FormWindow(const QList<QPair<int, QString>> &managers, QWidget *parent) : FormWindow(parent) {

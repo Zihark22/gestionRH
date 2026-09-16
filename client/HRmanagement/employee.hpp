@@ -93,5 +93,8 @@ private:
     int mManagerId{-1};                //< Identifiant du manager
     std::string mPrevPlan{"Plan A"};   //< Plan précédent
     int mSignedPlan{0};                //< Plan signé
+
+    std::string cleanJsonString(const std::string &jsonStr);
+    void initAttributesFromJsonString(const std::string &obj);
 };
 #endif // EMPLOYEE_HPP

@@ -1,67 +1,77 @@
 #include "employee.hpp"
 
-Employee::Employee(const string &jsonStr) {
-    // Créer un Employee à partir du body sous forme JSON lors d'une demande d'ajout à la DB : [{"firstname":"Marc","lastname":"Dumort"}]
 
-    string s = IniParser::trim(jsonStr);
+Employee::Employee(const std::string &jsonStr) {
+
+    std::string obj = cleanJsonString(jsonStr);
+
+    if(obj!="")
+        initAttributesFromJsonString(obj);
+    else
+        throw std::invalid_argument("Impossible de créer un employé car le format du JSON est invalide :" + jsonStr);
+}
+
+std::string Employee::cleanJsonString(const std::string &jsonStr) {
+    // Traitment de la chaîne JSON pour extraire les informations de l'employé
+    std::string s = IniParser::trim(jsonStr);
 
     // Format attendu : [{"firstname":"Marc","lastname":"Dumort"}]
     if (s.size() < 2 || s.front() != '[' || s.back() != ']')
-        return;
+        return "";
 
-    string inner = IniParser::trim(s.substr(1, s.size() - 2));
+    std::string inner = IniParser::trim(s.substr(1, s.size() - 2));
 
     if (inner.empty())
-        return;
+        return "";
 
     if (inner.front() != '{' || inner.back() != '}')
-        return;
+        return "";
 
-    string obj = IniParser::trim(inner.substr(1, inner.size() - 2));
+    return IniParser::trim(inner.substr(1, inner.size() - 2));
+}
+
+void Employee::initAttributesFromJsonString(const std::string &obj) {
 
     // Extraction des attributs
-    string firstname = IniParser::getField(obj, "firstname");
-    string lastname  = IniParser::getField(obj, "lastname");
-    string birthdate = IniParser::getField(obj, "birthdate");
-    string job       = IniParser::getField(obj, "job");
-    string prevPlan  = IniParser::getField(obj, "prev_plan");
+    std::string firstname = IniParser::getField(obj, "firstname");
+    std::string lastname  = IniParser::getField(obj, "lastname");
+    std::string birthdate = IniParser::getField(obj, "birthdate");
+    std::string job       = IniParser::getField(obj, "job");
+    std::string prevPlan  = IniParser::getField(obj, "prevPlan");
 
-    string executiveStatus = IniParser::getField(obj, "executive_status");
-    string signedPlan      = IniParser::getField(obj, "signed_plan");
+    std::string executiveStatus = IniParser::getField(obj, "executive_status");
+    std::string signedPlan      = IniParser::getField(obj, "signed_plan");
 
-    string positionStr = IniParser::getField(obj, "position");
-    string coefficientStr = IniParser::getField(obj, "coefficient");
-    string managerIdStr = IniParser::getField(obj, "manager_id");
-    string startDate = IniParser::getField(obj, "startDate");
-    string idStr = IniParser::getField(obj, "id");
+    std::string positionStr = IniParser::getField(obj, "position");
+    std::string coefficientStr = IniParser::getField(obj, "coefficient");
+    std::string managerIdStr = IniParser::getField(obj, "manager_id");
+    std::string startDate = IniParser::getField(obj, "start_date");
+    std::string idStr = IniParser::getField(obj, "id");
 
     if (!firstname.empty())
-            mFirstname = firstname;
+        mFirstname = firstname;
     if (!lastname.empty())
-            mLastname = lastname;
+        mLastname = lastname;
     if (!birthdate.empty())
-            mBirthdate = Date(birthdate);
+        mBirthdate = Date(birthdate);
     if (!job.empty())
-            mJob = job;
+        mJob = job;
     if (!prevPlan.empty())
-            mPrevPlan = prevPlan;
+        mPrevPlan = prevPlan;
 
     mExecutiveStatus = (executiveStatus == "true" || executiveStatus == "1");
     mSignedPlan = (signedPlan == "true" || signedPlan == "1");
 
     if (!positionStr.empty())
-            mPosition = QString::fromStdString(positionStr).toFloat();
+        mPosition = stof(positionStr);
     if (!coefficientStr.empty())
-            mCoefficient = QString::fromStdString(coefficientStr).toInt();
+        mCoefficient = stoi(coefficientStr);
     if (!managerIdStr.empty())
-            mManagerId = QString::fromStdString(managerIdStr).toInt();
+        mManagerId = stoi(managerIdStr);
     if (!startDate.empty())
-            mStartDate = Date(startDate);
-
+        mStartDate = Date(startDate);
     if (!idStr.empty())
-            mId = QString::fromStdString(idStr).toInt();
-    else
-        mId = -1; // laisse la base de donnée mettre l'id
+        mId = stoi(idStr); else mId = -1; // laisse la base de donnée mettre l'id
 }
 
 std::string Employee::toJson() const {

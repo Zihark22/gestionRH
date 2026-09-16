@@ -2,23 +2,35 @@
 
 Employee::Employee(const std::string &jsonStr) {
 
-    // Traitment de la chaîne JSON pour extraire les informations de l'employé
+    std::string obj = cleanJsonString(jsonStr);
+
+    if(obj!="")
+        initAttributesFromJsonString(obj);
+    else
+        throw std::invalid_argument("Impossible de créer un employé car le format du JSON est invalide :" + jsonStr);
+}
+
+std::string Employee::cleanJsonString(const std::string &jsonStr) {
+     // Traitment de la chaîne JSON pour extraire les informations de l'employé
     std::string s = IniParser::trim(jsonStr);
 
     // Format attendu : [{"firstname":"Marc","lastname":"Dumort"}]
     if (s.size() < 2 || s.front() != '[' || s.back() != ']')
-        return;
+        return "";
 
     std::string inner = IniParser::trim(s.substr(1, s.size() - 2));
 
     if (inner.empty())
-        return;
+        return "";
 
     if (inner.front() != '{' || inner.back() != '}')
-        return;
+        return "";
 
-    std::string obj = IniParser::trim(inner.substr(1, inner.size() - 2));
+    return IniParser::trim(inner.substr(1, inner.size() - 2));
+}
 
+void Employee::initAttributesFromJsonString(const std::string &obj) {
+    
     // Extraction des attributs
     std::string firstname = IniParser::getField(obj, "firstname");
     std::string lastname  = IniParser::getField(obj, "lastname");
@@ -59,7 +71,6 @@ Employee::Employee(const std::string &jsonStr) {
         mStartDate = Date(startDate);
     if (!idStr.empty())           
         mId = stoi(idStr); else mId = -1; // laisse la base de donnée mettre l'id
-
 } 
 
 std::string Employee::toJson() const {
