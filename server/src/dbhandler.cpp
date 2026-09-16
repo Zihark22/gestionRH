@@ -137,7 +137,7 @@ int DBhandler::modifyEmployee(const Employee &e, const std::string &id) {
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return 1; // Indiquer qu'il y a eu une erreur
+        return -1; // Indiquer qu'il y a eu une erreur
     }
     std::cout << "Employee successfully modified" << std::endl;
     return 0; // Indiquer que tout s'est bien passé

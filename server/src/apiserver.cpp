@@ -67,111 +67,76 @@ void ApiServer::parseRequestHttp(std::string request, const int client_fd) {
 } 
 
 void ApiServer::executeRequest(const std::string &method, const std::string &endpoint, const int client_fd) {
-    std::string jsonOutput;
     std::string repbody;
-    std::string response;
-    int result=-1;
-    std::string rep;
+    std::string responseHTTP;
+    std::string repsponseGlobal; // informations à retourner différentes d'une liste d'employés (ici la config ou id du nouvel employé)
 
     dbHandler.openDB();
     std::cout << "Action demandée par le client : ";
 
-    // count the number of non-digit characters in the endpoint to limit endpoint structure after /api/employees to a maximum of 15 non-digit characters (e.g., /api/employees/123)
-    int nbCarNotDigit = 0;
-    for (size_t i = 0; i < endpoint.length(); ++i) {
-        if (isdigit(endpoint[i])) 
-            continue;
-        else 
-            nbCarNotDigit++;
+    handleRequest(method, endpoint, repsponseGlobal); // appelle la fonction associée au endpoint + méthode et retourne la réponse
+
+    // Construction de la réponse HTTP
+    if(responseStatusCode != 200) { // Si le code de statut n'est pas 200, on renvoie un message d'erreur
+        repbody = "{\"error\": \""+ messageError +"\"}";
+        responseHTTP = 
+            "HTTP/1.1 "+ std::to_string(responseStatusCode) + " " + responseMsg +"\r\n"
+            "Content-Type: application/json\r\n"
+            "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
+            repbody;
+    }
+    else {  // si le code de statut est 200, on renvoie le JSON de la base de données ou la réponse du serveur
+        if(repsponseGlobal.empty())
+            repbody = dbHandler.formatterJson(); // JSON de sortie de la base de données
+        else
+            repbody = repsponseGlobal; // autre réponse du serveur (ex: config)
+
+        responseHTTP = 
+            "HTTP/1.1 "+ std::to_string(responseStatusCode) + " " + responseMsg +"\r\n"
+            "Access-Control-Allow-Origin: *\r\n"
+            "Content-TypexecuteRequeste: application/json\r\n"
+            "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
+            repbody;
     }
 
-    // si le endpoint employees est dans la requete (ex: ID)
-    if (endpoint.rfind("/api/employees", 0) == 0 && nbCarNotDigit<=15) {
-        std::string id = endpoint.substr(std::string("/api/employees").size());
-        if(id[0]=='/') 
-            id = id.substr(1); // pour gérer avec / ou sans à la fin
-        
-        // si ID à la fin du endpoint
-        if (!id.empty() && id.find_first_not_of("0123456789") == std::string::npos) {
-        
-            if (method == "GET") {
-                // Traiter la requête GET /api/employees
-                std::cout << "Obtenir employé dont ID = " << id << std::endl;
+    write(client_fd, responseHTTP.c_str(), responseHTTP.length());
+    dbHandler.closeDB();
+} 
 
-                // commande
-                result = dbHandler.getEmployee(atoi(id.c_str()));
 
-                // reponse en fonction du resultat
-                if(result == 0) {
-                    int nbE = dbHandler.countEmployees();
-                    if(nbE<1){
-                        responseStatusCode = 404;
-                        responseMsg = "Not found";
-                        messageError = "L'employé avec ID = "+id+" n'est pas dans la BDD"; 
-                    
-                    }
-                    else {
-                        responseStatusCode = 200;
-                        responseMsg = "OK";
-                    }
-                }
-                else {
-                    messageError = "Erreur lors de la récupération de l'employé"; 
-                    responseStatusCode = 500;
-                    responseMsg = "Internal Server Error";
-                }
-            }
-            else if (method == "DELETE") {
-                // Traiter la requête DELETE
-                std::cout << "supprimer employé dont ID = " << id << std::endl;
+RouteMatch ApiServer::parseRoute(const std::string& uri) {
+    // Table de correspondance pour les routes statiques de base
+    static const std::unordered_map<std::string, EndpointAction> routeTable = {
+        {"/api/employees", EndpointAction::EMPLOYEES_COLLECTION},
+        {"/api/config",    EndpointAction::CONFIG}
+    };
 
-                // commande
-                result = dbHandler.deleteEmployee(atoi(id.c_str()));
+    // 1. Recherche directe dans la map
+    auto it = routeTable.find(uri);
+    if (it != routeTable.end()) {
+        return {it->second, std::nullopt};
+    }
 
-                // reponse en fonction du resultat
-                if(result < 0) {
-                    messageError = "Erreur lors de la suppression de l'employé";
-                    responseStatusCode = 500;
-                    responseMsg = "Internal Server Error";
-                }
-                else {
-                    responseStatusCode = 200;
-                    responseMsg = "OK";
-                }
-            }
-            else if (method == "PUT") {
-                // Traiter la requête PUT
-                std::cout << "modifier employé dont ID = " << id << std::endl;
-
-                 // commande
-                Employee e(this->body);
-                result = dbHandler.modifyEmployee(e, id);
-
-                // reponse en fonction du resultat
-                if(result > -1) {                    
-                    responseStatusCode = 200;
-                    responseMsg = "OK";
-                }
-                else {
-                    messageError = "Erreur lors de la modification de l'employé";
-                    responseStatusCode = 500;
-                    responseMsg = "Internal Server Error";
-                }
-            }
-            else if (method == "POST") {
-                messageError = "La méthode POST n'est pas autorisée sur cet endpoint";
-                responseStatusCode = 405;
-                responseMsg = "Method Not Allowed";
-            }
-            else{
-                std::cout << "méthode non supportée " << std::endl;
-                messageError = "Requête non implémentée";
-                responseStatusCode = 501;
-                responseMsg = "Not implemented";
-            } 
+    // 2. Traitement du cas dynamique /api/employees/:id
+    const std::string prefix = "/api/employees/";
+    if (uri.rfind(prefix, 0) == 0) { // Démarre par "/api/employees/"
+        std::string idStr = uri.substr(prefix.length());
+        try {
+            int id = std::stoi(idStr);
+            return {EndpointAction::EMPLOYEE_BY_ID, id};
+        } catch (...) {
+            return {EndpointAction::UNKNOWN, std::nullopt}; // ID non numérique
         }
-        // si la requete concerne tout les employes
-        else {
+    }
+
+    return {EndpointAction::UNKNOWN, std::nullopt};
+}
+
+void ApiServer::handleRequest(const std::string& method, const std::string& uri, std::string &repsponseGlobal) {
+    RouteMatch route = parseRoute(uri);
+    int result = -1;
+    switch (route.action) {
+        case EndpointAction::EMPLOYEES_COLLECTION:
             if (method == "GET") {
                 // Traiter la requête GET /api/employees
                 std::cout << "Obtenir employés" << std::endl;
@@ -180,7 +145,7 @@ void ApiServer::executeRequest(const std::string &method, const std::string &end
                 result = dbHandler.getAllEmployees();
 
                 // reponse en fonction du resultat
-                if(result < 0) {
+                if(result == -1) {
                     messageError = "Erreur lors de la récupération des employées";
                     responseStatusCode = 500;
                     responseMsg = "Internal Server Error";
@@ -199,127 +164,159 @@ void ApiServer::executeRequest(const std::string &method, const std::string &end
                 result = dbHandler.addEmployee(e);
 
                 // reponse en fonction du resultat
-                if(result > -1) {
-                    responseStatusCode = 200;
-                    responseMsg = "OK";
-                    rep = "[{\"id\": "+std::to_string(result)+"}]";
-                }
-                else {
+                if(result == -1) {
                     messageError = "Erreur lors de l'ajout d'un employé";
                     responseStatusCode = 500;
                     responseMsg = "Internal Server Error";
                 }
+                else {
+                    responseStatusCode = 200;
+                    responseMsg = "OK";
+                    repsponseGlobal = "[{\"id\": "+std::to_string(result)+"}]";
+                }
             }
-            else if (method == "PUT") {
-                messageError = "La méthode PUT n'est pas autorisée sur cet endpoint";
+            else {
+                std::cerr << "-> Error 405 method not allowed\n";
+                messageError = "La méthode n'est pas autorisée sur cet endpoint";
                 responseStatusCode = 405;
-                responseMsg = "Method Not Allowed";                
+                responseMsg = "Method Not Allowed";   
+            } 
+            break;
+
+        case EndpointAction::EMPLOYEE_BY_ID:
+            if (method == "GET") {
+                // Traiter la requête GET /api/employees
+                std::cout << "Obtenir employé dont ID = " << route.id.value() << std::endl;
+
+                // commande
+                result = dbHandler.getEmployee(route.id.value());
+
+                // reponse en fonction du resultat
+                if(result == 0) {
+                    int nbE = dbHandler.countEmployees();
+                    if(nbE<1){
+                        responseStatusCode = 404;
+                        responseMsg = "Not found";
+                        messageError = "L'employé avec ID = " + std::to_string(route.id.value()) + " n'est pas dans la BDD"; 
+                    }
+                    else {
+                        responseStatusCode = 200;
+                        responseMsg = "OK";
+                    }
+                }
+                else {
+                    messageError = "Erreur lors de la récupération de l'employé"; 
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
+                }
             }
             else if (method == "DELETE") {
-                messageError = "La méthode DELETE n'est pas autorisée sur cet endpoint";
+                // Traiter la requête DELETE
+                std::cout << "supprimer employé dont ID = " << route.id.value() << std::endl;
+
+                // commande
+                result = dbHandler.deleteEmployee(route.id.value());
+
+                // reponse en fonction du resultat
+                if(result == -1) {
+                    messageError = "Erreur lors de la suppression de l'employé";
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
+                }
+                else {
+                    responseStatusCode = 200;
+                    responseMsg = "OK";
+                }
+            }
+            else if (method == "PUT") {
+                // Traiter la requête PUT
+                std::cout << "modifier employé dont ID = " << route.id.value() << std::endl;
+
+                 // commande
+                Employee e(this->body);
+                result = dbHandler.modifyEmployee(e, std::to_string(route.id.value()));
+
+                // reponse en fonction du resultat
+                if(result == -1) {
+                    messageError = "Erreur lors de la modification de l'employé";
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
+                }
+                else {                    
+                    responseStatusCode = 200;
+                    responseMsg = "OK";
+                }
+            }
+            else {
+                std::cerr << "-> Error 405 method not allowed\n";
+                messageError = "La méthode n'est pas autorisée sur cet endpoint";
                 responseStatusCode = 405;
-                responseMsg = "Method Not Allowed";                
-            }
-            else {
-                std::cout << "méthode non supportée " << std::endl;
-                messageError = "Requête non implémentée";
-                responseStatusCode = 501;
-                responseMsg = "Not implemented";
+                responseMsg = "Method Not Allowed";   
             } 
-        } 
+            break;
+
+        case EndpointAction::CONFIG:
+            if (method == "GET") {
+                // Traiter la requête GET /api/employees
+                std::cout << "Obtenir config" << std::endl;
+
+                // commande en appelant le serveur
+                if (myHandler) {
+                    repsponseGlobal = myHandler("getconfig", "");
+                    std::cout << "reponse : " << repsponseGlobal << std::endl;
+                    result = 0;
+                } 
+                else {
+                    repsponseGlobal = "ERROR 500: No handler";
+                    result = -1;
+                }
+
+                // reponse en fonction du resultat
+                if(result == -1) {
+                    messageError = "Erreur lors de la récupération de la config";
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
+                }
+                else {
+                    responseStatusCode = 200;
+                    responseMsg = "OK";
+                }
+            }
+            else if (method == "PUT") {
+                // Traiter la requête GET /api/employees
+                std::cout << "Modifier config" << std::endl;
+
+                // envoi de la requete au serveur pour modifier le fichier config.ini
+                if (myHandler) {
+                    repsponseGlobal = myHandler("modifyconfig",this->body);
+                    std::cout << "reponse : " << repsponseGlobal << std::endl;
+                    result = 0;
+                } 
+                else {
+                    repsponseGlobal = "ERROR 500: No handler";
+                    result = -1;
+                }
+
+                // reponse en fonction du resultat
+                if(result == -1) {
+                    messageError = "Erreur lors de la modification de la config";
+                    responseStatusCode = 500;
+                    responseMsg = "Internal Server Error";
+                }
+                else {
+                    responseStatusCode = 200;
+                    responseMsg = "Ok";
+                }
+            }
+            break;
+
+        case EndpointAction::UNKNOWN: // Route de secours (404 Not Found)
+            messageError = "Route invalide";
+            responseStatusCode = 404;
+            responseMsg = "Not Found";
+            std::cerr << "Route non reconnue : " << std::endl;
+        default:  
+            std::cerr << "Le endpoint n'a pas été parser correctement !" << std::endl;
+            break;
     }
-    // si le endpoint config est dans la requete
-    else if(endpoint=="/api/config" or endpoint=="/api/config/") {
-        if (method == "GET") {
-            // Traiter la requête GET /api/employees
-            std::cout << "Obtenir config" << std::endl;
-
-            // commande en appelant le serveur
-             if (myHandler) {
-                rep = myHandler("getconfig", "");
-                std::cout << "reponse : " << rep << std::endl;
-                result = 0;
-            } 
-            else {
-                rep = "ERROR 500: No handler";
-                result = -1;
-            }
-
-            // reponse en fonction du resultat
-            if(result != 0) {
-                messageError = "Erreur lors de la récupération de la config";
-                responseStatusCode = 500;
-                responseMsg = "Internal Server Error";
-            }
-            else {
-                responseStatusCode = 200;
-                responseMsg = "OK";
-            }
-        }
-        else if (method == "PUT") {
-            // Traiter la requête GET /api/employees
-            std::cout << "Modifier config" << std::endl;
-
-            // envoi de la requete au serveur pour modifier le fichier config.ini
-             if (myHandler) {
-                rep = myHandler("modifyconfig",this->body);
-                std::cout << "reponse : " << rep << std::endl;
-                result = 0;
-            } 
-            else {
-                rep = "ERROR 500: No handler";
-                result = -1;
-            }
-
-            // reponse en fonction du resultat
-            if(result != 0) {
-                messageError = "Erreur lors de la modification de la config";
-                responseStatusCode = 500;
-                responseMsg = "Internal Server Error";
-            }
-            else {
-                responseStatusCode = 200;
-                responseMsg = "rep";
-            }
-        }
-        else {
-            std::cout << "méthode non supportée " << std::endl;
-            messageError = "Requête non implémentée";
-            responseStatusCode = 501;
-            responseMsg = "Not implemented";
-        } 
-    } 
-    // Route de secours (404 Not Found)
-    else {
-        messageError = "Route invalide : " + endpoint;
-        responseStatusCode = 404;
-        responseMsg = "Not Found";
-        std::cout << "Non reconnue : " << endpoint << std::endl;
-    }
-
-    // Construction de la réponse HTTP
-    if(responseStatusCode != 200) { // Si le code de statut n'est pas 200, on renvoie un message d'erreur
-        repbody = "{\"error\": \""+ messageError +"\"}";
-        response = 
-            "HTTP/1.1 "+ std::to_string(responseStatusCode) + " " + responseMsg +"\r\n"
-            "Content-Type: application/json\r\n"
-            "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
-            repbody;
-    }
-    else {  // si le code de statut est 200, on renvoie le JSON de la base de données ou la réponse du serveur
-        if(rep.empty())
-            repbody = dbHandler.formatterJson(); // JSON de sortie de la base de données
-        else
-            repbody = rep; // autre réponse du serveur (ex: config)
-
-        response = 
-            "HTTP/1.1 "+ std::to_string(responseStatusCode) + " " + responseMsg +"\r\n"
-            "Access-Control-Allow-Origin: *\r\n"
-            "Content-TypexecuteRequeste: application/json\r\n"
-            "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
-            repbody;
-    }
-
-    write(client_fd, response.c_str(), response.length());
-    dbHandler.closeDB();
-} 
+}

@@ -1,6 +1,8 @@
 #ifndef APISERVER_HPP
 #define APISERVER_HPP
 
+#include "dbhandler.hpp"
+
 #include <iostream>
 #include <vector>
 #include <cstring>
@@ -8,8 +10,21 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <functional>
+#include <unordered_map>
+#include <optional>
+#include <sstream>
 
-#include "dbhandler.hpp"
+enum class EndpointAction {
+    UNKNOWN,
+    EMPLOYEES_COLLECTION, // /api/employees (GET tous, POST nouveau)
+    EMPLOYEE_BY_ID,       // /api/employees/:id (GET un, PUT, DELETE)
+    CONFIG                // /api/config
+};
+
+struct RouteMatch {
+    EndpointAction action = EndpointAction::UNKNOWN;
+    std::optional<int> id; // Rempli si un ID est détecté
+};
 
 class ApiServer {
 
@@ -57,6 +72,22 @@ private:
      * @param client_fd Le descripteur de fichier du client.
      */
     void executeRequest(const std::string &method, const std::string &endpoint, const int client_fd);
+
+    /**
+     * @brief Décompose
+     * 
+     * @param uri 
+     */
+    RouteMatch parseRoute(const std::string& uri);
+      
+    /**
+     * @brief 
+     * 
+     * @param method La méthode HTTP de la requête.
+     * @param uri    L'URI de la requête.
+     * @param rep    
+     */
+    void handleRequest(const std::string& method, const std::string& uri, std::string &repsponseGlobal);
 
 };
 
