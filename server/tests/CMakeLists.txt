@@ -7,6 +7,7 @@ find_package(GTest REQUIRED)
 # 2. Exécutable de test (listez vos fichiers de tests unitaires)
 add_executable(unit_tests 
     DateTest.cpp
+    EmployeeTest.cpp
     # DatabaseTest.cpp
 )
 
