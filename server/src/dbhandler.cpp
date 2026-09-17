@@ -118,16 +118,16 @@ int DBhandler::modifyEmployee(const Employee &e, const std::string &id) {
     std::string query = "\
         UPDATE employees \
         SET \
-            firstname=\'"+e.firstname()+"\', \
-            lastname=\'"+e.lastname()+"\', \
-            birthdate=\'"+e.birthdate().toString()+"\', \
-            job=\'"+e.job()+"\', \
+            firstname=\'" + e.firstname() + "\', \
+            lastname=\'" + e.lastname() + "\', \
+            birthdate=\'" + e.birthdate() + "\', \
+            job=\'" + e.job() + "\', \
             executive_status=" + std::to_string(e.isExecutive())+", \
             position=" + std::to_string(e.position())+", \
             coefficient=" + std::to_string(e.coefficient())+", \
-            start_date=\'"+e.startDate().toString()+"\', \
+            start_date=\'" + e.startDate() + "\', \
             manager_id=" + std::to_string(e.managerId())+", \
-            prev_plan=\'"+e.prevPlan()+"\',\
+            prev_plan=\'" + e.prevPlan()+"\',\
             signed_plan=" + std::to_string(e.signedPlan())+" \
         WHERE id="+id+";";
  
@@ -154,8 +154,8 @@ int DBhandler::addEmployee(const Employee &e) {
         position, coefficient, start_date, \
         manager_id, prev_plan, signed_plan\
     ) VALUES (\
-        '"+e.firstname()+"', '"+e.lastname()+"', '"+e.birthdate().toString()+"', '"+e.job()+"', " + std::to_string(e.isExecutive())+", \
-        '"+ std::to_string(e.position())+"', " + std::to_string(e.coefficient())+", '"+e.startDate().toString()+"', \
+        '"+e.firstname()+"', '"+e.lastname()+"', '"+e.birthdate()+"', '"+e.job()+"', " + std::to_string(e.isExecutive())+", \
+        '"+ std::to_string(e.position())+"', " + std::to_string(e.coefficient())+", '"+e.startDate()+"', \
         " + std::to_string(e.managerId())+", '"+e.prevPlan()+"', " + std::to_string(e.signedPlan())+"\
     );";
 

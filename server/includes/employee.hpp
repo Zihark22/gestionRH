@@ -1,15 +1,16 @@
 #ifndef EMPLOYEE_HPP
 #define EMPLOYEE_HPP
 
-#include "date.hpp"
 #include "iniparser.hpp"
 
 #include <iostream>
 #include <map>
+#include <chrono>
 #include <stdexcept> // Pour std::invalid_argument
 
-class Employee {
+using namespace std::chrono;
 
+class Employee {
 public:
 // Constructeurs
 
@@ -31,9 +32,6 @@ public:
     std::string lastname() const { return mLastname; }
     void setLastname(const std::string &nom) { mLastname = nom; }
 
-    Date birthdate() const { return mBirthdate; }
-    void setBirthdate(const Date &date) { mBirthdate = date; }
-
     std::string job() const { return mJob; }
     void setJob(const std::string &poste) { mJob = poste; }
 
@@ -46,8 +44,11 @@ public:
     int coefficient() const { return mCoefficient; }
     void setCoefficient(int coeff) { mCoefficient = coeff; }
 
-    Date startDate() const { return mStartDate; }
-    void setStartDate(const Date &date) { mStartDate = date; }
+    std::string startDate() const { return mStartDate; }
+    void setStartDate(const std::string &date) { mStartDate = date; }
+
+    std::string birthdate() const { return mBirthdate; }
+    void setBirthdate(const std::string &date) { mBirthdate = date; }
 
     int managerId() const { return mManagerId; }
     void setManagerId(int id) { mManagerId = id; }
@@ -79,18 +80,18 @@ public:
     void display(void) const;
 
 private:
-    int mId{-1};                       //< Identifiant unique de l'employé
-    std::string mFirstname{""};        //< Prénom de l'employé
-    std::string mLastname{""};         //< Nom de famille de l'employé
-    Date mBirthdate{"01/01/2000"};     //< Date de naissance de l'employé
-    std::string mJob{""};              //< Poste de l'employé
-    int mExecutiveStatus{0};           //< Statut de manager de l'employé
-    float mPosition{0.0};              //< Position de l'employé
-    int mCoefficient{0};               //< Coefficient de l'employé
-    Date mStartDate{"01/01/2010"};     //< Date de début d'activité
-    int mManagerId{-1};                //< Identifiant du manager
-    std::string mPrevPlan{"Plan A"};   //< Plan précédent
-    int mSignedPlan{0};                //< Plan signé
+int mId{-1};                                //< Identifiant unique de l'employé
+    std::string mFirstname{""};             //< Prénom de l'employé
+    std::string mLastname{""};              //< Nom de famille de l'employé
+    std::string mBirthdate{"2000-01-01"};   //< Date de naissance de l'employé
+    std::string mJob{""};                   //< Poste de l'employé
+    int mExecutiveStatus{0};                //< Statut de manager de l'employé
+    float mPosition{0.0};                   //< Position de l'employé
+    int mCoefficient{0};                    //< Coefficient de l'employé
+    std::string mStartDate{"2010-01-01"};   //< Date de début d'activité
+    int mManagerId{-1};                     //< Identifiant du manager
+    std::string mPrevPlan{"Plan A"};        //< Plan précédent
+    int mSignedPlan{0};                     //< Plan signé
 
     std::string cleanJsonString(const std::string &jsonStr);
     void initAttributesFromJsonString(const std::string &obj);

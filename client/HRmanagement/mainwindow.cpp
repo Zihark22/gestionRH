@@ -138,7 +138,7 @@ QTableWidget* MainWindow::fillGeneralTab(QWidget* tab) {
         // Ajout du widget
         tableWidget->setItem(row, 0, firstname_widget);
 
-        QTableWidgetItem *cell = new QTableWidgetItem(e.birthdate().toString("dd/MM/yyyy"));
+        QTableWidgetItem *cell = new QTableWidgetItem(e.birthdate().toString("yyyy-MM-dd"));
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 1, cell);
 
@@ -160,7 +160,7 @@ QTableWidget* MainWindow::fillGeneralTab(QWidget* tab) {
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 5, cell);
 
-        cell = new QTableWidgetItem(e.startDate().toString("dd/MM/yyyy"));
+        cell = new QTableWidgetItem(e.startDate().toString("yyyy-MM-dd"));
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 6, cell);
 
@@ -379,12 +379,12 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
 
     ///////////////// update General Tab /////////////////
     generalTableWidget->setItem(row, 0, firstname_widget);
-    generalTableWidget->setItem(row, 1, new QTableWidgetItem(e.birthdate().toString("dd/MM/yyyy")));
+    generalTableWidget->setItem(row, 1, new QTableWidgetItem(e.birthdate().toString("yyyy-MM-dd")));
     generalTableWidget->setItem(row, 2, new QTableWidgetItem(e.job()));
     generalTableWidget->setItem(row, 3, new QTableWidgetItem(executive_status_str));
     generalTableWidget->setItem(row, 4, new QTableWidgetItem(QString::number(e.position())));
     generalTableWidget->setItem(row, 5, new QTableWidgetItem(QString::number(e.coefficient())));
-    generalTableWidget->setItem(row, 6, new QTableWidgetItem(e.startDate().toString("dd/MM/yyyy")));
+    generalTableWidget->setItem(row, 6, new QTableWidgetItem(e.startDate().toString("yyyy-MM-dd")));
 
     for (int col = 0; col < generalTableWidget->columnCount(); ++col) {
         if (auto item = generalTableWidget->item(row, col))

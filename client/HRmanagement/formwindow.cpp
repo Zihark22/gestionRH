@@ -52,12 +52,12 @@ void FormWindow::configAttributes() {
     mPositionBox->setDecimals(1);
     mPositionBox->setSingleStep(0.1);
 
-    mStartDate->setDisplayFormat("dd/MM/yyyy");
+    mStartDate->setDisplayFormat("yyyy-MM-dd");
     mStartDate->setCalendarPopup(true); // Affiche un calendrier au clic
     mStartDate->setMaximumDate(QDate::currentDate());
     mStartDate->setMinimumDate(QDate(2010, 1, 1));
 
-    mBirthdate->setDisplayFormat("dd/MM/yyyy");
+    mBirthdate->setDisplayFormat("yyyy-MM-dd");
     mBirthdate->setCalendarPopup(true); // Affiche un calendrier au clic
     mBirthdate->setMaximumDate(QDate::currentDate());
     mBirthdate->setMinimumDate(QDate(1950, 1, 1));

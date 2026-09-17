@@ -53,7 +53,7 @@ void Employee::initAttributesFromJsonString(const std::string &obj) {
     if (!lastname.isEmpty())
         mLastname = lastname;
     if (!birthdate.isEmpty())
-        mBirthdate = QDate::fromString(birthdate, "dd/MM/yyyy");
+        mBirthdate = QDate::fromString(birthdate, "yyyy-MM-dd");
     if (!job.isEmpty())
         mJob = job;
     if (!prevPlan.isEmpty())
@@ -69,7 +69,7 @@ void Employee::initAttributesFromJsonString(const std::string &obj) {
     if (!managerIdStr.isEmpty())
         mManagerId = managerIdStr.toInt();
     if (!startDate.isEmpty())
-        mStartDate = QDate::fromString(startDate, "dd/MM/yyyy");
+        mStartDate = QDate::fromString(startDate, "yyyy-MM-dd");
     if (!idStr.isEmpty())
         mId = idStr.toUInt(); else mId = -1; // laisse la base de donnée mettre l'id
 }
@@ -79,12 +79,12 @@ std::string Employee::toJson() const {
     json += "\"id\":" + std::to_string(mId) + ",";
     json += "\"firstname\":\"" + mFirstname.toStdString() + "\",";
     json += "\"lastname\":\"" + mLastname.toStdString() + "\",";
-    json += "\"birthdate\":\"" + mBirthdate.toString("dd/MM/yyyy").toStdString() + "\",";
+    json += "\"birthdate\":\"" + mBirthdate.toString("yyyy-MM-dd").toStdString() + "\",";
     json += "\"job\":\"" + mJob.toStdString() + "\",";
     json += "\"executive_status\":" + std::string(mExecutiveStatus ? "true" : "false") + ",";
     json += "\"position\":" + QString::number(mPosition, 'f', 2).toStdString() + ",";
     json += "\"coefficient\":" + std::to_string(mCoefficient) + ",";
-    json += "\"startDate\":\"" + mStartDate.toString("dd/MM/yyyy").toStdString() + "\",";
+    json += "\"startDate\":\"" + mStartDate.toString("yyyy-MM-dd").toStdString() + "\",";
     json += "\"manager_id\":" + std::to_string(mManagerId) + ",";
     json += "\"prevPlan\":\"" + mPrevPlan.toStdString() + "\",";
     json += "\"signed_plan\":" + std::string(mSignedPlan ? "true" : "false");

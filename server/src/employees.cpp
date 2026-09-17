@@ -52,7 +52,7 @@ void Employee::initAttributesFromJsonString(const std::string &obj) {
     if (!lastname.empty())  
         mLastname = lastname;
     if (!birthdate.empty()) 
-        mBirthdate = Date(birthdate);
+        mBirthdate = birthdate;
     if (!job.empty()) 
         mJob = job;
     if (!prevPlan.empty()) 
@@ -68,9 +68,12 @@ void Employee::initAttributesFromJsonString(const std::string &obj) {
     if (!managerIdStr.empty())    
         mManagerId = stoi(managerIdStr);
     if (!startDate.empty())       
-        mStartDate = Date(startDate);
+        mStartDate = startDate;
+
     if (!idStr.empty())           
-        mId = stoi(idStr); else mId = -1; // laisse la base de donnée mettre l'id
+        mId = stoi(idStr); 
+    else 
+        mId = -1; // laisse la base de donnée mettre l'id
 } 
 
 std::string Employee::toJson() const {
@@ -78,12 +81,12 @@ std::string Employee::toJson() const {
     json += "\"id\":" + std::to_string(mId) + ",";
     json += "\"firstname\":\"" + mFirstname + "\",";
     json += "\"lastname\":\"" + mLastname + "\",";
-    json += "\"birthdate\":\"" + mBirthdate.toString() + "\",";
+    json += "\"birthdate\":\"" + mBirthdate + "\",";
     json += "\"job\":\"" + mJob + "\",";
     json += "\"executive_status\":" + std::string(mExecutiveStatus ? "true" : "false") + ",";
     json += "\"position\":" + std::to_string(mPosition) + ",";
     json += "\"coefficient\":" + std::to_string(mCoefficient) + ",";
-    json += "\"start_date\":\"" + mStartDate.toString() + "\",";
+    json += "\"start_date\":\"" + mStartDate + "\",";
     json += "\"manager_id\":" + std::to_string(mManagerId) + ",";
     json += "\"prevPlan\":\"" + mPrevPlan + "\",";
     json += "\"signed_plan\":" + std::string(mSignedPlan ? "true" : "false");
@@ -96,12 +99,12 @@ void Employee::display(void) const {
     std::cout << "\tID: " << mId << std::endl;
     std::cout << "\tFirstname: " << mFirstname << std::endl;
     std::cout << "\tLastname: " << mLastname << std::endl;
-    std::cout << "\tBirthdate: " << mBirthdate.toString() << std::endl;
+    std::cout << "\tBirthdate: " << mBirthdate << std::endl;
     std::cout << "\tPoste: " << mJob << std::endl;
     std::cout << "\tIs Cadre: " << (mExecutiveStatus ? "Yes" : "No") << std::endl;
     std::cout << "\tPosition Syntec: " << mPosition << std::endl;
     std::cout << "\tCoefficient: " << mCoefficient << std::endl;
-    std::cout << "\tStart Date: " << mStartDate.toString() << std::endl;
+    std::cout << "\tStart Date: " << mStartDate << std::endl;
     std::cout << "\tManager ID: " << mManagerId << std::endl;
     std::cout << "\tPrev Plan: " << mPrevPlan << std::endl;
     std::cout << "\tSigned Plan: " << (mSignedPlan ? "Yes" : "No") << std::endl;
@@ -130,12 +133,12 @@ Employee Employee::fromSql(const std::map<std::string, std::string> &sql_row) {
     emp.setId(to_int_or_default("id", -1));
     emp.setFirstname(sql_row.at("firstname").empty() ? "" : sql_row.at("firstname"));
     emp.setLastname(sql_row.at("lastname").empty() ? "" : sql_row.at("lastname"));
-    emp.setBirthdate(Date(sql_row.at("birthdate").empty() ? "" : sql_row.at("birthdate")));
     emp.setJob(sql_row.at("job").empty() ? "" : sql_row.at("job"));
+    emp.setBirthdate(sql_row.at("birthdate").empty() ? "" : sql_row.at("birthdate"));
+    emp.setStartDate(sql_row.at("start_date").empty() ? "" : sql_row.at("start_date"));
     emp.setExecutiveStatus(sql_row.at("executive_status").empty() ? false : sql_row.at("executive_status") == "1");
     emp.setPosition(sql_row.at("position").empty() ? 0.0f : stof(sql_row.at("position")));
     emp.setCoefficient(to_int_or_default("coefficient", 0));
-    emp.setStartDate(Date(sql_row.at("start_date").empty() ? "" : sql_row.at("start_date")));
     emp.setManagerId(to_int_or_default("manager_id", -1));
     emp.setPrevPlan(sql_row.at("prev_plan").empty() ? "" : sql_row.at("prev_plan"));
     emp.setSignedPlan(sql_row.at("signed_plan").empty() ? false : sql_row.at("signed_plan") == "1");

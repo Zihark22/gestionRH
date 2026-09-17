@@ -1,7 +1,6 @@
 # 1. Lister tous les fichiers .cpp de vos classes MÉTIER (SANS main.cpp)
 # Conseil : listez-les explicitement au fur et à mesure pour éviter les bugs de cache CMake
 set(SERVER_CORE_SOURCES
-    date.cpp
     apiserver.cpp
     dbhandler.cpp
     employees.cpp

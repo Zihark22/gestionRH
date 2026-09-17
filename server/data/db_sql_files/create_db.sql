@@ -10,12 +10,12 @@
 			id                  INTEGER PRIMARY KEY AUTOINCREMENT, -- id donné par la DB en autoincrémentant un compteur à chaque ajout
 			firstname           TEXT NOT NULL, -- Ex : 'Bob'
 			lastname            TEXT NOT NULL, -- Ex: 'Martin'
-			birthdate		    TEXT NOT NULL, -- Format: DD/MM/YYYY
+			birthdate		    TEXT NOT NULL, -- Format: YYYY/MM/DD
 			job             	TEXT NOT NULL, -- Ex: 'Consultant'
 			executive_status    INTEGER NOT NULL CHECK (executive_status IN (0, 1)), -- 1 = Cadre, 0 = Non cadre
 			position     		REAL NOT NULL, -- Ex: 1.1
 			coefficient  		INTEGER NOT NULL, -- Ex: 95
-			start_date       	TEXT NOT NULL, -- Format: DD/MM/YYYY
+			start_date       	TEXT NOT NULL, -- Format: YYYY/MM/DD
 			
 			-- Prévention et Management
 			manager_id          INTEGER DEFAULT NULL, -- ref à id
