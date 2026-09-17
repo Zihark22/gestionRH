@@ -100,10 +100,10 @@ FormWindow::FormWindow(const Employee &e, const QList<QPair<int, QString>> &mana
     setWindowTitle("Modifier collaborateur");
 
     mId = e.id();
-    mLastname->setText(QString::fromStdString(e.lastname()));
-    mFirstname->setText(QString::fromStdString(e.firstname()));
-    mJobEdit->setText(QString::fromStdString(e.job()));
-    mBirthdate->setDate(QDate::fromString(QString::fromStdString(e.birthdate().toString()), "dd'/'MM'/'yyyy"));
+    mLastname->setText(e.lastname());
+    mFirstname->setText(e.firstname());
+    mJobEdit->setText(e.job());
+    mBirthdate->setDate(e.birthdate());
 
     if(e.isExecutive())
         mStatusBox->setChecked(true);
@@ -112,7 +112,7 @@ FormWindow::FormWindow(const Employee &e, const QList<QPair<int, QString>> &mana
 
     mPositionBox->setValue(e.position());
     mCoefBox->setValue(e.coefficient());
-    mStartDate->setDate(QDate::fromString(QString::fromStdString(e.startDate().toString()), "dd'/'MM'/'yyyy"));
+    mStartDate->setDate(e.startDate());
     mPlanCombo->setCurrentIndex(FormWindow::optionsPlan.indexOf(e.prevPlan()));
 
     if(e.signedPlan())
@@ -129,14 +129,14 @@ FormWindow::FormWindow(const Employee &e, const QList<QPair<int, QString>> &mana
 
 Employee FormWindow::toEmployee() {
     Employee e = Employee();
-    e.setLastname(mLastname->text().toStdString());
-    e.setFirstname(mFirstname->text().toStdString());
+    e.setLastname(mLastname->text());
+    e.setFirstname(mFirstname->text());
 
     e.setCoefficient(mCoefBox->value());
     e.setPosition(mPositionBox->value());
 
-    e.setBirthdate(mBirthdate->text().toStdString());
-    e.setStartDate(mStartDate->text().toStdString());
+    e.setBirthdate(mBirthdate->date());
+    e.setStartDate(mStartDate->date());
 
     if(mSignedPlanBox->isChecked())
         e.setSignedPlan(1);
@@ -148,9 +148,9 @@ Employee FormWindow::toEmployee() {
     else
         e.setExecutiveStatus(0);
 
-    e.setPrevPlan(mPlanCombo->currentText().toStdString());
+    e.setPrevPlan(mPlanCombo->currentText());
 
-    e.setJob(mJobEdit->text().toStdString());
+    e.setJob(mJobEdit->text());
 
     e.setManagerId(mManager->currentData().toInt());
 

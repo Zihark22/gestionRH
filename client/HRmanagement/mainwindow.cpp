@@ -73,7 +73,7 @@ void MainWindow::extractManagers() {
 
     for(int i=0; i<employees.size(); i++) {
         Employee e = employees[i];
-        fullname = QString::fromStdString(e.lastname() + " " + e.firstname());
+        fullname = e.lastname() + " " + e.firstname();
         if(e.isExecutive())
             managers.append({e.id(),fullname});
     }
@@ -126,54 +126,41 @@ QTableWidget* MainWindow::fillGeneralTab(QWidget* tab) {
     // 4. Parcours de chaque employe
     for (const Employee &e : employees) {
 
-        // Récupération des données
-        int id = e.id();
-        QString firstname{e.firstname().c_str()};
-        QString job{e.job().c_str()};
-        QString executive_status_str = e.isExecutive() ? "Executive status" : "No executive status";
-        QString position = QString::number(e.position());
-        QString coef = QString::number(e.coefficient());
-        QString startDate_raw {e.startDate().toString().c_str()};
-        QDate startDate = QDate::fromString(startDate_raw, "yyyy-MM-dd");  // Conversions des dates au format "dd/MM/yyyy"
-        QString startDate_str = startDate.isValid() ? startDate.toString("dd/MM/yyyy") : startDate_raw;
-        QString birthdate_raw {e.birthdate().toString().c_str()};
-        QDate birthdate = QDate::fromString(birthdate_raw, "yyyy-MM-dd");
-        QString birthdate_str = birthdate.isValid() ? birthdate.toString("dd/MM/yyyy") : birthdate_raw;
-
         // Insertion d'une nouvelle ligne dans le tableWidget
         tableWidget->insertRow(row);
 
-        QTableWidgetItem *firstname_widget = new QTableWidgetItem(firstname);
+        QTableWidgetItem *firstname_widget = new QTableWidgetItem(e.firstname());
         firstname_widget->setTextAlignment(Qt::AlignCenter);
 
         // On stocke l'ID unique dans les données cachées du widget
-        firstname_widget->setData(Qt::UserRole, id);
+        firstname_widget->setData(Qt::UserRole, e.id());
 
         // Ajout du widget
         tableWidget->setItem(row, 0, firstname_widget);
 
-        QTableWidgetItem *cell = new QTableWidgetItem(birthdate_str);
+        QTableWidgetItem *cell = new QTableWidgetItem(e.birthdate().toString("dd/MM/yyyy"));
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 1, cell);
 
-        cell = new QTableWidgetItem(job);
+        cell = new QTableWidgetItem(e.job());
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 2, cell);
 
 
+        QString executive_status_str = e.isExecutive() ? "Executive status" : "No executive status";
         cell = new QTableWidgetItem(executive_status_str);
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 3, cell);
 
-        cell = new QTableWidgetItem(position);
+        cell = new QTableWidgetItem(QString::number(e.position()));
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 4, cell);
 
-        cell = new QTableWidgetItem(coef);
+        cell = new QTableWidgetItem(QString::number(e.coefficient()));
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 5, cell);
 
-        cell = new QTableWidgetItem(startDate_str);
+        cell = new QTableWidgetItem(e.startDate().toString("dd/MM/yyyy"));
         cell->setTextAlignment(Qt::AlignCenter);
         tableWidget->setItem(row, 6, cell);
 
@@ -238,11 +225,11 @@ QTableWidget* MainWindow::fillPreventionTab(QWidget* tab) {
 
         // Récupération des données        
         int id = e.id();
-        QString lastname{e.lastname().c_str()};
-        QString firstname{e.firstname().c_str()};
-        QString job{e.job().c_str()};
+        QString lastname{e.lastname()};
+        QString firstname{e.firstname()};
+        QString job{e.job()};
         QString signed_plan_str = e.signedPlan() ? "Oui" : "Non";
-        QString plan_str = e.prevPlan().c_str();
+        QString plan_str = e.prevPlan();
         int manager_id = e.managerId();
         QString manager = get_manager_name(manager_id);
 
@@ -347,9 +334,7 @@ void MainWindow::onTableDoubleClicked(int row, int column) {
             // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
             // std::cout << "Saisie annulée" << std::endl;
         }
-
     }
-
 }
 
 // Actions after sending API requests
@@ -387,23 +372,19 @@ void MainWindow::onEmployeeAdded(int id) {
 void MainWindow::updateRows(const int &row, const Employee &e) {
 
     QString executive_status_str = e.isExecutive() ? "Executive status" : "No executive status";
-
     QString plan_signed_str = e.signedPlan() ? "Oui" : "Non";
 
-    QString position = QString::number(e.position());
-    QString coef = QString::number(e.coefficient());
-
-    QTableWidgetItem *firstname_widget = new QTableWidgetItem(QString::fromStdString(e.firstname()));
+    QTableWidgetItem *firstname_widget = new QTableWidgetItem(e.firstname());
     firstname_widget->setData(Qt::UserRole, e.id()); // ajout de l'ID caché
 
     ///////////////// update General Tab /////////////////
     generalTableWidget->setItem(row, 0, firstname_widget);
-    generalTableWidget->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(e.birthdate().toString())));
-    generalTableWidget->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(e.job())));
+    generalTableWidget->setItem(row, 1, new QTableWidgetItem(e.birthdate().toString("dd/MM/yyyy")));
+    generalTableWidget->setItem(row, 2, new QTableWidgetItem(e.job()));
     generalTableWidget->setItem(row, 3, new QTableWidgetItem(executive_status_str));
-    generalTableWidget->setItem(row, 4, new QTableWidgetItem(position));
-    generalTableWidget->setItem(row, 5, new QTableWidgetItem(coef));
-    generalTableWidget->setItem(row, 6, new QTableWidgetItem(QString::fromStdString(e.startDate().toString())));
+    generalTableWidget->setItem(row, 4, new QTableWidgetItem(QString::number(e.position())));
+    generalTableWidget->setItem(row, 5, new QTableWidgetItem(QString::number(e.coefficient())));
+    generalTableWidget->setItem(row, 6, new QTableWidgetItem(e.startDate().toString("dd/MM/yyyy")));
 
     for (int col = 0; col < generalTableWidget->columnCount(); ++col) {
         if (auto item = generalTableWidget->item(row, col))
@@ -430,10 +411,10 @@ void MainWindow::updateRows(const int &row, const Employee &e) {
         }
     }
     preventionTableWidget->setItem(rowPrevention, 0, firstname_widget->clone());
-    preventionTableWidget->setItem(rowPrevention, 1, new QTableWidgetItem(QString::fromStdString(e.lastname())));
-    preventionTableWidget->setItem(rowPrevention, 2, new QTableWidgetItem(QString::fromStdString(e.job())));
+    preventionTableWidget->setItem(rowPrevention, 1, new QTableWidgetItem(e.lastname()));
+    preventionTableWidget->setItem(rowPrevention, 2, new QTableWidgetItem(e.job()));
     preventionTableWidget->setItem(rowPrevention, 3, new QTableWidgetItem(get_manager_name(e.managerId())));
-    preventionTableWidget->setItem(rowPrevention, 4, new QTableWidgetItem(QString::fromStdString(e.prevPlan())));
+    preventionTableWidget->setItem(rowPrevention, 4, new QTableWidgetItem(e.prevPlan()));
     preventionTableWidget->setItem(rowPrevention, 5, new QTableWidgetItem(plan_signed_str));
     preventionTableWidget->selectRow(rowPrevention);
     for (int col = 0; col < preventionTableWidget->columnCount(); ++col) {
@@ -517,8 +498,8 @@ QString MainWindow::get_manager_name(const int &manager_id) {
         int id = e.id();
         if(id==manager_id)
         {
-            QString lastname = e.lastname().c_str();
-            QString firstname = e.firstname().c_str();
+            QString lastname = e.lastname();
+            QString firstname = e.firstname();
             return firstname + " " + lastname;
         }
     }

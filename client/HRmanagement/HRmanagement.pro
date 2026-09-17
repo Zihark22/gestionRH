@@ -12,7 +12,7 @@ SOURCES += \
     apiclient.cpp \
     configappwindow.cpp \
     configserverwindow.cpp \
-    date.cpp \
+    # date.cpp \
     employee.cpp \
     formwindow.cpp \
     iniparser.cpp \
@@ -23,7 +23,7 @@ HEADERS += \
     apiclient.hpp \
     configappwindow.hpp \
     configserverwindow.hpp \
-    date.hpp \
+    # date.hpp \
     employee.hpp \
     formwindow.hpp \
     iniparser.hpp \

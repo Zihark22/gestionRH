@@ -1,10 +1,10 @@
 #ifndef EMPLOYEE_HPP
 #define EMPLOYEE_HPP
 
-#include "date.hpp"
 #include "iniparser.hpp"
 
 #include <QString>
+#include <QDate>
 #include <QDebug>
 
 using namespace std;
@@ -26,17 +26,17 @@ public:
     int id() const { return mId; }
     void setId(int id) { mId = id; }
 
-    std::string firstname() const { return mFirstname; }
-    void setFirstname(const std::string &prenom) { mFirstname = prenom; }
+    QString firstname() const { return mFirstname; }
+    void setFirstname(const QString &prenom) { mFirstname = prenom; }
 
-    std::string lastname() const { return mLastname; }
-    void setLastname(const std::string &nom) { mLastname = nom; }
+    QString lastname() const { return mLastname; }
+    void setLastname(const QString &nom) { mLastname = nom; }
 
-    Date birthdate() const { return mBirthdate; }
-    void setBirthdate(const Date &date) { mBirthdate = date; }
+    QDate birthdate() const { return mBirthdate; }
+    void setBirthdate(const QDate &date) { mBirthdate = date; }
 
-    std::string job() const { return mJob; }
-    void setJob(const std::string &poste) { mJob = poste; }
+    QString job() const { return mJob; }
+    void setJob(const QString &poste) { mJob = poste; }
 
     int isExecutive() const { return mExecutiveStatus; }
     void setExecutiveStatus(int cadre) { mExecutiveStatus = cadre; }
@@ -47,14 +47,14 @@ public:
     int coefficient() const { return mCoefficient; }
     void setCoefficient(int coeff) { mCoefficient = coeff; }
 
-    Date startDate() const { return mStartDate; }
-    void setStartDate(const Date &date) { mStartDate = date; }
+    QDate startDate() const { return mStartDate; }
+    void setStartDate(const QDate &date) { mStartDate = date; }
 
     int managerId() const { return mManagerId; }
     void setManagerId(int id) { mManagerId = id; }
 
-    std::string prevPlan() const { return mPrevPlan; }
-    void setPrevPlan(std::string plan) { mPrevPlan = plan; }
+    QString prevPlan() const { return mPrevPlan; }
+    void setPrevPlan(QString plan) { mPrevPlan = plan; }
 
     int signedPlan() const { return mSignedPlan; }
     void setSignedPlan(int signe) { mSignedPlan = signe; }
@@ -81,18 +81,18 @@ public:
     void display(void) const;
 
 private:
-    int mId{-1};                       //< Identifiant unique de l'employé
-    std::string mFirstname{""};        //< Prénom de l'employé
-    std::string mLastname{""};         //< Nom de famille de l'employé
-    Date mBirthdate{"01/01/2000"};     //< Date de naissance de l'employé
-    std::string mJob{""};              //< Poste de l'employé
-    int mExecutiveStatus{0};           //< Statut de manager de l'employé
-    float mPosition{0.0};              //< Position de l'employé
-    int mCoefficient{0};               //< Coefficient de l'employé
-    Date mStartDate{"01/01/2010"};     //< Date de début d'activité
-    int mManagerId{-1};                //< Identifiant du manager
-    std::string mPrevPlan{"Plan A"};   //< Plan précédent
-    int mSignedPlan{0};                //< Plan signé
+    int mId{-1};                                                        //< Identifiant unique de l'employé
+    QString mFirstname{""};                                             //< Prénom de l'employé
+    QString mLastname{""};                                              //< Nom de famille de l'employé
+    QDate mBirthdate{QDate::fromString("01/01/2000", "yyyy-MM-dd")};    //< Date de naissance de l'employé
+    QString mJob{""};                                                   //< Poste de l'employé
+    int mExecutiveStatus{0};                                            //< Statut de manager de l'employé
+    float mPosition{0.0};                                               //< Position de l'employé
+    int mCoefficient{0};                                                //< Coefficient de l'employé
+    QDate mStartDate{QDate::fromString("01/01/2010", "yyyy-MM-dd")};    //< Date de début d'activité
+    int mManagerId{-1};                                                 //< Identifiant du manager
+    QString mPrevPlan{"Plan A"};                                        //< Plan précédent
+    int mSignedPlan{0};                                                 //< Plan signé
 
     std::string cleanJsonString(const std::string &jsonStr);
     void initAttributesFromJsonString(const std::string &obj);
