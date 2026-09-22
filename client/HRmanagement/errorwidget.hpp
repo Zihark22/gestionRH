@@ -14,6 +14,7 @@ class ErrorWidget : public QWidget
 public:
     explicit ErrorWidget(const QString &error_message, QWidget *parent = nullptr);
 
+public slots:
     void setErrorMessage(const QString &msg);
 
 signals:

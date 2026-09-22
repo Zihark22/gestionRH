@@ -19,8 +19,6 @@ void HRmanagement::start() {
     connect(apiClient.get(), &ApiClient::employeeModified, this, &HRmanagement::onEmployeeModified);
     connect(apiClient.get(), &ApiClient::configModified, this, &HRmanagement::onConfigModified);
     connect(apiClient.get(), &ApiClient::errorReachingApiServer, this, &HRmanagement::errorDetected);
-
-    // loadData();
 }
 void HRmanagement::onEmployeeAdd(const int &id) {
     employees.back().setId(id);
@@ -34,9 +32,9 @@ void HRmanagement::loadData() {
 
     if(apiClient->getStatus()!=0){
         QString msg("");
-        msg += "Erreur de connexion : ";
+        msg += "<b>Erreur de connexion</b> : ";
         msg += apiClient->getMsg();
-        msg += "\n\nPensez à vérifier la configuration (host/port)...";
+        msg += "<br/><br/>Pensez à vérifier la configuration (host/port)...";
         emit errorDetected(msg);
     }
     else {
