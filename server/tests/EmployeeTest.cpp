@@ -1,5 +1,4 @@
 #include "../includes/employee.hpp"
-#include "../includes/date.hpp"
 
 #include <gtest/gtest.h>
 #include <sstream>
@@ -16,8 +15,8 @@ TEST(EmployeeTest, DefaultConstructor_ShouldInitializeToDefaultEmployee) {
     EXPECT_EQ(e.firstname(), "");
     EXPECT_EQ(e.lastname(), "");
     EXPECT_EQ(e.job(), "");
-    EXPECT_EQ(e.birthdate(), Date("01/01/2000"));
-    EXPECT_EQ(e.startDate(), Date("01/01/2010"));
+    EXPECT_EQ(e.birthdate(), "2000-01-01");
+    EXPECT_EQ(e.startDate(), "2010-01-01");
     EXPECT_EQ(e.isExecutive(), 0);
     EXPECT_EQ(e.coefficient(), 0);
     EXPECT_EQ(e.position(), 0.0);
@@ -39,8 +38,8 @@ TEST(EmployeeTest, ParameterizedConstructor_ShouldSetCorrectValues) {
     EXPECT_EQ(e.firstname(), "Manon");
     EXPECT_EQ(e.lastname(), "Morel");
     EXPECT_EQ(e.job(), "Développeuse C++ Junior");
-    EXPECT_EQ(e.birthdate(), Date("14/05/2001"));
-    EXPECT_EQ(e.startDate(), Date("01/09/2023"));
+    EXPECT_EQ(e.birthdate(), "2001-05-14");
+    EXPECT_EQ(e.startDate(), "2023-09-01");
     EXPECT_EQ(e.isExecutive(), 1);
     EXPECT_EQ(e.coefficient(), 100);
     EXPECT_FLOAT_EQ(e.position(), 1.2);

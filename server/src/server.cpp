@@ -136,7 +136,7 @@ void Server::loadConfig(const std::string& file_path) {
         if (section.nom == "Server") {
             if (auto var = section.getVariable("port")) {
                 try {
-                    this->port = stoi(var->valeur);
+                    this->port = std::stoi(var->valeur);
                 } catch (...) {
                     std::cerr << "[loadConfig] Invalid port value: " << var->valeur << std::endl;
                 }

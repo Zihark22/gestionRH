@@ -5,8 +5,7 @@ find_package(GTest REQUIRED)
 # (Option B alternative : Si vous préférez FetchContent, remplacez find_package par FetchContent)
 
 # 2. Exécutable de test (listez vos fichiers de tests unitaires)
-add_executable(unit_tests 
-    DateTest.cpp
+add_executable(unit_tests
     EmployeeTest.cpp
     # DatabaseTest.cpp
 )
