@@ -97,7 +97,6 @@ void TabWidget::employeesUpdate(const QList<Employee> &employees) {
     m_preventionTable->m_table->setRowCount(0);
     counterPrevention->setText(tr("%1").arg(employees.size()));
 
-
     // update en local
     m_generalTable->m_table->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
     m_preventionTable->m_table->setSortingEnabled(false);
@@ -191,11 +190,10 @@ void TabWidget::employeesUpdate(const QList<Employee> &employees) {
         row++;
     }
 
-
     m_generalTable->m_table->setSortingEnabled(true);
     m_preventionTable->m_table->setSortingEnabled(true);
 
-
+    emit requestNavigation(ScreenId::TableViewer);
 }
 
 
@@ -255,12 +253,12 @@ void TabWidget::updateRows(const int &row, const Employee &e) {
 
     ///////////////// update General Tab /////////////////
     m_generalTable->m_table->setItem(row, 0, firstname_widget);
-    m_generalTable->m_table->setItem(row, 1, new QTableWidgetItem(e.birthdate().toString("yyyy-MM-dd")));
+    m_generalTable->m_table->setItem(row, 1, new DateTableWidgetItem(e.birthdate()));
     m_generalTable->m_table->setItem(row, 2, new QTableWidgetItem(e.job()));
     m_generalTable->m_table->setItem(row, 3, new QTableWidgetItem(executive_status_str));
     m_generalTable->m_table->setItem(row, 4, new QTableWidgetItem(QString::number(e.position())));
     m_generalTable->m_table->setItem(row, 5, new QTableWidgetItem(QString::number(e.coefficient())));
-    m_generalTable->m_table->setItem(row, 6, new QTableWidgetItem(e.startDate().toString("yyyy-MM-dd")));
+    m_generalTable->m_table->setItem(row, 6, new DateTableWidgetItem(e.startDate()));
 
     for (int col = 0; col < m_generalTable->m_table->columnCount(); ++col) {
         if (auto item = m_generalTable->m_table->item(row, col))
