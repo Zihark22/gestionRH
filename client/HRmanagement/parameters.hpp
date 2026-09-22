@@ -10,4 +10,10 @@
 #define DEFAULT_PORT 8080
 #define STYLE_FILE_NAME ":/style.qss"
 
+enum class ScreenId {
+    Home,
+    TableViewer,
+    Error
+};
+
 #endif // PARAMETERS_HPP

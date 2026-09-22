@@ -1,24 +1,10 @@
 #ifndef CONFIGAPPWINDOW_H
 #define CONFIGAPPWINDOW_H
 
-#include <QDialog>
-
-// Widgets
-#include <QVBoxLayout>
-#include <QFormLayout>
-#include <QTabWidget>
-#include <QTableWidget>
-#include <QHeaderView>
 #include <QLineEdit>
 #include <QSpinBox>
-#include <QDoubleSpinBox>
-#include <QComboBox>
 #include <QPushButton>
-#include <QDateEdit>
-#include <QDate>
-#include <QCheckBox>
-#include <QLabel>
-#include <QMessageBox>
+#include <QDialog>
 
 class ConfigAppWindow : public QDialog
 {

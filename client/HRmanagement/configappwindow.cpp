@@ -1,5 +1,8 @@
 #include "configappwindow.hpp"
 
+#include <QVBoxLayout>
+#include <QFormLayout>
+
 // Constructeur général
 ConfigAppWindow::ConfigAppWindow(QWidget *parent) : QDialog(parent) {
     resize(400, 200);

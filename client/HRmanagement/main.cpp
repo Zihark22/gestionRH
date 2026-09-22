@@ -1,8 +1,9 @@
+#include "parameters.hpp"
+#include "hrmanagement.hpp"
 #include "mainwindow.hpp"
 
 #include <QApplication>
 #include <QFile>
-#include <QApplication>
 
 void applyStyleSheet(QApplication &app) {
     QFile file(STYLE_FILE_NAME);
@@ -15,10 +16,13 @@ void applyStyleSheet(QApplication &app) {
         qWarning() << "Impossible de charger la feuille de style QSS :" << file.errorString();
 }
 int main(int argc, char *argv[]) {
-    QApplication a(argc, argv);
-    applyStyleSheet(a); // Appliquer le style globalement
+    QApplication app(argc, argv);
+    applyStyleSheet(app); // Appliquer le style globalement
 
-    MainWindow w;
+    HRmanagement h;
+    MainWindow w(&h); // pour un découplage de l'UI et de la classe métier
+    h.start();
     w.show();
-    return a.exec();
+
+    return app.exec();
 }

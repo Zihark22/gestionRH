@@ -3,25 +3,18 @@
 
 #include "employee.hpp"
 
+// Widgets
 #include <QDialog>
 #include <QWidget>
-
-// Widgets
-#include <QVBoxLayout>
 #include <QFormLayout>
-#include <QTabWidget>
-#include <QTableWidget>
-#include <QHeaderView>
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
 #include <QPushButton>
 #include <QDateEdit>
-#include <QDate>
 #include <QCheckBox>
 #include <QLabel>
-#include <QMessageBox>
 
 
 class FormWindow : public QDialog

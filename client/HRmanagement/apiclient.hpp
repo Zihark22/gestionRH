@@ -1,8 +1,15 @@
 #ifndef APICLIENT_HPP
 #define APICLIENT_HPP
 
-#include "iniparser.hpp"
 #include "employee.hpp"
+
+
+#include <QSettings>
+#include <QDebug>
+#include <QMap>
+#include <QStandardPaths>
+#include <QDir>
+#include <QCoreApplication>
 
 #include <QObject>
 #include <QNetworkAccessManager>
@@ -41,10 +48,13 @@ public:
     void setHost(const QString &newhost);
     void setPort(const int &port);
 
+    // Méthode de sauvegarde d'une configuration dans un fichier .ini
+    static bool saveConfig(const QString &cheminFichier, const QMap<QString, QString> &map);
+
 signals:
     // Signal émis quand la requête est terminée pour indiquer à l'application qu'elle peut quitter
     void finished();
-    void employeeAdded(int newId);
+    void employeeAdded(const int &id);
     void employeeModified(const int row, const Employee &e);
     void configModified(const std::string &json);
     void errorReachingApiServer(const QString &msg);
@@ -57,7 +67,15 @@ private:
     int port;
     QString host;
 
-    void loadConfig(const std::string& file_path);
+    /// Config ///
+
+    void configure(const std::string& file_path);
+
+    //Méthode de lecture de fichier de configuration
+    static QMap<QString, QString> loadConfig(const QString &cheminFichier);
+
+
+    static QString getConfigPath(const QString &nomFichier);
 
 };
 

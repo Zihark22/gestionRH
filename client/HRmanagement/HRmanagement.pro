@@ -12,23 +12,33 @@ SOURCES += \
     apiclient.cpp \
     configappwindow.cpp \
     configserverwindow.cpp \
-    # date.cpp \
+    datetablewidgetitem.cpp \
     employee.cpp \
+    errorwidget.cpp \
     formwindow.cpp \
-    iniparser.cpp \
+    homewidget.cpp \
+    hrmanagement.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    tablewidget.cpp \
+    tabwidget.cpp \
+    viewmanager.cpp
 
 HEADERS += \
     apiclient.hpp \
     configappwindow.hpp \
     configserverwindow.hpp \
-    # date.hpp \
+    datetablewidgetitem.hpp \
     employee.hpp \
+    errorwidget.hpp \
     formwindow.hpp \
-    iniparser.hpp \
+    homewidget.hpp \
+    hrmanagement.hpp \
     mainwindow.hpp \
-    parameters.hpp
+    parameters.hpp \
+    tablewidget.hpp \
+    tabwidget.hpp \
+    viewmanager.hpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

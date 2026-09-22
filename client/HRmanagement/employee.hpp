@@ -1,11 +1,8 @@
 #ifndef EMPLOYEE_HPP
 #define EMPLOYEE_HPP
 
-#include "iniparser.hpp"
-
 #include <QString>
 #include <QDate>
-#include <QDebug>
 
 using namespace std;
 
@@ -79,6 +76,13 @@ public:
 
     /** @brief Affiche les informations de l'employé dans la sortie standard */
     void display(void) const;
+
+    // Nettoie les espaces/tabulations inutiles en début et fin de chaîne
+    static string trim(const string& str);
+
+    // Fonction pour extraire la valeur d'un champ JSON
+    static QString getField(const std::string &obj, const std::string &key);
+
 
 private:
     int mId{-1};                                                        //< Identifiant unique de l'employé
