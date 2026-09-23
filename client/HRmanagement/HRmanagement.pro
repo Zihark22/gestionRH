@@ -1,49 +1,9 @@
-QT       += core gui
+TEMPLATE = subdirs
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
+# Liste des sous-projets
+SUBDIRS = \
+    app \
+    tests
 
-CONFIG += c++17
-
-# You can make your code fail to compile if it uses deprecated APIs.
-# In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
-SOURCES += \
-    apiclient.cpp \
-    configappwindow.cpp \
-    configserverwindow.cpp \
-    datetablewidgetitem.cpp \
-    employee.cpp \
-    errorwidget.cpp \
-    formwindow.cpp \
-    homewidget.cpp \
-    hrmanagement.cpp \
-    main.cpp \
-    mainwindow.cpp \
-    tablewidget.cpp \
-    tabwidget.cpp \
-    viewmanager.cpp
-
-HEADERS += \
-    apiclient.hpp \
-    configappwindow.hpp \
-    configserverwindow.hpp \
-    datetablewidgetitem.hpp \
-    employee.hpp \
-    errorwidget.hpp \
-    formwindow.hpp \
-    homewidget.hpp \
-    hrmanagement.hpp \
-    mainwindow.hpp \
-    parameters.hpp \
-    tablewidget.hpp \
-    tabwidget.hpp \
-    viewmanager.hpp
-
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
-
-RESOURCES += \
-    ressources.qrc
+# Définir l'ordre : 'tests' dépend de 'app'
+tests.depends = app

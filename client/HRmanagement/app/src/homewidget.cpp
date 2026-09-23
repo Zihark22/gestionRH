@@ -1,4 +1,4 @@
-#include "homewidget.hpp"
+#include "include/homewidget.hpp"
 
 HomeWidget::HomeWidget(QWidget *parent) : QWidget(parent) {
     auto *layout = new QVBoxLayout(this);

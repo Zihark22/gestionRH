@@ -1,6 +1,6 @@
-#include "parameters.hpp"
-#include "hrmanagement.hpp"
-#include "mainwindow.hpp"
+#include "include/parameters.hpp"
+#include "include/hrmanagement.hpp"
+#include "include/mainwindow.hpp"
 
 #include <QApplication>
 #include <QFile>

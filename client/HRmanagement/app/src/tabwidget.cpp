@@ -1,7 +1,7 @@
-#include "tabwidget.hpp"
+#include "include/tabwidget.hpp"
 
-#include "tablewidget.hpp"
-#include "datetablewidgetitem.hpp"
+#include "include/tablewidget.hpp"
+#include "include/datetablewidgetitem.hpp"
 
 #include <QLabel>
 #include <QPushButton>

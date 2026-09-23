@@ -1,4 +1,4 @@
-#include "viewmanager.hpp"
+#include "include/viewmanager.hpp"
 
 ViewManager::ViewManager(QStackedWidget *stackedWidget, QObject *parent)
     : QObject(parent), m_stackedWidget(stackedWidget)

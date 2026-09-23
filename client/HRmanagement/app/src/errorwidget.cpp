@@ -1,4 +1,4 @@
-#include "errorwidget.hpp"
+#include "include/errorwidget.hpp"
 
 ErrorWidget::ErrorWidget(const QString &error_message, QWidget *parent) : QWidget(parent) {
     auto *layout = new QVBoxLayout(this);

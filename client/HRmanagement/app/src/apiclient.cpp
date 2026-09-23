@@ -1,5 +1,5 @@
-#include "apiclient.hpp"
-#include "parameters.hpp"
+#include "include/apiclient.hpp"
+#include "include/parameters.hpp"
 
 // Constructeur
 ApiClient::ApiClient(QObject *parent) : QObject(parent) {

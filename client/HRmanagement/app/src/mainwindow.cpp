@@ -1,9 +1,9 @@
-#include "mainwindow.hpp"
+#include "include/mainwindow.hpp"
 
-#include "parameters.hpp"
+#include "include/parameters.hpp"
 
-#include "viewmanager.hpp"
-#include "homewidget.hpp"
+#include "include/viewmanager.hpp"
+#include "include/homewidget.hpp"
 
 #include <QStackedWidget>
 #include <QHeaderView>
