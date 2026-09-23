@@ -216,19 +216,19 @@ void TabWidget::onTableDoubleClicked(int row, int column) {
 
 
 // Actions after sending API requests
-void TabWidget::onEmployeeModified(const int row, const Employee &e) {
+void TabWidget::onEmployeeModified(const int row, const Employee &e, const QString &manager) {
     // qDebug() << "Employé modifié dans BDD dont id =" << e.id();
 
     // update en local
     m_generalTable->m_table->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
     m_preventionTable->m_table->setSortingEnabled(false);
 
-    updateRows(row, e);
+    updateRows(row, e, manager);
 
     m_generalTable->m_table->setSortingEnabled(true);
     m_preventionTable->m_table->setSortingEnabled(true);
 }
-void TabWidget::onEmployeeAdded(const int &id, const QList<Employee> &employees) {
+void TabWidget::onEmployeeAdded(const int &id, const QList<Employee> &employees, const QString &manager) {
 
     // update en local
     m_generalTable->m_table->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
@@ -237,13 +237,13 @@ void TabWidget::onEmployeeAdded(const int &id, const QList<Employee> &employees)
     m_generalTable->m_table->insertRow(employees.size()-1);
     m_preventionTable->m_table->insertRow(employees.size()-1);
 
-    updateRows(employees.size()-1, employees.back());
+    updateRows(employees.size()-1, employees.back(), manager);
 
     m_generalTable->m_table->setSortingEnabled(true);
     m_preventionTable->m_table->setSortingEnabled(true);
     updateCmpt(employees);
 }
-void TabWidget::updateRows(const int &row, const Employee &e) {
+void TabWidget::updateRows(const int &row, const Employee &e, const QString &manager) {
 
     QString executive_status_str = e.isExecutive() ? "Executive status" : "No executive status";
     QString plan_signed_str = e.signedPlan() ? "Oui" : "Non";
@@ -287,7 +287,7 @@ void TabWidget::updateRows(const int &row, const Employee &e) {
     m_preventionTable->m_table->setItem(rowPrevention, 0, firstname_widget->clone());
     m_preventionTable->m_table->setItem(rowPrevention, 1, new QTableWidgetItem(e.lastname()));
     m_preventionTable->m_table->setItem(rowPrevention, 2, new QTableWidgetItem(e.job()));
-    m_preventionTable->m_table->setItem(rowPrevention, 3, new QTableWidgetItem("feafea")); //   get_manager_name(e.managerId())
+    m_preventionTable->m_table->setItem(rowPrevention, 3, new QTableWidgetItem(manager));
     m_preventionTable->m_table->setItem(rowPrevention, 4, new QTableWidgetItem(e.prevPlan()));
     m_preventionTable->m_table->setItem(rowPrevention, 5, new QTableWidgetItem(plan_signed_str));
     m_preventionTable->m_table->selectRow(rowPrevention);

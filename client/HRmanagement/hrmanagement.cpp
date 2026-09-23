@@ -16,13 +16,18 @@ void HRmanagement::start() {
 
     // Connexion des siganux asynchrones aux méthodes
     connect(apiClient.get(), &ApiClient::employeeAdded, this, &HRmanagement::onEmployeeAdd);
-    connect(apiClient.get(), &ApiClient::employeeModified, this, &HRmanagement::onEmployeeModified);
+    connect(apiClient.get(), &ApiClient::employeeModified, this, &HRmanagement::onEmployModify);
     connect(apiClient.get(), &ApiClient::configModified, this, &HRmanagement::onConfigModified);
     connect(apiClient.get(), &ApiClient::errorReachingApiServer, this, &HRmanagement::errorDetected);
 }
 void HRmanagement::onEmployeeAdd(const int &id) {
     employees.back().setId(id);
-    emit onEmployeeAdded(id, employees);
+    QString manager = get_manager_name(get_employee_from_id(id).managerId());
+    emit onEmployeeAdded(id, employees, manager);
+}
+void HRmanagement::onEmployModify(const int &id, const Employee &e) {
+    QString manager = get_manager_name(e.managerId());
+    emit onEmployeeModified(id, e, manager);
 }
 
 
@@ -61,6 +66,17 @@ QString HRmanagement::get_manager_name(const int &manager_id) {
         }
     }
     return "Aucun renseigné";
+}
+
+Employee HRmanagement::get_employee_from_id(const int &employee_id) {
+    for (const Employee &e : employees) {
+        int id = e.id();
+        if(id==employee_id)
+        {
+            return e;
+        }
+    }
+    throw std::invalid_argument("L'ID de l'employé ne fait pas partie de la liste d'employés : " + to_string(employee_id));
 }
 
 void HRmanagement::parseMyJson() {

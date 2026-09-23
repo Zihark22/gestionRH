@@ -1,6 +1,6 @@
 #include "homewidget.hpp"
 
-HomeWidget::HomeWidget(QWidget *parent) {
+HomeWidget::HomeWidget(QWidget *parent) : QWidget(parent) {
     auto *layout = new QVBoxLayout(this);
     layout->addStretch();
     auto *message = new QLabel("Bienvenu sur l'ERP Scalian",this);
@@ -9,6 +9,7 @@ HomeWidget::HomeWidget(QWidget *parent) {
     layout->addWidget(message, 0, Qt::AlignCenter);
     auto *btnOpenTable = new QPushButton("Accéder aux données", this);
     btnOpenTable->setMaximumWidth(200);
+    btnOpenTable->setStyleSheet("margin-top: 50px;");
     layout->addWidget(btnOpenTable, 0, Qt::AlignCenter);
     layout->addStretch();
 

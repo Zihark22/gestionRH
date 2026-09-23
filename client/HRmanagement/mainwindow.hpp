@@ -26,10 +26,8 @@ public:
     explicit MainWindow(HRmanagement *hr, QWidget *parent = nullptr);
     ~MainWindow() = default;
 
+    // display error inside view
     void errorDisplay(const QString &msg);
-
-public slots:
-    void employeesUpdate(const QList<Employee> &employees);
 
 signals:
     void reloadData();

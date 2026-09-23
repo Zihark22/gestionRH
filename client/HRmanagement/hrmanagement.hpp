@@ -34,12 +34,13 @@ class HRmanagement : public QObject {
 
         /// Méthodes de réponse API ///
 
-        void onEmployeeAdded(const int &id, const QList<Employee> &employees);
-        void onEmployeeModified(const int row, const Employee &e);
+        void onEmployeeAdded(const int &id, const QList<Employee> &employees, const QString &manager);
+        void onEmployeeModified(const int row, const Employee &e, const QString &manager);
 
     public slots :
         void loadData();
         void onEmployeeAdd(const int &id);
+        void onEmployModify(const int &id, const Employee &e);
 
         void openEditEmployeeWindow(const int id, const int row);
         void addingEmployee();
@@ -60,6 +61,7 @@ class HRmanagement : public QObject {
         void parseMyJson();
         void extractManagers();
         QString get_manager_name(const int &manager_id);
+        Employee get_employee_from_id(const int &employee_id);
 
 
         /// MAJ IHM ///

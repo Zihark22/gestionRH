@@ -18,9 +18,9 @@ public:
     void employeesUpdate(const QList<Employee> &employees);
 
 public slots:
-    void onEmployeeModified(const int row, const Employee &e);
-    void onEmployeeAdded(const int &id, const QList<Employee> &employees);
-    void updateRows(const int &row, const Employee &e);
+    void onEmployeeModified(const int row, const Employee &e, const QString &manager);
+    void onEmployeeAdded(const int &id, const QList<Employee> &employees, const QString &manager);
+    void updateRows(const int &row, const Employee &e, const QString &manager);
     void updateCmpt(const QList<Employee> &employees);
 
 signals:
