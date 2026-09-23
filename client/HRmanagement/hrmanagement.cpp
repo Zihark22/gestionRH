@@ -2,14 +2,11 @@
 
 #include "parameters.hpp"
 #include "formwindow.hpp"
-#include "apiclient.hpp"
 #include "configserverwindow.hpp"
 #include "configappwindow.hpp"
 
 HRmanagement::HRmanagement(QWidget *parent) : QObject(parent) {
-
     apiClient = std::make_unique<ApiClient>();
-
 }
 
 void HRmanagement::start() {

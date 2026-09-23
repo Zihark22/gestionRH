@@ -7,6 +7,10 @@
 #include <map>
 #include <chrono>
 #include <stdexcept> // Pour std::invalid_argument
+#include <sstream>
+#include <iomanip> // pour set precision
+
+
 
 using namespace std::chrono;
 
@@ -96,5 +100,14 @@ int mId{-1};                                //< Identifiant unique de l'employé
     std::string cleanJsonString(const std::string &jsonStr);
     void initAttributesFromJsonString(const std::string &obj);
 };
+
+/* ------------------- Opérateurs ------------------- */
+
+// Opérateurs de comparaison (utilisation d'accesseurs)
+bool operator==(Employee const& a, Employee const& b);
+bool operator!=(Employee const& a, Employee const& b);
+
+// Opérateurs de flux
+std::ostream &operator<<(std::ostream &flux, Employee const& e);
 
 #endif // EMPLOYEE_HPP

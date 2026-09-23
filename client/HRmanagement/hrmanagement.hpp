@@ -18,6 +18,7 @@ class HRmanagement : public QObject {
     public:
         explicit HRmanagement(QWidget *parent = nullptr);
 
+        void start();
 
         /// Actions ///
 
@@ -25,14 +26,13 @@ class HRmanagement : public QObject {
         void openConfigAppWindow();
         void openLogs();
 
-        void start();
 
     signals :
         void employeesListUpdated(const QList<Employee> &employees);
         void errorDetected(const QString & msg);
 
 
-        /// Méthodes de réponse API ///
+        /// Signaux de réponse API ///
 
         void onEmployeeAdded(const int &id, const QList<Employee> &employees, const QString &manager);
         void onEmployeeModified(const int row, const Employee &e, const QString &manager);
@@ -68,8 +68,6 @@ class HRmanagement : public QObject {
 
         void updateRows(const int &row, const Employee &e);
         void updateCmpt();
-
-
 
 };
 

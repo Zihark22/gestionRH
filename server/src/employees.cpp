@@ -77,6 +77,10 @@ void Employee::initAttributesFromJsonString(const std::string &obj) {
 } 
 
 std::string Employee::toJson() const {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(1) << mPosition;
+    std::string position2precision = oss.str();
+
     std::string json = "{";
     json += "\"id\":" + std::to_string(mId) + ",";
     json += "\"firstname\":\"" + mFirstname + "\",";
@@ -84,7 +88,7 @@ std::string Employee::toJson() const {
     json += "\"birthdate\":\"" + mBirthdate + "\",";
     json += "\"job\":\"" + mJob + "\",";
     json += "\"executive_status\":" + std::string(mExecutiveStatus ? "true" : "false") + ",";
-    json += "\"position\":" + std::to_string(mPosition) + ",";
+    json += "\"position\":" + position2precision + ",";
     json += "\"coefficient\":" + std::to_string(mCoefficient) + ",";
     json += "\"start_date\":\"" + mStartDate + "\",";
     json += "\"manager_id\":" + std::to_string(mManagerId) + ",";
@@ -144,3 +148,45 @@ Employee Employee::fromSql(const std::map<std::string, std::string> &sql_row) {
     emp.setSignedPlan(sql_row.at("signed_plan").empty() ? false : sql_row.at("signed_plan") == "1");
     return emp;
 }
+
+
+
+/* ------------------- Opérateurs ------------------- */
+
+///////// COMPARAISONS //////////
+bool operator==(Employee const& a, Employee const& b) {
+    return (a.id() == b.id() && 
+            a.firstname() == b.firstname() &&
+            a.lastname() == b.lastname() &&
+            a.job() == b.job() &&
+            a.birthdate() == b.birthdate() &&
+            a.startDate() == b.startDate() &&
+            a.isExecutive() == b.isExecutive() &&
+            a.position() == b.position() &&
+            a.coefficient() == b.coefficient() &&
+            a.managerId() == b.managerId() &&
+            a.prevPlan() == b.prevPlan() &&
+            a.signedPlan() == b.signedPlan());
+}
+bool operator!=(Employee const& a, Employee const& b) {
+    return !(a.id() == b.id() && 
+            a.firstname() == b.firstname() &&
+            a.lastname() == b.lastname() &&
+            a.job() == b.job() &&
+            a.birthdate() == b.birthdate() &&
+            a.startDate() == b.startDate() &&
+            a.isExecutive() == b.isExecutive() &&
+            a.position() == b.position() &&
+            a.coefficient() == b.coefficient() &&
+            a.managerId() == b.managerId() &&
+            a.prevPlan() == b.prevPlan() &&
+            a.signedPlan() == b.signedPlan());
+}
+
+
+///////// FLUX //////////
+std::ostream &operator<<(std::ostream &flux, Employee const& e) {
+    flux << e.toJson();
+    return flux;
+} 
+
