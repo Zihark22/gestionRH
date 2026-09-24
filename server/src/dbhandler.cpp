@@ -122,13 +122,13 @@ int DBhandler::modifyEmployee(const Employee &e, const std::string &id) {
             lastname=\'" + e.lastname() + "\', \
             birthdate=\'" + e.birthdate() + "\', \
             job=\'" + e.job() + "\', \
-            executive_status=" + std::to_string(e.isExecutive())+", \
+            executive_status=" + std::to_string((int) e.isExecutive())+", \
             position=" + std::to_string(e.position())+", \
             coefficient=" + std::to_string(e.coefficient())+", \
             start_date=\'" + e.startDate() + "\', \
             manager_id=" + std::to_string(e.managerId())+", \
             prev_plan=\'" + e.prevPlan()+"\',\
-            signed_plan=" + std::to_string(e.signedPlan())+" \
+            signed_plan=" + std::to_string((int)e.signedPlan())+" \
         WHERE id="+id+";";
  
     // On passe 'this' en 4ème paramètre à sqlite3_exec

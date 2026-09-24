@@ -58,10 +58,10 @@ TEST(EmployeeTest, Setters_ShouldUpdateValuesIndependently) {
     e.setFirstname("Paul");
     e.setLastname("Dupont");
     e.setJob("Développeur");
-    e.setExecutiveStatus(0);
+    e.setExecutiveStatus(false);
     e.setManagerId(5);
     e.setPrevPlan("Plan A");
-    e.setSignedPlan(1);
+    e.setSignedPlan(true);
     e.setCoefficient(215);
     e.setPosition(2.4);
     e.setBirthdate("2015-02-06");

@@ -39,14 +39,14 @@ public:
     std::string job() const { return mJob; }
     void setJob(const std::string &poste) { mJob = poste; }
 
-    int isExecutive() const { return mExecutiveStatus; }
-    void setExecutiveStatus(int cadre) { mExecutiveStatus = cadre; }
+    bool isExecutive() const { return mExecutiveStatus; }
+    void setExecutiveStatus(bool cadre) { mExecutiveStatus = cadre; }
 
     float position() const { return mPosition; }
     void setPosition(const float &pos) { mPosition = pos; }
 
-    int coefficient() const { return mCoefficient; }
-    void setCoefficient(int coeff) { mCoefficient = coeff; }
+    uint coefficient() const { return mCoefficient; }
+    void setCoefficient(uint coeff) { mCoefficient = coeff; }
 
     std::string startDate() const { return mStartDate; }
     void setStartDate(const std::string &date) { mStartDate = date; }
@@ -54,14 +54,14 @@ public:
     std::string birthdate() const { return mBirthdate; }
     void setBirthdate(const std::string &date) { mBirthdate = date; }
 
-    int managerId() const { return mManagerId; }
-    void setManagerId(int id) { mManagerId = id; }
+    uint managerId() const { return mManagerId; }
+    void setManagerId(uint id) { mManagerId = id; }
 
     std::string prevPlan() const { return mPrevPlan; }
     void setPrevPlan(std::string plan) { mPrevPlan = plan; }
 
-    int signedPlan() const { return mSignedPlan; }
-    void setSignedPlan(int signe) { mSignedPlan = signe; }
+    bool signedPlan() const { return mSignedPlan; }
+    void setSignedPlan(bool signe) { mSignedPlan = signe; }
 
 // ---------------------------------------------------
 
@@ -89,13 +89,13 @@ private:
     std::string mLastname{""};              //< Nom de famille de l'employé
     std::string mBirthdate{"2000-01-01"};   //< Date de naissance de l'employé
     std::string mJob{""};                   //< Poste de l'employé
-    int mExecutiveStatus{0};                //< Statut de manager de l'employé
+    bool mExecutiveStatus{false};                //< Statut de manager de l'employé
     float mPosition{0.0};                   //< Position de l'employé
-    int mCoefficient{0};                    //< Coefficient de l'employé
+    uint mCoefficient{0};                    //< Coefficient de l'employé
     std::string mStartDate{"2010-01-01"};   //< Date de début d'activité
     uint mManagerId{0};                     //< Identifiant du manager
     std::string mPrevPlan{"Plan A"};        //< Plan précédent
-    int mSignedPlan{0};                     //< Plan signé
+    bool mSignedPlan{false};                     //< Plan signé
 
     std::string cleanJsonString(const std::string &jsonStr);
     void initAttributesFromJsonString(const std::string &obj);
