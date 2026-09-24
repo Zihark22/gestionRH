@@ -15,7 +15,8 @@
 MainWindow::MainWindow(HRmanagement *hr, QWidget *parent) : QMainWindow(parent) {
 
     setWindowTitle("ERP Scalian - RH management");
-    resize(800, 600);
+    resize(1200, 700);
+    move(300, 200);
     setWindowModality(Qt::ApplicationModal);
 
     // Création de la barre de navigation

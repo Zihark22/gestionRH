@@ -121,11 +121,11 @@ void TabWidget::employeesUpdate(const QList<Employee> &employees) {
         m_generalTable->getTable()->setItem(row, 1, cell);
 
         cell = new QTableWidgetItem(e.job());
-        cell->setTextAlignment(Qt::AlignCenter);
+        cell->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         m_generalTable->getTable()->setItem(row, 2, cell);
 
 
-        QString executive_status_str = e.isExecutive() ? "Executive status" : "No executive status";
+        QString executive_status_str = e.isExecutive() ? "✔" : "X";
         cell = new QTableWidgetItem(executive_status_str);
         cell->setTextAlignment(Qt::AlignCenter);
         m_generalTable->getTable()->setItem(row, 3, cell);
@@ -152,7 +152,7 @@ void TabWidget::employeesUpdate(const QList<Employee> &employees) {
         // On stocke l'ID unique dans les données cachées du widget
         firstname_widget->setData(Qt::UserRole, e.id());
 
-        QString signed_plan_str = e.signedPlan() ? "Oui" : "Non";
+        QString signed_plan_str = e.signedPlan() ? "✔" : "X";
         uint manager_id = e.managerId();
         QString manager = "";
         // trouver le manager
@@ -164,7 +164,7 @@ void TabWidget::employeesUpdate(const QList<Employee> &employees) {
             }
         }
         if(manager.isEmpty())
-            manager = "Aucun renseigné";
+            manager = "Aucun";
 
         // Insertion d'une nouvelle ligne dans le tableWidget
         mPreventionTable->getTable()->insertRow(row);
@@ -176,16 +176,19 @@ void TabWidget::employeesUpdate(const QList<Employee> &employees) {
         mPreventionTable->getTable()->setItem(row, 3, new QTableWidgetItem(manager));
         mPreventionTable->getTable()->setItem(row, 4, new QTableWidgetItem(e.prevPlan()));
         mPreventionTable->getTable()->setItem(row, 5, new QTableWidgetItem(signed_plan_str));
-
+        if(!e.signedPlan()) {
+            QColor lightRed(255, 220, 220);
+            for (int col = 0; col < mPreventionTable->getTable()->columnCount(); ++col) {
+                mPreventionTable->getTable()->item(row, col)->setBackground(lightRed);
+            }
+        }
 
         // Center text in cells
         for (int row = 0; row < mPreventionTable->getTable()->rowCount(); ++row) {
             for (int col = 0; col < mPreventionTable->getTable()->columnCount(); ++col)
                 mPreventionTable->getTable()->item(row, col)->setTextAlignment(Qt::AlignCenter);
+            mPreventionTable->getTable()->item(row, 2)->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter); // align job left
         }
-
-
-
 
         row++;
     }
@@ -241,8 +244,8 @@ void TabWidget::onEmployeeAdded(const QList<Employee> &employees, const QString 
 }
 void TabWidget::updateRows(const int &row, const Employee &e, const QString &manager) {
 
-    QString executive_status_str = e.isExecutive() ? "Executive status" : "No executive status";
-    QString plan_signed_str = e.signedPlan() ? "Oui" : "Non";
+    QString executive_status_str = e.isExecutive() ? "✔" : "X";
+    QString plan_signed_str = e.signedPlan() ? "✔" : "X";
 
     QTableWidgetItem *firstname_widget = new QTableWidgetItem(e.firstname());
     firstname_widget->setData(Qt::UserRole, e.id()); // ajout de l'ID caché
@@ -260,6 +263,7 @@ void TabWidget::updateRows(const int &row, const Employee &e, const QString &man
         if (auto item = m_generalTable->getTable()->item(row, col))
             item->setTextAlignment(Qt::AlignCenter);
     }
+    m_generalTable->getTable()->item(row, 2)->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter); // align job left
     m_generalTable->getTable()->selectRow(row);
 
 
@@ -287,10 +291,14 @@ void TabWidget::updateRows(const int &row, const Employee &e, const QString &man
     mPreventionTable->getTable()->setItem(rowPrevention, 4, new QTableWidgetItem(e.prevPlan()));
     mPreventionTable->getTable()->setItem(rowPrevention, 5, new QTableWidgetItem(plan_signed_str));
     mPreventionTable->getTable()->selectRow(rowPrevention);
+    QColor lightRed(255, 220, 220);
     for (int col = 0; col < mPreventionTable->getTable()->columnCount(); ++col) {
+        if(!e.signedPlan())
+            mPreventionTable->getTable()->item(row, col)->setBackground(lightRed);
         if (auto item = mPreventionTable->getTable()->item(rowPrevention, col))
             item->setTextAlignment(Qt::AlignCenter);
     }
+    mPreventionTable->getTable()->item(row, 2)->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter); // align job left
 }
 void TabWidget::updateCmpt(const QList<Employee> &employees) {
     counterGeneral->setText(QString::fromStdString(to_string(employees.size())));
