@@ -25,7 +25,7 @@ std::string IniParser::getField(const std::string &obj, const std::string &key) 
     if (valueStart == std::string::npos)
         return "";
 
-    // Cas chaîne de caractères
+    // String value.
     if (obj[valueStart] == '"') {
         size_t valueEnd = valueStart + 1;
         while (valueEnd < obj.size()) {
@@ -41,7 +41,7 @@ std::string IniParser::getField(const std::string &obj, const std::string &key) 
         return obj.substr(valueStart + 1, valueEnd - valueStart - 1);
     }
 
-    // Cas nombre / bool / null
+    // Number, boolean, or null value.
     size_t valueEnd = valueStart;
     while (valueEnd < obj.size() && obj[valueEnd] != ',' && obj[valueEnd] != '}')
         ++valueEnd;
@@ -54,7 +54,7 @@ std::vector<SectionConfig> IniParser::parse(const std::string& filepath) {
     std::ifstream file(filepath);
 
     if (!file.is_open()) {
-        std::cerr << "[IniParser] Erreur : Impossible d'ouvrir le fichier : " << filepath << std::endl;
+        std::cerr << "[IniParser] Error: unable to open file: " << filepath << std::endl;
         return sections;
     }
 
@@ -65,32 +65,32 @@ std::vector<SectionConfig> IniParser::parse(const std::string& filepath) {
     while (getline(file, line)) {
         std::string trimmedLine = trim(line);
 
-        // 1. Ligne vide -> On réinitialise la description accumulée
+        // 1. Empty line: reset the accumulated description.
         if (trimmedLine.empty()) {
             accumulatedComments.clear();
             continue;
         }
 
-        // 2. Ligne de commentaire (commence par ';' ou '#')
+        // 2. Comment line (starts with ';' or '#').
         if (trimmedLine[0] == ';' || trimmedLine[0] == '#') {
             std::string commentContent = trim(trimmedLine.substr(1));
             if (!accumulatedComments.empty())
-                accumulatedComments += " "; // Séparateur si commentaire multi-lignes
+                accumulatedComments += " "; // Separate multi-line comments.
             
             accumulatedComments += commentContent;
             continue;
         }
 
-        // 3. Déclaration d'une section [NomDeLaSection]
+        // 3. Section declaration: [SectionName].
         if (trimmedLine.front() == '[' && trimmedLine.back() == ']') {
             std::string sectionName = trim(trimmedLine.substr(1, trimmedLine.size() - 2));
             sections.push_back({sectionName, {}});
             currentSection = &sections.back();
-            accumulatedComments.clear(); // Reset des commentaires pour la section
+            accumulatedComments.clear(); // Reset comments for the section.
             continue;
         }
 
-        // 4. Déclaration d'une variable (cle = valeur)
+        // 4. Variable declaration (key = value).
         size_t delimiterPos = trimmedLine.find('=');
         if (delimiterPos != std::string::npos && currentSection != nullptr) {
             std::string key = trim(trimmedLine.substr(0, delimiterPos));
@@ -99,11 +99,11 @@ std::vector<SectionConfig> IniParser::parse(const std::string& filepath) {
             VariableConfig var;
             var.nom = key;
             var.valeur = value;
-            var.description = accumulatedComments; // Assigne la description collectée
+            var.description = accumulatedComments; // Store the collected description.
 
             currentSection->variables.push_back(var);
             
-            // Consommé : Réinitialisation pour la prochaine variable
+            // Reset for the next variable.
             accumulatedComments.clear();
         }
     }
@@ -114,7 +114,7 @@ std::vector<SectionConfig> IniParser::parse(const std::string& filepath) {
 std::vector<SectionConfig> IniParser::parseFromString(std::string_view content) {
     std::vector<SectionConfig> sections;
 
-    // On crée un flux de lecture à partir de la vue mémoire
+    // Create a stream from the in-memory content.
     std::istringstream file{std::string(content)};
 
     std::string line;
@@ -124,32 +124,32 @@ std::vector<SectionConfig> IniParser::parseFromString(std::string_view content) 
     while (std::getline(file, line)) {
         std::string trimmedLine = trim(line);
 
-        // 1. Ligne vide -> On réinitialise la description accumulée
+        // 1. Empty line: reset the accumulated description.
         if (trimmedLine.empty()) {
             accumulatedComments.clear();
             continue;
         }
 
-        // 2. Ligne de commentaire (commence par ';' ou '#')
+        // 2. Comment line (starts with ';' or '#').
         if (trimmedLine[0] == ';' || trimmedLine[0] == '#') {
             std::string commentContent = trim(trimmedLine.substr(1));
             if (!accumulatedComments.empty())
-                accumulatedComments += " "; // Séparateur si commentaire multi-lignes
+                accumulatedComments += " "; // Separate multi-line comments.
             
             accumulatedComments += commentContent;
             continue;
         }
 
-        // 3. Déclaration d'une section [NomDeLaSection]
+        // 3. Section declaration: [SectionName].
         if (trimmedLine.front() == '[' && trimmedLine.back() == ']') {
             std::string sectionName = trim(trimmedLine.substr(1, trimmedLine.size() - 2));
             sections.push_back({sectionName, {}});
             currentSection = &sections.back();
-            accumulatedComments.clear(); // Reset des commentaires pour la section
+            accumulatedComments.clear(); // Reset comments for the section.
             continue;
         }
 
-        // 4. Déclaration d'une variable (cle = valeur)
+        // 4. Variable declaration (key = value).
         size_t delimiterPos = trimmedLine.find('=');
         if (delimiterPos != std::string::npos && currentSection != nullptr) {
             std::string key = trim(trimmedLine.substr(0, delimiterPos));
@@ -158,11 +158,11 @@ std::vector<SectionConfig> IniParser::parseFromString(std::string_view content) 
             VariableConfig var;
             var.nom = key;
             var.valeur = value;
-            var.description = accumulatedComments; // Assigne la description collectée
+            var.description = accumulatedComments; // Store the collected description.
 
             currentSection->variables.push_back(var);
 
-            // Consommé : Réinitialisation pour la prochaine variable
+            // Reset for the next variable.
             accumulatedComments.clear();
         }
     }

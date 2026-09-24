@@ -9,7 +9,7 @@ void ApiServer::setRequestHandler(RequestHandler handler) {
 }
 
 void ApiServer::start(int server_fd) {
-    // Boucle principale pour accepter les connexions entrantes
+    // Main loop accepting incoming connections.
     while (_isRunning) {
         int client_fd = accept(server_fd, nullptr, nullptr);
         if (client_fd < 0) 
@@ -19,7 +19,7 @@ void ApiServer::start(int server_fd) {
         read(client_fd, buffer, sizeof(buffer) - 1);
 
         std::string request(buffer);
-        std::cout << "\n============ Requête reçue ============\n" << request << "\n" << std::endl;
+        std::cout << "\n============ Request received ============\n" << request << "\n" << std::endl;
         parseRequestHttp(request, client_fd);
 
         close(client_fd);
@@ -30,54 +30,48 @@ void ApiServer::parseRequestHttp(std::string request, const int client_fd) {
     std::string method;
     std::string endpoint;
     
-    // Extraction de la méthode HTTP (GET, POST, DELETE, PUT, etc.)
+    // Extract the HTTP method (GET, POST, DELETE, PUT, etc.).
     size_t space_pos = request.find(" ");
     if (space_pos != std::string::npos)
         method = request.substr(0, space_pos);
     
-    // Extraction de l'endpoint (entre le premier et le deuxième espace)
+    // Extract the endpoint between the first and second spaces.
     size_t first_space = request.find(" ");
     size_t second_space = request.find(" ", first_space + 1);
     
     if (first_space != std::string::npos && second_space != std::string::npos)
         endpoint = request.substr(first_space + 1, second_space - first_space - 1);
 
-    // Extraction du body si présent
-    size_t content_pos = request.find("Content-Length:");
-    if(content_pos != std::string::npos) {
-        size_t body_pos_deb = request.find("[", content_pos+1);
-        size_t body_pos_fin = request.find("]", body_pos_deb+1);
-        if(body_pos_deb != std::string::npos and body_pos_fin != std::string::npos)
-            body = request.substr(body_pos_deb, body_pos_fin);
-    }
-    else
-        body = "";
+    // Extract the body, if present, using the HTTP header boundary.
+    const size_t headerEnd = request.find("\r\n\r\n");
+    body = headerEnd == std::string::npos ? "" : request.substr(headerEnd + 4);
 
-
-    /*
-        code to extract authentification token in user table for future feature and check in DB if user registered
-    */
-    authenticationOk = true; // remove after implementation of login function
+    // Authentication will be implemented when user accounts are added.
+    authenticationOk = true;
     
     if(authenticationOk)
         executeRequest(method, endpoint, client_fd);
     else
-        std::cout << "Authentification failed" << std::endl; 
+        std::cout << "Authentication failed" << std::endl;
 
 } 
 
 void ApiServer::executeRequest(const std::string &method, const std::string &endpoint, const int client_fd) {
+    responseStatusCode = 200;
+    responseMsg = "OK";
+    messageError.clear();
+
     std::string repbody;
     std::string responseHTTP;
-    std::string repsponseGlobal; // informations à retourner différentes d'une liste d'employés (ici la config ou id du nouvel employé)
+    std::string responseGlobal; // Response data other than the employee list, such as config or a new ID.
 
     dbHandler.openDB();
     std::cout << "Action demandée par le client : ";
 
-    handleRequest(method, endpoint, repsponseGlobal); // appelle la fonction associée au endpoint + méthode et retourne la réponse
+    handleRequest(method, endpoint, responseGlobal); // Dispatch the request and build the response data.
 
-    // Construction de la réponse HTTP
-    if(responseStatusCode != 200) { // Si le code de statut n'est pas 200, on renvoie un message d'erreur
+    // Build the HTTP response.
+    if(responseStatusCode != 200) { // Return an error payload for non-success responses.
         repbody = "{\"error\": \""+ messageError +"\"}";
         responseHTTP = 
             "HTTP/1.1 "+ std::to_string(responseStatusCode) + " " + responseMsg +"\r\n"
@@ -85,16 +79,16 @@ void ApiServer::executeRequest(const std::string &method, const std::string &end
             "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
             repbody;
     }
-    else {  // si le code de statut est 200, on renvoie le JSON de la base de données ou la réponse du serveur
-        if(repsponseGlobal.empty())
-            repbody = dbHandler.formatterJson(); // JSON de sortie de la base de données
+    else {  // Return either the database JSON or the handler response.
+        if(responseGlobal.empty())
+            repbody = dbHandler.formatterJson(); // Serialized database results.
         else
-            repbody = repsponseGlobal; // autre réponse du serveur (ex: config)
+            repbody = responseGlobal; // Another server response, such as configuration.
 
         responseHTTP = 
             "HTTP/1.1 "+ std::to_string(responseStatusCode) + " " + responseMsg +"\r\n"
             "Access-Control-Allow-Origin: *\r\n"
-            "Content-TypexecuteRequeste: application/json\r\n"
+            "Content-Type: application/json\r\n"
             "Content-Length: " + std::to_string(repbody.length()) + "\r\n\r\n" + 
             repbody;
     }
@@ -105,27 +99,30 @@ void ApiServer::executeRequest(const std::string &method, const std::string &end
 
 
 RouteMatch ApiServer::parseRoute(const std::string& uri) {
-    // Table de correspondance pour les routes statiques de base
+    // Map the static routes.
     static const std::unordered_map<std::string, EndpointAction> routeTable = {
         {"/api/employees", EndpointAction::EMPLOYEES_COLLECTION},
         {"/api/config",    EndpointAction::CONFIG}
     };
 
-    // 1. Recherche directe dans la map
+    // Look up the URI directly.
     auto it = routeTable.find(uri);
     if (it != routeTable.end()) {
         return {it->second, std::nullopt};
     }
 
-    // 2. Traitement du cas dynamique /api/employees/:id
+    // Handle the dynamic /api/employees/:id route.
     const std::string prefix = "/api/employees/";
-    if (uri.rfind(prefix, 0) == 0) { // Démarre par "/api/employees/"
+    if (uri.rfind(prefix, 0) == 0) { // The URI starts with "/api/employees/".
         std::string idStr = uri.substr(prefix.length());
         try {
-            int id = std::stoi(idStr);
+            size_t parsedLength = 0;
+            int id = std::stoi(idStr, &parsedLength);
+            if (parsedLength != idStr.size())
+                return {EndpointAction::UNKNOWN, std::nullopt};
             return {EndpointAction::EMPLOYEE_BY_ID, id};
         } catch (...) {
-            return {EndpointAction::UNKNOWN, std::nullopt}; // ID non numérique
+            return {EndpointAction::UNKNOWN, std::nullopt}; // The ID is not numeric.
         }
     }
 
@@ -138,13 +135,13 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
     switch (route.action) {
         case EndpointAction::EMPLOYEES_COLLECTION:
             if (method == "GET") {
-                // Traiter la requête GET /api/employees
+                // Handle GET /api/employees.
                 std::cout << "Obtenir employés" << std::endl;
 
-                // commande
+                // Execute the database operation.
                 result = dbHandler.getAllEmployees();
 
-                // reponse en fonction du resultat
+                // Build the response from the result.
                 if(result == -1) {
                     messageError = "Erreur lors de la récupération des employées";
                     responseStatusCode = 500;
@@ -156,14 +153,14 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
                 }
             }
             else if (method == "POST") {
-                // Traiter la requête POST
+                // Handle POST /api/employees.
                 std::cout << "ajout employé" << std::endl;
 
-                // commande
+                // Execute the database operation.
                 Employee e(this->body);
                 result = dbHandler.addEmployee(e);
 
-                // reponse en fonction du resultat
+                // Build the response from the result.
                 if(result == -1) {
                     messageError = "Erreur lors de l'ajout d'un employé";
                     responseStatusCode = 500;
@@ -185,13 +182,13 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
 
         case EndpointAction::EMPLOYEE_BY_ID:
             if (method == "GET") {
-                // Traiter la requête GET /api/employees
+                // Handle GET /api/employees/:id.
                 std::cout << "Obtenir employé dont ID = " << route.id.value() << std::endl;
 
-                // commande
+                // Execute the database operation.
                 result = dbHandler.getEmployee(route.id.value());
 
-                // reponse en fonction du resultat
+                // Build the response from the result.
                 if(result == 0) {
                     int nbE = dbHandler.countEmployees();
                     if(nbE<1){
@@ -211,13 +208,13 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
                 }
             }
             else if (method == "DELETE") {
-                // Traiter la requête DELETE
+                // Handle DELETE /api/employees/:id.
                 std::cout << "supprimer employé dont ID = " << route.id.value() << std::endl;
 
-                // commande
+                // Execute the database operation.
                 result = dbHandler.deleteEmployee(route.id.value());
 
-                // reponse en fonction du resultat
+                // Build the response from the result.
                 if(result == -1) {
                     messageError = "Erreur lors de la suppression de l'employé";
                     responseStatusCode = 500;
@@ -229,14 +226,14 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
                 }
             }
             else if (method == "PUT") {
-                // Traiter la requête PUT
+                // Handle PUT /api/employees/:id.
                 std::cout << "modifier employé dont ID = " << route.id.value() << std::endl;
 
-                 // commande
+                // Execute the database operation.
                 Employee e(this->body);
                 result = dbHandler.modifyEmployee(e, std::to_string(route.id.value()));
 
-                // reponse en fonction du resultat
+                // Build the response from the result.
                 if(result == -1) {
                     messageError = "Erreur lors de la modification de l'employé";
                     responseStatusCode = 500;
@@ -257,10 +254,10 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
 
         case EndpointAction::CONFIG:
             if (method == "GET") {
-                // Traiter la requête GET /api/employees
+                // Handle GET /api/config.
                 std::cout << "Obtenir config" << std::endl;
 
-                // commande en appelant le serveur
+                // Call the server handler.
                 if (myHandler) {
                     responseGlobal = myHandler("getconfig", "");
                     std::cout << "reponse : " << responseGlobal << std::endl;
@@ -271,7 +268,7 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
                     result = -1;
                 }
 
-                // reponse en fonction du resultat
+                // Build the response from the result.
                 if(result == -1) {
                     messageError = "Erreur lors de la récupération de la config";
                     responseStatusCode = 500;
@@ -283,10 +280,10 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
                 }
             }
             else if (method == "PUT") {
-                // Traiter la requête GET /api/employees
+                // Handle PUT /api/config.
                 std::cout << "Modifier config" << std::endl;
 
-                // envoi de la requete au serveur pour modifier le fichier config.ini
+                // Ask the server to update config.ini.
                 if (myHandler) {
                     responseGlobal = myHandler("modifyconfig",this->body);
                     std::cout << "reponse : " << responseGlobal << std::endl;
@@ -297,7 +294,7 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
                     result = -1;
                 }
 
-                // reponse en fonction du resultat
+                // Build the response from the result.
                 if(result == -1) {
                     messageError = "Erreur lors de la modification de la config";
                     responseStatusCode = 500;
@@ -308,9 +305,14 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
                     responseMsg = "Ok";
                 }
             }
+            else {
+                messageError = "The method is not allowed for this endpoint";
+                responseStatusCode = 405;
+                responseMsg = "Method Not Allowed";
+            }
             break;
 
-        case EndpointAction::UNKNOWN: // Route de secours (404 Not Found)
+        case EndpointAction::UNKNOWN: // Fallback route (404 Not Found).
             messageError = "Route invalide";
             responseStatusCode = 404;
             responseMsg = "Not Found";

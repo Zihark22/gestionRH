@@ -1,21 +1,21 @@
-# 1. Récupération / Détection de GoogleTest
-# Option A : Si vous l'avez installé via `apt install libgtest-dev`
+# 1. Find GoogleTest.
+# Option A: install it with `apt install libgtest-dev`.
 find_package(GTest REQUIRED)
 
-# (Option B alternative : Si vous préférez FetchContent, remplacez find_package par FetchContent)
+# Alternative: replace find_package with FetchContent if preferred.
 
-# 2. Exécutable de test (listez vos fichiers de tests unitaires)
+# 2. Test executable.
 add_executable(unit_tests
     EmployeeTest.cpp
     # DatabaseTest.cpp
 )
 
-# 3. Liaison avec votre code (ServerLib) et GoogleTest
+# 3. Link the application library and GoogleTest.
 target_link_libraries(unit_tests PRIVATE 
     ServerLib
     GTest::gtest_main
 )
 
-# 4. Enregistrement automatique des tests dans CTest
+# 4. Register tests with CTest.
 include(GoogleTest)
 gtest_discover_tests(unit_tests)

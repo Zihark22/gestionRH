@@ -6,9 +6,9 @@
 #include <iostream>
 #include <map>
 #include <chrono>
-#include <stdexcept> // Pour std::invalid_argument
+#include <stdexcept> // For std::invalid_argument.
 #include <sstream>
-#include <iomanip> // pour set precision
+#include <iomanip> // For setprecision.
 
 
 
@@ -16,26 +16,26 @@ using namespace std::chrono;
 
 class Employee {
 public:
-// Constructeurs
+// Constructors.
 
     Employee() = default;
 
-    /** @brief Crée un objet Employee à partir d'un JSON string (ex: réponse d'une requête API REST)
-     *  @param json Une chaîne JSON représentant l'employé.
+    /** @brief Create an Employee from a JSON string, such as a REST API response.
+     *  @param json JSON representation of the employee.
      */
     Employee(const std::string &json);
 
 
-// Opérateurs
+// Operators.
 
-    // Opérateurs de comparaison (utilisation d'accesseurs)
+    // Comparison operators (using accessors).
     bool operator==(const Employee &other);
     bool operator!=(const Employee &other);
 
-    // Opérateurs de flux
+    // Stream operators.
     friend std::ostream &operator<<(std::ostream &flux, Employee const& e);
 
-// Getters and Setters
+// Getters and setters.
 
     int id() const { return mId; }
     void setId(int id) { mId = id; }
@@ -75,37 +75,37 @@ public:
 
 // ---------------------------------------------------
 
-    /** @brief Sérialise l'objet Employee en JSON pour l'API REST
-     *  @return Chaîne JSON représentant l'employé
+    /** @brief Serialize the Employee as JSON for the REST API.
+     *  @return JSON representation of the employee.
      */
     std::string toJson() const;
 
 // ---------------------------------------------------
 
-    /** @brief Crée un objet Employee à partir d'une ligne de résultat SQL
-     *  @param sql_row Une map représentant une ligne de résultat SQL, où les clés sont les noms des colonnes et les valeurs sont les valeurs correspondantes.
-     *  @return Un objet Employee initialisé avec les données de la ligne SQL
+    /** @brief Create an Employee from a SQL result row.
+     *  @param sql_row Map of column names to values from a SQL result row.
+     *  @return Employee initialized from the SQL row.
      */
     static Employee fromSql(const std::map<std::string, std::string> &sql_row);
 
 // ---------------------------------------------------
 
-    /** @brief Affiche les informations de l'employé dans la sortie standard */
+    /** @brief Print employee information to standard output. */
     void display(void) const;
 
 private:
-    uint mId{0};                                //< Identifiant unique de l'employé
-    std::string mFirstname{""};             //< Prénom de l'employé
-    std::string mLastname{""};              //< Nom de famille de l'employé
-    std::string mBirthdate{"2000-01-01"};   //< Date de naissance de l'employé
-    std::string mJob{""};                   //< Poste de l'employé
-    bool mExecutiveStatus{false};                //< Statut de manager de l'employé
-    float mPosition{0.0};                   //< Position de l'employé
-    uint mCoefficient{0};                    //< Coefficient de l'employé
-    std::string mStartDate{"2010-01-01"};   //< Date de début d'activité
-    uint mManagerId{0};                     //< Identifiant du manager
-    std::string mPrevPlan{"Plan A"};        //< Plan précédent
-    bool mSignedPlan{false};                     //< Plan signé
+    uint mId{0};                                //< Unique employee ID.
+    std::string mFirstname{""};             //< Employee first name.
+    std::string mLastname{""};              //< Employee last name.
+    std::string mBirthdate{"2000-01-01"};   //< Employee birth date.
+    std::string mJob{""};                   //< Employee position.
+    bool mExecutiveStatus{false};            //< Whether the employee is an executive.
+    float mPosition{0.0};                    //< Syntec position.
+    uint mCoefficient{0};                    //< Syntec coefficient.
+    std::string mStartDate{"2010-01-01"};   //< Employment start date.
+    uint mManagerId{0};                      //< Manager ID.
+    std::string mPrevPlan{"Plan A"};        //< Previous plan.
+    bool mSignedPlan{false};                 //< Whether the plan is signed.
 
     std::string cleanJsonString(const std::string &jsonStr);
     void initAttributesFromJsonString(const std::string &obj);

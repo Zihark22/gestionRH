@@ -1,4 +1,4 @@
--- 1. Insertion du Directeur / Manager principal (Pas de manager_id)
+-- 1. Insert the director / main manager (no manager_id).
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -9,7 +9,7 @@ INSERT INTO employees (
     NULL, 'Plan A', 1
 );
 
--- 2. Insertion d'un développeur sous la responsabilité du manager (manager_id = 1)
+-- 2. Insert a developer reporting to the manager (manager_id = 1).
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -20,7 +20,7 @@ INSERT INTO employees (
     1, 'Plan B', 1
 );
 
--- 3. Insertion d'un technicien sous la responsabilité du développeur (manager_id = 2)
+-- 3. Insert a technician reporting to the developer (manager_id = 2).
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -31,7 +31,7 @@ INSERT INTO employees (
     2, 'Plan C', 0
 );
 
--- 4. Tech Lead C++
+-- 4. C++ tech lead.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -42,7 +42,7 @@ INSERT INTO employees (
     1, 'Plan A', 1
 );
 
--- 5. Ingénieure Firmware
+-- 5. Firmware engineer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -53,7 +53,7 @@ INSERT INTO employees (
     4, 'Plan B', 1
 );
 
--- 6. Développeur C++ Linux Embarqué
+-- 6. Embedded Linux C++ developer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -64,7 +64,7 @@ INSERT INTO employees (
     4, 'Plan B', 0
 );
 
--- 7. Ingénieure QA / Test Logiciel
+-- 7. QA / software test engineer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -75,7 +75,7 @@ INSERT INTO employees (
     4, 'Plan C', 1
 );
 
--- 8. Architecte Logiciel Embarqué
+-- 8. Embedded software architect.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -86,7 +86,7 @@ INSERT INTO employees (
     1, 'Plan A', 1
 );
 
--- 9. Développeuse DSP & Algorithmes
+-- 9. DSP and algorithms developer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -97,7 +97,7 @@ INSERT INTO employees (
     8, 'Plan B', 1
 );
 
--- 10. Ingénieur Systèmes Embarqués
+-- 10. Embedded systems engineer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -108,7 +108,7 @@ INSERT INTO employees (
     8, 'Plan A', 0
 );
 
--- 11. Scrum Master / PMO
+-- 11. Scrum master / PMO.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -119,7 +119,7 @@ INSERT INTO employees (
     1, 'Plan C', 1
 );
 
--- 12. DevOps & CI/CD Embarqué
+-- 12. Embedded DevOps and CI/CD.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -130,7 +130,7 @@ INSERT INTO employees (
     4, 'Plan B', 1
 );
 
--- 13. Ingénieure Validation Banc de Test
+-- 13. Test bench validation engineer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -141,7 +141,7 @@ INSERT INTO employees (
     8, 'Plan C', 1
 );
 
--- 14. Technicien Banc de Test
+-- 14. Test bench technician.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -152,7 +152,7 @@ INSERT INTO employees (
     13, 'Plan C', 0
 );
 
--- 15. Développeuse C++ Junior
+-- 15. Junior C++ developer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -163,7 +163,7 @@ INSERT INTO employees (
     4, 'Plan A', 1
 );
 
--- 16. Ingénieur Drivers & BSP
+-- 16. Drivers and BSP engineer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -174,7 +174,7 @@ INSERT INTO employees (
     8, 'Plan B', 1
 );
 
--- 17. Responsable Cybersécurité Embarquée
+-- 17. Embedded cybersecurity manager.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -185,7 +185,7 @@ INSERT INTO employees (
     1, 'Plan A', 1
 );
 
--- 18. Ingénieur Sécurité Logicielle
+-- 18. Software security engineer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -196,7 +196,7 @@ INSERT INTO employees (
     17, 'Plan B', 0
 );
 
--- 19. Administrateur Systèmes & Réseaux
+-- 19. Systems and network administrator.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -207,7 +207,7 @@ INSERT INTO employees (
     12, 'Plan C', 1
 );
 
--- 20. Développeur Microcontrôleurs Bare-Metal
+-- 20. Bare-metal microcontroller developer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -218,7 +218,7 @@ INSERT INTO employees (
     4, 'Plan B', 1
 );
 
--- 21. Ingénieure FPGA / VHDL
+-- 21. FPGA / VHDL engineer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -229,7 +229,7 @@ INSERT INTO employees (
     8, 'Plan A', 1
 );
 
--- 22. Technicien Électronique & Prototypage
+-- 22. Electronics and prototyping technician.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -240,7 +240,7 @@ INSERT INTO employees (
     13, 'Plan C', 0
 );
 
--- 23. Développeuse IHM Qt/QML (C++)
+-- 23. Qt/QML C++ user interface developer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -251,7 +251,7 @@ INSERT INTO employees (
     4, 'Plan B', 1
 );
 
--- 24. Responsable Produit / Product Owner
+-- 24. Product manager / product owner.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -262,7 +262,7 @@ INSERT INTO employees (
     1, 'Plan A', 1
 );
 
--- 25. Ingénieure Recherche & Innovation
+-- 25. Research and innovation engineer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -273,7 +273,7 @@ INSERT INTO employees (
     1, 'Plan A', 0
 );
 
--- 26. Développeur C++ / Rust
+-- 26. C++ / Rust developer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -284,7 +284,7 @@ INSERT INTO employees (
     4, 'Plan B', 1
 );
 
--- 27. Responsable Qualité & Normes (ISO 26262)
+-- 27. Quality and standards manager (ISO 26262).
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -295,7 +295,7 @@ INSERT INTO employees (
     1, 'Plan A', 1
 );
 
--- 28. Ingénieur Intégration Continue
+-- 28. Continuous integration engineer.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -306,7 +306,7 @@ INSERT INTO employees (
     12, 'Plan C', 0
 );
 
--- 29. Chargée de Recrutement Technique
+-- 29. Technical recruitment specialist.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -317,7 +317,7 @@ INSERT INTO employees (
     1, 'Plan B', 1
 );
 
--- 30. Technicien Support Embarqué N2
+-- 30. Embedded support technician, level 2.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -328,7 +328,7 @@ INSERT INTO employees (
     3, 'Plan C', 1
 );
 
--- 31. Ingénieure RTOS (FreeRTOS / Zephyr)
+-- 31. RTOS engineer (FreeRTOS / Zephyr).
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -339,7 +339,7 @@ INSERT INTO employees (
     8, 'Plan B', 1
 );
 
--- 32. Développeur C++ Stagiaire / Alternant
+-- 32. C++ intern / apprentice.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 
@@ -350,7 +350,7 @@ INSERT INTO employees (
     4, 'Plan C', 0
 );
 
--- 33. Office Manager & Assistante de Direction
+-- 33. Office manager and executive assistant.
 INSERT INTO employees (
     firstname, lastname, birthdate, job, executive_status, 
     position, coefficient, start_date, 

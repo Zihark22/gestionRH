@@ -16,14 +16,14 @@
 
 enum class EndpointAction {
     UNKNOWN,
-    EMPLOYEES_COLLECTION, // /api/employees (GET tous, POST nouveau)
-    EMPLOYEE_BY_ID,       // /api/employees/:id (GET un, PUT, DELETE)
+    EMPLOYEES_COLLECTION, // /api/employees (GET all, POST new)
+    EMPLOYEE_BY_ID,       // /api/employees/:id (GET one, PUT, DELETE)
     CONFIG                // /api/config
 };
 
 struct RouteMatch {
     EndpointAction action = EndpointAction::UNKNOWN;
-    std::optional<int> id; // Rempli si un ID est détecté
+    std::optional<int> id; // Set when an ID is detected.
 };
 
 class ApiServer {
@@ -31,50 +31,50 @@ class ApiServer {
 public:
     ApiServer() = default;
 
-    // Constructeur qui initialise le gestionnaire de base de données avec le chemin fourni
+    // Initialize the database handler with the supplied path.
     ApiServer(const std::string &dbPath);
 
-    // Signature du handler : prend les données de la requête et retourne le résultat à renvoyer au client
+    // Handler signature: receive request data and return the client response.
     using RequestHandler = std::function<std::string(const std::string& request, const std::string& body)>;
 
-    // Permet de définir le handler pour traiter les requêtes spécifiques
+    // Set the handler for application-specific requests.
     void setRequestHandler(RequestHandler handler);
 
-    // Démarrage de la communication API
+    // Start API communication.
     void start(int server_fd); 
 
 private:
-    std::string messageError;       //< Message de retour en json 
-    int responseStatusCode = 200; //< Code de statut HTTP par défaut
-    std::string responseMsg;       //< Message sur le status code
-    bool authenticationOk = false; //< pour implémenter l'authentification plus tard
-    std::string body="";            //< body des requêtes HTTP
-    DBhandler dbHandler;           //< Handler pour interagir avec la base de données
-    RequestHandler myHandler;       //< Handler pour traiter les requêtes spécifiques
-    bool _isRunning = true;         //< Indique si le serveur est en cours d'exécution
+    std::string messageError;       //< JSON error message.
+    int responseStatusCode = 200;   //< Default HTTP status code.
+    std::string responseMsg;        //< HTTP status message.
+    bool authenticationOk = false;  //< Authentication result.
+    std::string body = "";          //< HTTP request body.
+    DBhandler dbHandler;            //< Database access handler.
+    RequestHandler myHandler;       //< Application-specific request handler.
+    bool _isRunning = true;          //< Whether the server is running.
 
     
-    ///////// Méthodes /////////
+    ///////// Methods /////////
 
     /**
-     * @brief Décompose la requête HTTP pour extraire la méthode, l'endpoint et le corps de la requête.
+    * @brief Parse an HTTP request to extract its method, endpoint, and body.
      * 
-     * @param request La chaîne de caractères représentant la requête HTTP.
-     * @param client_fd Le descripteur de fichier du client.
+    * @param request String containing the HTTP request.
+    * @param client_fd Client file descriptor.
      */
     void parseRequestHttp(std::string request, const int client_fd);
     
     /**
-     * @brief Exécute la requête correspondante en fonction de sa méthode et de son endpoint puis construit la réponse HTTP à renvoyer au client.
+    * @brief Execute a request and build the HTTP response returned to the client.
      * 
-     * @param method La méthode HTTP de la requête.
-     * @param endpoint L'endpoint de la requête.
-     * @param client_fd Le descripteur de fichier du client.
+    * @param method HTTP request method.
+    * @param endpoint Request endpoint.
+    * @param client_fd Client file descriptor.
      */
     void executeRequest(const std::string &method, const std::string &endpoint, const int client_fd);
 
     /**
-     * @brief Décompose
+    * @brief Match a URI to an API route.
      * 
      * @param uri 
      */
@@ -83,9 +83,9 @@ private:
     /**
      * @brief 
      * 
-     * @param method La méthode HTTP de la requête.
-     * @param uri    L'URI de la requête.
-     * @param rep    
+    * @param method HTTP request method.
+    * @param uri    Request URI.
+    * @param responseGlobal Response body produced by a handler.
      */
     void handleRequest(const std::string& method, const std::string& uri, std::string &responseGlobal);
 

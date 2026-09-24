@@ -11,10 +11,10 @@ Employee::Employee(const std::string &jsonStr) {
 }
 
 std::string Employee::cleanJsonString(const std::string &jsonStr) {
-     // Traitment de la chaîne JSON pour extraire les informations de l'employé
+    // Extract employee data from the JSON string.
     std::string s = IniParser::trim(jsonStr);
 
-    // Format attendu : [{"firstname":"Marc","lastname":"Dumort"}]
+    // Expected format: [{"firstname":"Marc","lastname":"Dumort"}]
     if (s.size() < 2 || s.front() != '[' || s.back() != ']')
         return "";
 
@@ -31,7 +31,7 @@ std::string Employee::cleanJsonString(const std::string &jsonStr) {
 
 void Employee::initAttributesFromJsonString(const std::string &obj) {
     
-    // Extraction des attributs
+    // Extract the attributes.
     std::string firstname = IniParser::getField(obj, "firstname");
     std::string lastname  = IniParser::getField(obj, "lastname");
     std::string birthdate = IniParser::getField(obj, "birthdate");
@@ -73,7 +73,7 @@ void Employee::initAttributesFromJsonString(const std::string &obj) {
     if (!idStr.empty())
         mId = stoi(idStr);
     else
-        mId = 0; // laisse la base de donnée mettre l'id
+        mId = 0; // Let the database assign the ID.
 } 
 
 std::string Employee::toJson() const {
@@ -116,7 +116,7 @@ void Employee::display(void) const {
 
 Employee Employee::fromSql(const std::map<std::string, std::string> &sql_row) {
 
-    // Fonction lambda pour convertir une chaîne en entier avec une valeur par défaut
+    // Convert a string to an integer, falling back to a default value.
     auto to_int_or_default = [&](const std::string& key, int defaultValue) -> int {
         const auto it = sql_row.find(key);
         if (it == sql_row.end())
@@ -151,9 +151,9 @@ Employee Employee::fromSql(const std::map<std::string, std::string> &sql_row) {
 
 
 
-/* ------------------- Opérateurs ------------------- */
+/* ------------------- Operators ------------------- */
 
-///////// COMPARAISONS //////////
+///////// COMPARISONS //////////
 bool Employee::operator==(const Employee &other) {
     return (this->id() == other.id() && 
             this->firstname() == other.firstname() &&
@@ -184,7 +184,7 @@ bool Employee::operator!=(const Employee &other) {
 }
 
 
-///////// FLUX //////////
+///////// STREAM //////////
 std::ostream &operator<<(std::ostream &flux, Employee const& e) {
     flux << e.toJson();
     return flux;
