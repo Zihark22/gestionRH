@@ -38,7 +38,7 @@ void FormWindow::initAttributes() {
     mBirthdate = new QDateEdit(this);
     mPlanCombo = new QComboBox(this);
     mManager = new QComboBox(this);
-    mId = -1;
+    mId = 0;
 
     // Boutons de validation
     btnValider = new QPushButton("Valider", this);
@@ -153,7 +153,7 @@ Employee FormWindow::toEmployee() {
 
     e.setJob(mJobEdit->text());
 
-    e.setManagerId(mManager->currentData().toInt());
+    e.setManagerId(mManager->currentData().toUInt());
 
     e.setId(mId);
 

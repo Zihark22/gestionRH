@@ -29,7 +29,7 @@ class HRmanagement : public QObject {
 
     signals :
         void employeesListUpdated(const QList<Employee> &employees);
-        void errorDetected(const QString & msg);
+        void errorDetected(const QString &msg);
 
 
         /// Signaux de réponse API ///
@@ -42,7 +42,7 @@ class HRmanagement : public QObject {
         void onEmployeeAdd(const uint &id);
         void onEmployModify(const int &row, const Employee &e);
 
-        void openEditEmployeeWindow(const uint id, const int row);
+        void openEditEmployeeWindow(const uint &id, const int &row);
         void addingEmployee();
         void onConfigModified(const std::string json);
 

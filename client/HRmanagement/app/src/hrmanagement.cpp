@@ -108,7 +108,7 @@ void HRmanagement::parseMyJson() {
 void HRmanagement::extractManagers() {
     QString fullname = "";
     managers.clear();
-    managers.append({-1, fullname});
+    managers.append({0, fullname});
 
     for(int i=0; i<employees.size(); i++) {
         Employee e = employees[i];
@@ -215,7 +215,7 @@ void HRmanagement::onConfigModified(const std::string json) {
 void HRmanagement::openLogs() {
 
 }
-void HRmanagement::openEditEmployeeWindow(const uint id, const int row) {
+void HRmanagement::openEditEmployeeWindow(const uint &id, const int &row) {
 
     // 3. Chercher le collaborateur correspondant dans votre QList
     auto it = std::find_if(employees.begin(), employees.end(), [id](const Employee &c) {
