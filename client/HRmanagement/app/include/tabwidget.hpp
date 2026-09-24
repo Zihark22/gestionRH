@@ -18,29 +18,31 @@ public:
     void employeesUpdate(const QList<Employee> &employees);
 
 public slots:
-    void onEmployeeModified(const int row, const Employee &e, const QString &manager);
-    void onEmployeeAdded(const int &id, const QList<Employee> &employees, const QString &manager);
+    void onEmployeeModified(const int &row, const Employee &e, const QString &manager);
+    void onEmployeeAdded(const QList<Employee> &employees, const QString &manager);
     void updateRows(const int &row, const Employee &e, const QString &manager);
     void updateCmpt(const QList<Employee> &employees);
 
 signals:
+
     // Signal écouté par le ViewManager
     void requestNavigation(ScreenId targetScreen);
 
     // signal pour HRmanagement pour ouvrir une fenêtre de modif
-    void openEditEmployee(const int &id, const int &row);
+    void openEditEmployee(const uint &id, const int &row);
 
     void addingEmployee();
 
 private slots:
+
     // Signal pour ouvrir le formulaire en double cliquant sur une ligne
     void onTableDoubleClicked(int row, int column);
 
 
 private:
-    QTabWidget *m_tab{nullptr};
+    QTabWidget *mTab{nullptr};
     TableWidget * m_generalTable{nullptr};
-    TableWidget * m_preventionTable{nullptr};
+    TableWidget * mPreventionTable{nullptr};
     QLabel *counterGeneral;
     QLabel *counterPrevention;
 

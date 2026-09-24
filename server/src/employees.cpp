@@ -61,19 +61,19 @@ void Employee::initAttributesFromJsonString(const std::string &obj) {
     mExecutiveStatus = (executiveStatus == "true" || executiveStatus == "1");
     mSignedPlan = (signedPlan == "true" || signedPlan == "1");
 
-    if (!positionStr.empty())     
+    if (!positionStr.empty())
         mPosition = stof(positionStr);
-    if (!coefficientStr.empty())  
+    if (!coefficientStr.empty())
         mCoefficient = stoi(coefficientStr);
-    if (!managerIdStr.empty())    
+    if (!managerIdStr.empty())
         mManagerId = stoi(managerIdStr);
-    if (!startDate.empty())       
+    if (!startDate.empty())
         mStartDate = startDate;
 
-    if (!idStr.empty())           
-        mId = stoi(idStr); 
-    else 
-        mId = -1; // laisse la base de donnée mettre l'id
+    if (!idStr.empty())
+        mId = stoi(idStr);
+    else
+        mId = 0; // laisse la base de donnée mettre l'id
 } 
 
 std::string Employee::toJson() const {

@@ -10,23 +10,21 @@ HRmanagement::HRmanagement(QWidget *parent) : QObject(parent) {
 }
 
 void HRmanagement::start() {
-
     // Connexion des siganux asynchrones aux méthodes
     connect(apiClient.get(), &ApiClient::employeeAdded, this, &HRmanagement::onEmployeeAdd);
     connect(apiClient.get(), &ApiClient::employeeModified, this, &HRmanagement::onEmployModify);
     connect(apiClient.get(), &ApiClient::configModified, this, &HRmanagement::onConfigModified);
     connect(apiClient.get(), &ApiClient::errorReachingApiServer, this, &HRmanagement::errorDetected);
 }
-void HRmanagement::onEmployeeAdd(const int &id) {
+void HRmanagement::onEmployeeAdd(const uint &id) {
     employees.back().setId(id);
     QString manager = get_manager_name(get_employee_from_id(id).managerId());
-    emit onEmployeeAdded(id, employees, manager);
+    emit onEmployeeAdded(employees, manager);
 }
-void HRmanagement::onEmployModify(const int &id, const Employee &e) {
+void HRmanagement::onEmployModify(const int &row, const Employee &e) {
     QString manager = get_manager_name(e.managerId());
-    emit onEmployeeModified(id, e, manager);
+    emit onEmployeeModified(row, e, manager);
 }
-
 
 // load data by recreating tabs and getting all DB
 void HRmanagement::loadData() {
@@ -52,9 +50,9 @@ void HRmanagement::loadData() {
 
 
 // Get manager name on employee ID
-QString HRmanagement::get_manager_name(const int &manager_id) {
+QString HRmanagement::get_manager_name(const uint &manager_id) {
     for (const Employee &e : employees) {
-        int id = e.id();
+        uint id = e.id();
         if(id==manager_id)
         {
             QString lastname = e.lastname();
@@ -65,9 +63,9 @@ QString HRmanagement::get_manager_name(const int &manager_id) {
     return "Aucun renseigné";
 }
 
-Employee HRmanagement::get_employee_from_id(const int &employee_id) {
+Employee HRmanagement::get_employee_from_id(const uint &employee_id) {
     for (const Employee &e : employees) {
-        int id = e.id();
+        uint id = e.id();
         if(id==employee_id)
         {
             return e;
@@ -217,7 +215,7 @@ void HRmanagement::onConfigModified(const std::string json) {
 void HRmanagement::openLogs() {
 
 }
-void HRmanagement::openEditEmployeeWindow(const int id, const int row) {
+void HRmanagement::openEditEmployeeWindow(const uint id, const int row) {
 
     // 3. Chercher le collaborateur correspondant dans votre QList
     auto it = std::find_if(employees.begin(), employees.end(), [id](const Employee &c) {

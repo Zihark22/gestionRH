@@ -15,7 +15,7 @@ class DateTableWidgetItem : public QTableWidgetItem
         QDate date() const;
 
     private:
-        QDate m_date;
+        QDate mDate;
 };
 
 #endif // DATETABLEWIDGETITEM_HPP

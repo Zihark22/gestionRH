@@ -14,7 +14,7 @@ void ApiClient::configure(const std::string& file_path) {
 }
 
 // Méthode API REST
-void ApiClient::sendGetEmployeeRequest(int id) {
+void ApiClient::sendGetEmployeeRequest(const int &id) {
     QString apiURL = "http://" + this->host+":"+QString::number(this->port)+"/api/employees";
     if(id>0)
         apiURL += "/"+std::to_string(id);
@@ -100,7 +100,7 @@ void ApiClient::sendPostEmployeeRequest(const std::string &json) {
                     QJsonObject obj = jsonArray.at(0).toObject();
 
                     // Extraction des valeurs du premier objet :
-                    int val = obj.value("id").toInt();
+                    uint val = static_cast<uint>(obj.value("id").toInt());
 
                     // Emet le signal connecté à mainwindow
                     emit employeeAdded(val);
@@ -124,7 +124,7 @@ void ApiClient::sendPostEmployeeRequest(const std::string &json) {
     });
     this->status = 0;
 }
-void ApiClient::sendPutEmployeeRequest(const std::string &json, const int &id, const int row, const Employee &e) {
+void ApiClient::sendPutEmployeeRequest(const std::string &json, const uint &id, const int &row, const Employee &e) {
     QString u = "http://" + this->host+":"+QString::number(this->port)+"/api/employees/" + QString::number(id);
     QString apiURL(u);
     QUrl url(apiURL);

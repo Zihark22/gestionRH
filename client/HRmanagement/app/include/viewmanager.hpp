@@ -24,8 +24,8 @@ signals:
     void screenChanged(ScreenId id);
 
 private:
-    QStackedWidget *m_stackedWidget{nullptr};
-    std::unordered_map<ScreenId, QWidget*> m_views;
+    QStackedWidget *mStackedWidget{nullptr};
+    std::unordered_map<ScreenId, QWidget*> mViews;
 };
 
 

@@ -34,15 +34,15 @@ class HRmanagement : public QObject {
 
         /// Signaux de réponse API ///
 
-        void onEmployeeAdded(const int &id, const QList<Employee> &employees, const QString &manager);
-        void onEmployeeModified(const int row, const Employee &e, const QString &manager);
+        void onEmployeeAdded(const QList<Employee> &employees, const QString &manager);
+        void onEmployeeModified(const int &row, const Employee &e, const QString &manager);
 
     public slots :
         void loadData();
-        void onEmployeeAdd(const int &id);
-        void onEmployModify(const int &id, const Employee &e);
+        void onEmployeeAdd(const uint &id);
+        void onEmployModify(const int &row, const Employee &e);
 
-        void openEditEmployeeWindow(const int id, const int row);
+        void openEditEmployeeWindow(const uint id, const int row);
         void addingEmployee();
         void onConfigModified(const std::string json);
 
@@ -53,15 +53,15 @@ class HRmanagement : public QObject {
 
         std::unique_ptr<ApiClient> apiClient;   ///< API features
         QList<Employee> employees;              ///< Liste des employés et leurs donénes
-        QList<QPair<int, QString>> managers;    ///< Liste des noms des managers associés à leur ID d'employé
+        QList<QPair<uint, QString>> managers;    ///< Liste des noms des managers associés à leur ID d'employé
 
 
         /// Méthodes de gestion BDD locale ///
 
         void parseMyJson();
         void extractManagers();
-        QString get_manager_name(const int &manager_id);
-        Employee get_employee_from_id(const int &employee_id);
+        QString get_manager_name(const uint &manager_id);
+        Employee get_employee_from_id(const uint &employee_id);
 
 
         /// MAJ IHM ///

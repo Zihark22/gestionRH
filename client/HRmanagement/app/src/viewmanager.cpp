@@ -1,20 +1,20 @@
 #include "include/viewmanager.hpp"
 
 ViewManager::ViewManager(QStackedWidget *stackedWidget, QObject *parent)
-    : QObject(parent), m_stackedWidget(stackedWidget)
+    : QObject(parent), mStackedWidget(stackedWidget)
 {}
 
 void ViewManager::registerView(ScreenId id, QWidget *view) {
-    if (!view || !m_stackedWidget) return;
+    if (!view || !mStackedWidget) return;
 
-    m_views[id] = view;
-    m_stackedWidget->addWidget(view);
+    mViews[id] = view;
+    mStackedWidget->addWidget(view);
 }
 
 void ViewManager::navigateTo(ScreenId id) {
-    auto it = m_views.find(id);
-    if (it != m_views.end()) {
-        m_stackedWidget->setCurrentWidget(it->second);
+    auto it = mViews.find(id);
+    if (it != mViews.end()) {
+        mStackedWidget->setCurrentWidget(it->second);
         emit screenChanged(id);
     }
 }

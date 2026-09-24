@@ -20,8 +20,8 @@ TEST(EmployeeTest, DefaultConstructor_ShouldInitializeToDefaultEmployee) {
     EXPECT_EQ(e.isExecutive(), 0);
     EXPECT_EQ(e.coefficient(), 0);
     EXPECT_EQ(e.position(), 0.0);
-    EXPECT_EQ(e.id(), -1);
-    EXPECT_EQ(e.managerId(), -1);
+    EXPECT_EQ(e.id(), 0);
+    EXPECT_EQ(e.managerId(), 0);
     EXPECT_EQ(e.prevPlan(), "Plan A");
     EXPECT_EQ(e.signedPlan(), 0);
 }

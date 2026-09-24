@@ -31,9 +31,9 @@ public:
     explicit ApiClient(QObject *parent = nullptr);
 
     // requests
-    void sendGetEmployeeRequest(int id); // get employees id=0 for all
+    void sendGetEmployeeRequest(const int &id); // get employees id=0 for all
     void sendPostEmployeeRequest(const std::string &json); // add employee
-    void sendPutEmployeeRequest(const std::string &json, const int &id, const int row, const Employee &e);  // modify employee
+    void sendPutEmployeeRequest(const std::string &json, const uint &id, const int &row, const Employee &e);  // modify employee
     void sendGetConfigRequest(); // get config
     void sendPutConfigRequest(const std::string &json); // put config
 
@@ -55,7 +55,7 @@ signals:
     // Signal émis quand la requête est terminée pour indiquer à l'application qu'elle peut quitter
     void finished();
     void employeeAdded(const int &id);
-    void employeeModified(const int row, const Employee &e);
+    void employeeModified(const int &row, const Employee &e);
     void configModified(const std::string &json);
     void errorReachingApiServer(const QString &msg);
 

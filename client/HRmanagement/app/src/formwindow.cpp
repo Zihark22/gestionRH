@@ -81,7 +81,7 @@ void FormWindow::configAttributes() {
                         new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)); // stretch space line
 }
 
-FormWindow::FormWindow(const QList<QPair<int, QString>> &managers, QWidget *parent) : FormWindow(parent) {
+FormWindow::FormWindow(const QList<QPair<uint, QString>> &managers, QWidget *parent) : FormWindow(parent) {
     setWindowTitle("Nouveau collaborateur");
 
     // Formulaire
@@ -97,7 +97,7 @@ FormWindow::FormWindow(const QList<QPair<int, QString>> &managers, QWidget *pare
         mManager->addItem(pair.second, pair.first);
 }
 
-FormWindow::FormWindow(const Employee &e, const QList<QPair<int, QString>> &managers, QWidget *parent) : FormWindow(parent) {
+FormWindow::FormWindow(const Employee &e, const QList<QPair<uint, QString>> &managers, QWidget *parent) : FormWindow(parent) {
     setWindowTitle("Modifier collaborateur");
 
     mId = e.id();

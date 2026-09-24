@@ -84,7 +84,7 @@ public:
     void display(void) const;
 
 private:
-int mId{-1};                                //< Identifiant unique de l'employé
+    uint mId{0};                                //< Identifiant unique de l'employé
     std::string mFirstname{""};             //< Prénom de l'employé
     std::string mLastname{""};              //< Nom de famille de l'employé
     std::string mBirthdate{"2000-01-01"};   //< Date de naissance de l'employé
@@ -93,7 +93,7 @@ int mId{-1};                                //< Identifiant unique de l'employé
     float mPosition{0.0};                   //< Position de l'employé
     int mCoefficient{0};                    //< Coefficient de l'employé
     std::string mStartDate{"2010-01-01"};   //< Date de début d'activité
-    int mManagerId{-1};                     //< Identifiant du manager
+    uint mManagerId{0};                     //< Identifiant du manager
     std::string mPrevPlan{"Plan A"};        //< Plan précédent
     int mSignedPlan{0};                     //< Plan signé
 
