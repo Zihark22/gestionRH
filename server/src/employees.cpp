@@ -154,33 +154,33 @@ Employee Employee::fromSql(const std::map<std::string, std::string> &sql_row) {
 /* ------------------- Opérateurs ------------------- */
 
 ///////// COMPARAISONS //////////
-bool operator==(Employee const& a, Employee const& b) {
-    return (a.id() == b.id() && 
-            a.firstname() == b.firstname() &&
-            a.lastname() == b.lastname() &&
-            a.job() == b.job() &&
-            a.birthdate() == b.birthdate() &&
-            a.startDate() == b.startDate() &&
-            a.isExecutive() == b.isExecutive() &&
-            a.position() == b.position() &&
-            a.coefficient() == b.coefficient() &&
-            a.managerId() == b.managerId() &&
-            a.prevPlan() == b.prevPlan() &&
-            a.signedPlan() == b.signedPlan());
+bool Employee::operator==(const Employee &other) {
+    return (this->id() == other.id() && 
+            this->firstname() == other.firstname() &&
+             this->lastname() == other.lastname() &&
+            this->job() == other.job() &&
+            this->birthdate() == other.birthdate() &&
+            this->startDate() == other.startDate() &&
+            this->isExecutive() == other.isExecutive() &&
+            this->position() == other.position() &&
+            this->coefficient() == other.coefficient() &&
+            this->managerId() == other.managerId() &&
+            this->prevPlan() == other.prevPlan() &&
+            this->signedPlan() == other.signedPlan());
 }
-bool operator!=(Employee const& a, Employee const& b) {
-    return !(a.id() == b.id() && 
-            a.firstname() == b.firstname() &&
-            a.lastname() == b.lastname() &&
-            a.job() == b.job() &&
-            a.birthdate() == b.birthdate() &&
-            a.startDate() == b.startDate() &&
-            a.isExecutive() == b.isExecutive() &&
-            a.position() == b.position() &&
-            a.coefficient() == b.coefficient() &&
-            a.managerId() == b.managerId() &&
-            a.prevPlan() == b.prevPlan() &&
-            a.signedPlan() == b.signedPlan());
+bool Employee::operator!=(const Employee &other) {
+    return !(this->id() == other.id() && 
+            this->firstname() == other.firstname() &&
+            this->lastname() == other.lastname() &&
+            this->job() == other.job() &&
+            this->birthdate() == other.birthdate() &&
+            this->startDate() == other.startDate() &&
+            this->isExecutive() == other.isExecutive() &&
+            this->position() == other.position() &&
+            this->coefficient() == other.coefficient() &&
+            this->managerId() == other.managerId() &&
+            this->prevPlan() == other.prevPlan() &&
+            this->signedPlan() == other.signedPlan());
 }
 
 

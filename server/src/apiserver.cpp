@@ -132,7 +132,7 @@ RouteMatch ApiServer::parseRoute(const std::string& uri) {
     return {EndpointAction::UNKNOWN, std::nullopt};
 }
 
-void ApiServer::handleRequest(const std::string& method, const std::string& uri, std::string &repsponseGlobal) {
+void ApiServer::handleRequest(const std::string& method, const std::string& uri, std::string &responseGlobal) {
     RouteMatch route = parseRoute(uri);
     int result = -1;
     switch (route.action) {
@@ -172,7 +172,7 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
                 else {
                     responseStatusCode = 200;
                     responseMsg = "OK";
-                    repsponseGlobal = "[{\"id\": "+std::to_string(result)+"}]";
+                    responseGlobal = "[{\"id\": "+std::to_string(result)+"}]";
                 }
             }
             else {
@@ -262,12 +262,12 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
 
                 // commande en appelant le serveur
                 if (myHandler) {
-                    repsponseGlobal = myHandler("getconfig", "");
-                    std::cout << "reponse : " << repsponseGlobal << std::endl;
+                    responseGlobal = myHandler("getconfig", "");
+                    std::cout << "reponse : " << responseGlobal << std::endl;
                     result = 0;
                 } 
                 else {
-                    repsponseGlobal = "ERROR 500: No handler";
+                    responseGlobal = "ERROR 500: No handler";
                     result = -1;
                 }
 
@@ -288,12 +288,12 @@ void ApiServer::handleRequest(const std::string& method, const std::string& uri,
 
                 // envoi de la requete au serveur pour modifier le fichier config.ini
                 if (myHandler) {
-                    repsponseGlobal = myHandler("modifyconfig",this->body);
-                    std::cout << "reponse : " << repsponseGlobal << std::endl;
+                    responseGlobal = myHandler("modifyconfig",this->body);
+                    std::cout << "reponse : " << responseGlobal << std::endl;
                     result = 0;
                 } 
                 else {
-                    repsponseGlobal = "ERROR 500: No handler";
+                    responseGlobal = "ERROR 500: No handler";
                     result = -1;
                 }
 

@@ -33,7 +33,7 @@ public:
     
     void openDB();
     void closeDB();
-    int countEmployees(void);
+    int countEmployees();
 
 private:
     sqlite3* db = nullptr;                      //< Pointeur vers la base de données SQLite
@@ -46,7 +46,7 @@ private:
     static int saveData(void* data, int argc, char** argv, char** azColName);
 
     // Méthode pour afficher les employés dans la console
-    void displayEmployees(void);
+    void displayEmployees();
     
 };
 

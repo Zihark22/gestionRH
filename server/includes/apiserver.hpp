@@ -87,7 +87,7 @@ private:
      * @param uri    L'URI de la requête.
      * @param rep    
      */
-    void handleRequest(const std::string& method, const std::string& uri, std::string &repsponseGlobal);
+    void handleRequest(const std::string& method, const std::string& uri, std::string &responseGlobal);
 
 };
 

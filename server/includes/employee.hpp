@@ -25,6 +25,16 @@ public:
      */
     Employee(const std::string &json);
 
+
+// Opérateurs
+
+    // Opérateurs de comparaison (utilisation d'accesseurs)
+    bool operator==(const Employee &other);
+    bool operator!=(const Employee &other);
+
+    // Opérateurs de flux
+    friend std::ostream &operator<<(std::ostream &flux, Employee const& e);
+
 // Getters and Setters
 
     int id() const { return mId; }
@@ -100,14 +110,5 @@ private:
     std::string cleanJsonString(const std::string &jsonStr);
     void initAttributesFromJsonString(const std::string &obj);
 };
-
-/* ------------------- Opérateurs ------------------- */
-
-// Opérateurs de comparaison (utilisation d'accesseurs)
-bool operator==(Employee const& a, Employee const& b);
-bool operator!=(Employee const& a, Employee const& b);
-
-// Opérateurs de flux
-std::ostream &operator<<(std::ostream &flux, Employee const& e);
 
 #endif // EMPLOYEE_HPP
