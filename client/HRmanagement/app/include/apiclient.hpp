@@ -67,13 +67,13 @@ private:
     int port;
     QString host;
 
+
     /// Config ///
 
     void configure(const std::string& file_path);
 
     //Méthode de lecture de fichier de configuration
     static QMap<QString, QString> loadConfig(const QString &cheminFichier);
-
 
     static QString getConfigPath(const QString &nomFichier);
 

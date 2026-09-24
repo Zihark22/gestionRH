@@ -41,7 +41,7 @@ private slots:
 
 private:
     QTabWidget *mTab{nullptr};
-    TableWidget * m_generalTable{nullptr};
+    TableWidget * mGeneralTable{nullptr};
     TableWidget * mPreventionTable{nullptr};
     QLabel *counterGeneral;
     QLabel *counterPrevention;

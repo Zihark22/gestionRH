@@ -37,10 +37,10 @@ QWidget* TabWidget::createGeneralTab() {
     auto *tab = new QWidget(this);
     auto *layout = new QVBoxLayout(tab);
 
-    m_generalTable = new TableWidget({"Prénom", "Naissance", "Poste","Statut cadre", "Position (Syntec)","Coefficient (Syntec)", "Début"}, this);
+    mGeneralTable = new TableWidget({"Prénom", "Naissance", "Poste","Statut cadre", "Position (Syntec)","Coefficient (Syntec)", "Début"}, this);
 
     // Signal lors du double clic d'une ligne
-    connect(m_generalTable->getTable(), &QTableWidget::cellDoubleClicked, this, &TabWidget::onTableDoubleClicked);
+    connect(mGeneralTable->getTable(), &QTableWidget::cellDoubleClicked, this, &TabWidget::onTableDoubleClicked);
 
 
     auto *onLine = new QWidget(this);
@@ -58,7 +58,7 @@ QWidget* TabWidget::createGeneralTab() {
     onLineLayout->addWidget(counterGeneral);
 
     layout->addWidget(onLine);
-    layout->addWidget(m_generalTable);
+    layout->addWidget(mGeneralTable);
 
     return tab;
 }
@@ -93,19 +93,19 @@ QWidget* TabWidget::createPreventionTab() {
 void TabWidget::employeesUpdate(const QList<Employee> &employees) {
     int row = 0;
     counterGeneral->setText(tr("%1").arg(employees.size()));
-    m_generalTable->getTable()->setRowCount(0);
+    mGeneralTable->getTable()->setRowCount(0);
     mPreventionTable->getTable()->setRowCount(0);
     counterPrevention->setText(tr("%1").arg(employees.size()));
 
     // update en local
-    m_generalTable->getTable()->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
+    mGeneralTable->getTable()->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
     mPreventionTable->getTable()->setSortingEnabled(false);
 
     // Parcours de chaque employe et remplir table
     for (const Employee &e : employees) {
 
         // Insertion d'une nouvelle ligne dans le tableWidget
-        m_generalTable->getTable()->insertRow(row);
+        mGeneralTable->getTable()->insertRow(row);
 
         QTableWidgetItem *firstname_widget = new QTableWidgetItem(e.firstname());
         firstname_widget->setTextAlignment(Qt::AlignCenter);
@@ -114,33 +114,33 @@ void TabWidget::employeesUpdate(const QList<Employee> &employees) {
         firstname_widget->setData(Qt::UserRole, e.id());
 
         // Ajout du widget
-        m_generalTable->getTable()->setItem(row, 0, firstname_widget);
+        mGeneralTable->getTable()->setItem(row, 0, firstname_widget);
 
         QTableWidgetItem *cell = new DateTableWidgetItem(e.birthdate());
         cell->setTextAlignment(Qt::AlignCenter);
-        m_generalTable->getTable()->setItem(row, 1, cell);
+        mGeneralTable->getTable()->setItem(row, 1, cell);
 
         cell = new QTableWidgetItem(e.job());
         cell->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        m_generalTable->getTable()->setItem(row, 2, cell);
+        mGeneralTable->getTable()->setItem(row, 2, cell);
 
 
         QString executive_status_str = e.isExecutive() ? "✔" : "X";
         cell = new QTableWidgetItem(executive_status_str);
         cell->setTextAlignment(Qt::AlignCenter);
-        m_generalTable->getTable()->setItem(row, 3, cell);
+        mGeneralTable->getTable()->setItem(row, 3, cell);
 
         cell = new QTableWidgetItem(QString::number(e.position()));
         cell->setTextAlignment(Qt::AlignCenter);
-        m_generalTable->getTable()->setItem(row, 4, cell);
+        mGeneralTable->getTable()->setItem(row, 4, cell);
 
         cell = new QTableWidgetItem(QString::number(e.coefficient()));
         cell->setTextAlignment(Qt::AlignCenter);
-        m_generalTable->getTable()->setItem(row, 5, cell);
+        mGeneralTable->getTable()->setItem(row, 5, cell);
 
         cell = new DateTableWidgetItem(e.startDate());
         cell->setTextAlignment(Qt::AlignCenter);
-        m_generalTable->getTable()->setItem(row, 6, cell);
+        mGeneralTable->getTable()->setItem(row, 6, cell);
 
         ///////////////////////////////////////////////////////////////////
 
@@ -193,7 +193,7 @@ void TabWidget::employeesUpdate(const QList<Employee> &employees) {
         row++;
     }
 
-    m_generalTable->getTable()->setSortingEnabled(true);
+    mGeneralTable->getTable()->setSortingEnabled(true);
     mPreventionTable->getTable()->setSortingEnabled(true);
 
     emit requestNavigation(ScreenId::TableViewer);
@@ -204,7 +204,7 @@ void TabWidget::onTableDoubleClicked(int row, int column) {
     Q_UNUSED(column); // On ignore la colonne cliquée car on veut toute la ligne
 
     // 1. Récupérer l'item de la 1ère colonne de cette ligne
-    QTableWidgetItem *firstItem = m_generalTable->getTable()->item(row, 0);
+    QTableWidgetItem *firstItem = mGeneralTable->getTable()->item(row, 0);
     if (!firstItem)
         return;
 
@@ -219,26 +219,26 @@ void TabWidget::onEmployeeModified(const int &row, const Employee &e, const QStr
     // qDebug() << "Employé modifié dans BDD dont id =" << e.id();
 
     // update en local
-    m_generalTable->getTable()->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
+    mGeneralTable->getTable()->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
     mPreventionTable->getTable()->setSortingEnabled(false);
 
     updateRows(row, e, manager);
 
-    m_generalTable->getTable()->setSortingEnabled(true);
+    mGeneralTable->getTable()->setSortingEnabled(true);
     mPreventionTable->getTable()->setSortingEnabled(true);
 }
 void TabWidget::onEmployeeAdded(const QList<Employee> &employees, const QString &manager) {
 
     // update en local
-    m_generalTable->getTable()->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
+    mGeneralTable->getTable()->setSortingEnabled(false); // le sorting peut créer un décalage lors de l'ajout des nouvelles cellules
     mPreventionTable->getTable()->setSortingEnabled(false);
 
-    m_generalTable->getTable()->insertRow(employees.size()-1);
+    mGeneralTable->getTable()->insertRow(employees.size()-1);
     mPreventionTable->getTable()->insertRow(employees.size()-1);
 
     updateRows(employees.size()-1, employees.back(), manager);
 
-    m_generalTable->getTable()->setSortingEnabled(true);
+    mGeneralTable->getTable()->setSortingEnabled(true);
     mPreventionTable->getTable()->setSortingEnabled(true);
     updateCmpt(employees);
 }
@@ -251,20 +251,20 @@ void TabWidget::updateRows(const int &row, const Employee &e, const QString &man
     firstname_widget->setData(Qt::UserRole, e.id()); // ajout de l'ID caché
 
     ///////////////// update General Tab /////////////////
-    m_generalTable->getTable()->setItem(row, 0, firstname_widget);
-    m_generalTable->getTable()->setItem(row, 1, new DateTableWidgetItem(e.birthdate()));
-    m_generalTable->getTable()->setItem(row, 2, new QTableWidgetItem(e.job()));
-    m_generalTable->getTable()->setItem(row, 3, new QTableWidgetItem(executive_status_str));
-    m_generalTable->getTable()->setItem(row, 4, new QTableWidgetItem(QString::number(e.position())));
-    m_generalTable->getTable()->setItem(row, 5, new QTableWidgetItem(QString::number(e.coefficient())));
-    m_generalTable->getTable()->setItem(row, 6, new DateTableWidgetItem(e.startDate()));
+    mGeneralTable->getTable()->setItem(row, 0, firstname_widget);
+    mGeneralTable->getTable()->setItem(row, 1, new DateTableWidgetItem(e.birthdate()));
+    mGeneralTable->getTable()->setItem(row, 2, new QTableWidgetItem(e.job()));
+    mGeneralTable->getTable()->setItem(row, 3, new QTableWidgetItem(executive_status_str));
+    mGeneralTable->getTable()->setItem(row, 4, new QTableWidgetItem(QString::number(e.position())));
+    mGeneralTable->getTable()->setItem(row, 5, new QTableWidgetItem(QString::number(e.coefficient())));
+    mGeneralTable->getTable()->setItem(row, 6, new DateTableWidgetItem(e.startDate()));
 
-    for (int col = 0; col < m_generalTable->getTable()->columnCount(); ++col) {
-        if (auto item = m_generalTable->getTable()->item(row, col))
+    for (int col = 0; col < mGeneralTable->getTable()->columnCount(); ++col) {
+        if (auto item = mGeneralTable->getTable()->item(row, col))
             item->setTextAlignment(Qt::AlignCenter);
     }
-    m_generalTable->getTable()->item(row, 2)->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter); // align job left
-    m_generalTable->getTable()->selectRow(row);
+    mGeneralTable->getTable()->item(row, 2)->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter); // align job left
+    mGeneralTable->getTable()->selectRow(row);
 
 
     ////////////// update Prevention Table /////////////
