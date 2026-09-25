@@ -3,7 +3,6 @@
 #include <QVBoxLayout>
 #include <QFormLayout>
 
-// Constructeur général
 ConfigAppWindow::ConfigAppWindow(QWidget *parent) : QDialog(parent) {
     resize(400, 200);
     setWindowTitle("Configuration Application");
@@ -16,14 +15,14 @@ ConfigAppWindow::ConfigAppWindow(QWidget *parent) : QDialog(parent) {
     mPort->setRange(1,65000);
     mHost->setPlaceholderText("ex : 127.0.0.1");
 
-    // Ajout des paires Libellé -> Champ au layout de formulaire
+    // Add label-field pairs to the form layout
     QFormLayout* formLayout = new QFormLayout();
     formLayout->addRow("Port :", mPort);
     formLayout->addRow("Hôte :", mHost);
     formLayout->setItem(formLayout->rowCount(), QFormLayout::SpanningRole,
                         new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)); // stretch space line
 
-    // Boutons de validation
+    // Create the validation buttons
     btnValider = new QPushButton("Valider", this);
     btnAnnuler = new QPushButton("Annuler", this);
 
@@ -35,16 +34,19 @@ ConfigAppWindow::ConfigAppWindow(QWidget *parent) : QDialog(parent) {
     mainLayout->addLayout(formLayout);
     mainLayout->addLayout(btnLayout);
 
-    // Relier les boutons aux slots intégrés de QDialog (accept/reject)
+    // Connect the buttons to QDialog's built-in slots
     connect(btnValider, &QPushButton::clicked, this, &QDialog::accept);
     connect(btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-// Spécifie les valeurs à préremplir à partir de la config
+
 ConfigAppWindow::ConfigAppWindow(const int port, const QString host, QWidget *parent) : ConfigAppWindow(parent) {
     this->mHost->setText(host);
     this->mPort->setValue(port);
 }
+
+
+/********* Getters *********/
 
 int ConfigAppWindow::getPort() {
     return this->mPort->value();

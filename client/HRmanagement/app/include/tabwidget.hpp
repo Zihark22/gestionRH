@@ -10,43 +10,53 @@
 #include <QList>
 #include <QLabel>
 
+/// Tab view with both tables
 class TabWidget : public QWidget {
     Q_OBJECT
 
 public:
     explicit TabWidget(QWidget *parent = nullptr);
-    void employeesUpdate(const QList<Employee> &employees);
 
-public slots:
-    void onEmployeeModified(const int &row, const Employee &e, const QString &manager);
-    void onEmployeeAdded(const QList<Employee> &employees, const QString &manager);
-    void updateRows(const int &row, const Employee &e, const QString &manager);
-    void updateCmpt(const QList<Employee> &employees);
+    /// Refresh the employee tables with the latest employee data
+    void employeesUpdate(const QList<Employee> &employees);
 
 signals:
 
-    // Signal écouté par le ViewManager
+    /// Request a navigation change
     void requestNavigation(ScreenId targetScreen);
 
-    // signal pour HRmanagement pour ouvrir une fenêtre de modif
+    /// Request an employee edit form
     void openEditEmployee(const uint &id, const int &row);
 
+    /// Request the creation form for a new employee
     void addingEmployee();
+
+public slots:
+    /// Update the employee data after a modification
+    void onEmployeeModified(const int &row, const Employee &e, const QString &manager);
+    /// Update the UI after adding a new employee
+    void onEmployeeAdded(const QList<Employee> &employees, const QString &manager);
+    /// Refresh the row matching the edited employee
+    void updateRows(const int &row, const Employee &e, const QString &manager);
+    /// Refresh the counters displayed in the tabs
+    void updateCmpt(const QList<Employee> &employees);
 
 private slots:
 
-    // Signal pour ouvrir le formulaire en double cliquant sur une ligne
+    /// Open the edit form when a row is double-clicked
     void onTableDoubleClicked(int row, int column);
 
-
 private:
-    QTabWidget *mTab{nullptr};
-    TableWidget * mGeneralTable{nullptr};
-    TableWidget * mPreventionTable{nullptr};
-    QLabel *counterGeneral;
-    QLabel *counterPrevention;
+    QTabWidget *mTab{nullptr}; ///< Main tab container
+    TableWidget * mGeneralTable{nullptr}; ///< General employee table
+    TableWidget * mPreventionTable{nullptr}; ///< Prevention plan table
+    QLabel *counterGeneral; ///< Employee count for the general tab
+    QLabel *counterPrevention; ///< Employee count for the prevention tab
 
+    /// Create the general employee tab
     QWidget* createGeneralTab();
+
+    /// Create the prevention tab
     QWidget* createPreventionTab();
 };
 

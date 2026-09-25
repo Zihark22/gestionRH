@@ -4,7 +4,7 @@
 #include <QTableWidgetItem>
 #include <QDate>
 
-// Item personnalisé avec tri chronologique
+/// Table item with chronological sorting support
 class DateTableWidgetItem : public QTableWidgetItem
 {
     public:
@@ -12,10 +12,11 @@ class DateTableWidgetItem : public QTableWidgetItem
 
         bool operator<(const QTableWidgetItem &other) const override;
 
+        /// Return the stored date
         QDate date() const;
 
     private:
-        QDate mDate;
+        QDate mDate; ///< Stored date value
 };
 
 #endif // DATETABLEWIDGETITEM_HPP

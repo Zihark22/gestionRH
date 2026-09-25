@@ -14,7 +14,7 @@ HomeWidget::HomeWidget(QWidget *parent) : QWidget(parent) {
     layout->addStretch();
 
 
-    // Quand on clique, on émet la demande de navigation
+    // Emit the navigation request when the button is clicked
     connect(btnOpenTable, &QPushButton::clicked, this, [this]() {
         emit requestNavigation(ScreenId::TableViewer);
     });

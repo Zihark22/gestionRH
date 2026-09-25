@@ -9,9 +9,7 @@
 #include <QString>
 #include <QList>
 
-/**
- * @brief Classe métier pour la gestion de l'API et le contrôle de l'IHM
- */
+/// Main business logic for API calls and UI coordination
 class HRmanagement : public QObject {
     Q_OBJECT
 
@@ -20,7 +18,7 @@ class HRmanagement : public QObject {
 
         void start();
 
-        /// Actions ///
+        // UI actions
 
         void openConfigServerWindow();
         void openConfigAppWindow();
@@ -30,45 +28,30 @@ class HRmanagement : public QObject {
     signals :
         void employeesListUpdated(const QList<Employee> &employees);
         void errorDetected(const QString &msg);
-
-
-        /// Signaux de réponse API ///
-
         void onEmployeeAdded(const QList<Employee> &employees, const QString &manager);
         void onEmployeeModified(const int &row, const Employee &e, const QString &manager);
 
     public slots :
-        void loadData();
+        void loadData(); ///< Load employee data and rebuild the UI state
         void onEmployeeAdd(const uint &id);
         void onEmployModify(const int &row, const Employee &e);
-
-        void openEditEmployeeWindow(const uint &id, const int &row);
-        void addingEmployee();
+        void openEditEmployeeWindow(const uint &id, const int &row);///< Open the form used to edit an employee
+        void addingEmployee(); ///< Open the form used to create a new employee
         void onConfigModified(const std::string json);
 
 
     private:
-
-        /// Attributs ///
-
-        std::unique_ptr<ApiClient> apiClient;   ///< API features
-        QList<Employee> employees;              ///< Liste des employés et leurs donénes
-        QList<QPair<uint, QString>> managers;    ///< Liste des noms des managers associés à leur ID d'employé
+        std::unique_ptr<ApiClient> apiClient; ///< API client instance
+        QList<Employee> employees;            ///< Employee list
+        QList<QPair<uint, QString>> managers; ///< Manager list mapped to employee IDs
 
 
-        /// Méthodes de gestion BDD locale ///
+        // Manage data
 
-        void parseMyJson();
-        void extractManagers();
-        QString get_manager_name(const uint &manager_id);
-        Employee get_employee_from_id(const uint &employee_id);
-
-
-        /// MAJ IHM ///
-
-        void updateRows(const int &row, const Employee &e);
-        void updateCmpt();
-
+        void parseMyJson();                                     ///< Save employees list
+        void extractManagers();                                 ///< Save managers list
+        QString get_manager_name(const uint &manager_id);       ///< Return the manager name for the given employee ID
+        Employee get_employee_from_id(const uint &employee_id); ///< Return the employee for the given employee ID
 };
 
 #endif // HRMANAGEMENT_HPP

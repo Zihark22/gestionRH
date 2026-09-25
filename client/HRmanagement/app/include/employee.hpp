@@ -6,20 +6,17 @@
 
 using namespace std;
 
+/// Store employee data
 class Employee {
 public:
-    // Constructeurs
-
+    /// Create a default employee instance
     Employee() = default;
 
-    /** @brief Crée un objet Employee à partir d'un JSON string (ex: réponse d'une requête API REST)
-     *  @param json Une chaîne JSON représentant l'employé.
-     */
+    /// Create an employee instance from a JSON payload
     Employee(const std::string &json);
 
-    // Getters and Setters
+    /// Getters and setters
 
-    // Identifiant unique BDD
     uint id() const { return mId; }
     void setId(uint id) { mId = id; }
 
@@ -57,46 +54,35 @@ public:
     void setSignedPlan(bool signe) { mSignedPlan = signe; }
 
 
-    // ---------------------------------------------------
-
-    /** @brief Sérialise l'objet Employee en JSON pour l'API REST
-     *  @return Chaîne JSON représentant l'employé
-     */
+    /// Convert the employee to a JSON document
     std::string toJson() const;
 
-    // ---------------------------------------------------
-
-    /** @brief Crée un objet Employee à partir d'une ligne de résultat SQL
-     *  @param sql_row Une map représentant une ligne de résultat SQL, où les clés sont les noms des colonnes et les valeurs sont les valeurs correspondantes.
-     *  @return Un objet Employee initialisé avec les données de la ligne SQL
-     */
+    /// Create an employee from a database result row
     static Employee fromSql(const std::map<std::string, std::string> &sql_row);
 
-    // ---------------------------------------------------
-
-    /** @brief Affiche les informations de l'employé dans la sortie standard */
+    /// Print employee data to the console
     void display(void) const;
 
-    // Nettoie les espaces/tabulations inutiles en début et fin de chaîne
+    /// Remove leading and trailing whitespace from a string
     static string trim(const string& str);
 
-    // Fonction pour extraire la valeur d'un champ JSON
+    /// Extract a JSON field value by key
     static QString getField(const std::string &obj, const std::string &key);
 
 
 private:
-    uint mId{0};                                                        //< Identifiant unique de l'employé
-    QString mFirstname{""};                                             //< Prénom de l'employé
-    QString mLastname{""};                                              //< Nom de famille de l'employé
-    QDate mBirthdate{QDate::fromString("01/01/2000", "yyyy-MM-dd")};    //< Date de naissance de l'employé
-    QString mJob{""};                                                   //< Poste de l'employé
-    bool mExecutiveStatus{0};                                           //< Statut de manager de l'employé
-    float mPosition{0.0};                                               //< Position de l'employé
-    uint mCoefficient{0};                                               //< Coefficient de l'employé
-    QDate mStartDate{QDate::fromString("01/01/2010", "yyyy-MM-dd")};    //< Date de début d'activité
-    uint mManagerId{0};                                                 //< Identifiant du manager
-    QString mPrevPlan{"Plan A"};                                        //< Plan précédent
-    bool mSignedPlan{0};                                                //< Plan signé
+    uint mId{0}; ///< Unique employee identifier
+    QString mFirstname{""}; ///< Employee first name
+    QString mLastname{""}; ///< Employee last name
+    QDate mBirthdate{QDate::fromString("01/01/2000", "yyyy-MM-dd")}; ///< Employee birth date
+    QString mJob{""}; ///< Job title
+    bool mExecutiveStatus{0}; ///< Executive status flag
+    float mPosition{0.0}; ///< Syntec position value
+    uint mCoefficient{0}; ///< Syntec coefficient
+    QDate mStartDate{QDate::fromString("01/01/2010", "yyyy-MM-dd")}; ///< Employment start date
+    uint mManagerId{0}; ///< Manager identifier
+    QString mPrevPlan{"Plan A"}; ///< Previous prevention plan
+    bool mSignedPlan{0}; ///< Signed plan flag
 
     std::string cleanJsonString(const std::string &jsonStr);
     void initAttributesFromJsonString(const std::string &obj);

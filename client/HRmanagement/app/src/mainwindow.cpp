@@ -19,7 +19,7 @@ MainWindow::MainWindow(HRmanagement *hr, QWidget *parent) : QMainWindow(parent) 
     move(300, 200);
     setWindowModality(Qt::ApplicationModal);
 
-    // Création de la barre de navigation
+    // Create the main navigation bar
     QMenuBar *bar = menuBar();
 
     QMenu *appMenu = bar->addMenu("Application");
@@ -42,29 +42,29 @@ MainWindow::MainWindow(HRmanagement *hr, QWidget *parent) : QMainWindow(parent) 
     connect(configServAction, &QAction::triggered, this, &MainWindow::openConfigServerWindow);
 
 
-    // Gestion des vues
+    // Manage the stacked views
     stack = new QStackedWidget(this);
     setCentralWidget(stack);
 
     viewManager = new ViewManager(stack, this);
 
-    // Instanciation des vues
+    // Instantiate the views
     auto *homeView = new HomeWidget(this);
     tabView = new TabWidget(this);
     errorView = new ErrorWidget("Erreur à l'initialisation...", this);
 
-    // Enregistrement
+    // Register the available screens
     viewManager->registerView(ScreenId::Home, homeView);
     viewManager->registerView(ScreenId::TableViewer, tabView);
     viewManager->registerView(ScreenId::Error, errorView);
 
-    // Câblage des requêtes de navigation vers le manager
+    // Connect navigation requests to the manager
     connect(homeView, &HomeWidget::requestNavigation, viewManager, &ViewManager::navigateTo);
-    connect(homeView, &HomeWidget::requestNavigation, hr, &HRmanagement::loadData); // requête au clic du bouton home pour charger les données
+    connect(homeView, &HomeWidget::requestNavigation, hr, &HRmanagement::loadData); // request when the home button is clicked to load data
     connect(tabView, &TabWidget::requestNavigation, viewManager, &ViewManager::navigateTo);
     connect(errorView, &ErrorWidget::requestNavigation, viewManager, &ViewManager::navigateTo);
 
-    // Câblage des signaux vers la classe métier HRmanagement
+    // Connect main-window signals to the business layer
     connect(tabView, &TabWidget::openEditEmployee, hr, &HRmanagement::openEditEmployeeWindow);
     connect(tabView, &TabWidget::addingEmployee, hr, &HRmanagement::addingEmployee);
     connect(this, &MainWindow::reloadData, hr, &HRmanagement::loadData);
@@ -72,13 +72,13 @@ MainWindow::MainWindow(HRmanagement *hr, QWidget *parent) : QMainWindow(parent) 
     connect(this, &MainWindow::openConfigServerWindow, hr, &HRmanagement::openConfigServerWindow);
     connect(this, &MainWindow::openLogs, hr, &HRmanagement::openLogs);
 
-    // Câblage des signaux depuis la classe métier HRmanagement
+    // Connect business signals to the table view
     connect(hr, &HRmanagement::employeesListUpdated, tabView, &TabWidget::employeesUpdate);
     connect(hr, &HRmanagement::errorDetected, errorView, &ErrorWidget::setErrorMessage);
     connect(hr, &HRmanagement::onEmployeeAdded, tabView, &TabWidget::onEmployeeAdded);
     connect(hr, &HRmanagement::onEmployeeModified, tabView, &TabWidget::onEmployeeModified);
 
-    // Affichage de la vue de départ
+    // Display the starting screen
     viewManager->navigateTo(ScreenId::Home);
 }
 

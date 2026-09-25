@@ -65,13 +65,13 @@ std::vector<SectionConfig> IniParser::parse(const std::string& filepath) {
     while (getline(file, line)) {
         std::string trimmedLine = trim(line);
 
-        // 1. Empty line: reset the accumulated description.
+        // Empty line: reset the accumulated description.
         if (trimmedLine.empty()) {
             accumulatedComments.clear();
             continue;
         }
 
-        // 2. Comment line (starts with ';' or '#').
+        // Comment line (starts with ';' or '#').
         if (trimmedLine[0] == ';' || trimmedLine[0] == '#') {
             std::string commentContent = trim(trimmedLine.substr(1));
             if (!accumulatedComments.empty())
@@ -81,7 +81,7 @@ std::vector<SectionConfig> IniParser::parse(const std::string& filepath) {
             continue;
         }
 
-        // 3. Section declaration: [SectionName].
+        // Section declaration: [SectionName].
         if (trimmedLine.front() == '[' && trimmedLine.back() == ']') {
             std::string sectionName = trim(trimmedLine.substr(1, trimmedLine.size() - 2));
             sections.push_back({sectionName, {}});
@@ -90,7 +90,7 @@ std::vector<SectionConfig> IniParser::parse(const std::string& filepath) {
             continue;
         }
 
-        // 4. Variable declaration (key = value).
+        // Variable declaration (key = value).
         size_t delimiterPos = trimmedLine.find('=');
         if (delimiterPos != std::string::npos && currentSection != nullptr) {
             std::string key = trim(trimmedLine.substr(0, delimiterPos));
@@ -124,13 +124,13 @@ std::vector<SectionConfig> IniParser::parseFromString(std::string_view content) 
     while (std::getline(file, line)) {
         std::string trimmedLine = trim(line);
 
-        // 1. Empty line: reset the accumulated description.
+        // Empty line: reset the accumulated description.
         if (trimmedLine.empty()) {
             accumulatedComments.clear();
             continue;
         }
 
-        // 2. Comment line (starts with ';' or '#').
+        // Comment line (starts with ';' or '#').
         if (trimmedLine[0] == ';' || trimmedLine[0] == '#') {
             std::string commentContent = trim(trimmedLine.substr(1));
             if (!accumulatedComments.empty())
@@ -140,7 +140,7 @@ std::vector<SectionConfig> IniParser::parseFromString(std::string_view content) 
             continue;
         }
 
-        // 3. Section declaration: [SectionName].
+        // Section declaration: [SectionName].
         if (trimmedLine.front() == '[' && trimmedLine.back() == ']') {
             std::string sectionName = trim(trimmedLine.substr(1, trimmedLine.size() - 2));
             sections.push_back({sectionName, {}});
@@ -149,7 +149,7 @@ std::vector<SectionConfig> IniParser::parseFromString(std::string_view content) 
             continue;
         }
 
-        // 4. Variable declaration (key = value).
+        // Variable declaration (key = value).
         size_t delimiterPos = trimmedLine.find('=');
         if (delimiterPos != std::string::npos && currentSection != nullptr) {
             std::string key = trim(trimmedLine.substr(0, delimiterPos));

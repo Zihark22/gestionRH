@@ -19,6 +19,7 @@
 #include <QLabel>
 #include <QList>
 
+// App main window for HMI
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -26,23 +27,16 @@ public:
     explicit MainWindow(HRmanagement *hr, QWidget *parent = nullptr);
     ~MainWindow() = default;
 
-    // display error inside view
-    void errorDisplay(const QString &msg);
-
 signals:
     void reloadData();
     void openConfigServerWindow();
     void openConfigAppWindow();
     void openLogs();
 
-
 private:
-
-    /// Attributs ///
-
-    QStackedWidget *stack;
-    ViewManager *viewManager;
-    TabWidget *tabView;
-    ErrorWidget *errorView;
+    QStackedWidget *stack; ///< Screen container
+    ViewManager *viewManager; ///< Screen navigation manager
+    TabWidget *tabView; ///< Main employee table view
+    ErrorWidget *errorView; ///< Error view
 };
 #endif // MAINWINDOW_HPP

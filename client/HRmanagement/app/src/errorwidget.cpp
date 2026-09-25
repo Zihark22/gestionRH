@@ -13,7 +13,7 @@ ErrorWidget::ErrorWidget(const QString &error_message, QWidget *parent) : QWidge
     auto *btnOpenTable = new QPushButton("⬅ Retour au menu", this);
     layout->addWidget(btnOpenTable);
 
-    // Quand on clique, on émet la demande de navigation
+    // Emit the navigation request when the button is clicked
     connect(btnOpenTable, &QPushButton::clicked, this, [this]() {
         emit requestNavigation(ScreenId::Home);
     });

@@ -7,25 +7,26 @@
 #include <QStackedWidget>
 #include <unordered_map>
 
+/// Handle different views/widgets to display on app
 class ViewManager : public QObject {
     Q_OBJECT
 
 public:
     explicit ViewManager(QStackedWidget *stackedWidget, QObject *parent = nullptr);
 
-    // Enregistrement d'une vue
+    /// Register a view in the stack
     void registerView(ScreenId id, QWidget *view);
 
 public slots:
-    // Slot principal de navigation
+    /// Navigate to the requested screen
     void navigateTo(ScreenId id);
 
 signals:
     void screenChanged(ScreenId id);
 
 private:
-    QStackedWidget *mStackedWidget{nullptr};
-    std::unordered_map<ScreenId, QWidget*> mViews;
+    QStackedWidget *mStackedWidget{nullptr}; ///< View container
+    std::unordered_map<ScreenId, QWidget*> mViews; ///< Registered screens
 };
 
 

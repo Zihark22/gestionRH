@@ -19,7 +19,7 @@ FormWindow::FormWindow(QWidget *parent) : QDialog(parent) {
     mainLayout->addLayout(formLayout);
     mainLayout->addLayout(btnLayout);
 
-    // Relier les boutons aux slots intégrés de QDialog (accept/reject)
+    // Connect the buttons to QDialog's built-in slots
     connect(btnValider, &QPushButton::clicked, this, &QDialog::accept);
     connect(btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
 }
@@ -40,7 +40,7 @@ void FormWindow::initAttributes() {
     mManager = new QComboBox(this);
     mId = 0;
 
-    // Boutons de validation
+    // Create the validation buttons
     btnValider = new QPushButton("Valider", this);
     btnAnnuler = new QPushButton("Annuler", this);
 }
@@ -54,18 +54,18 @@ void FormWindow::configAttributes() {
     mPositionBox->setSingleStep(0.1);
 
     mStartDate->setDisplayFormat("yyyy-MM-dd");
-    mStartDate->setCalendarPopup(true); // Affiche un calendrier au clic
+    mStartDate->setCalendarPopup(true); // Display a calendar popup on click
     mStartDate->setMaximumDate(QDate::currentDate());
     mStartDate->setMinimumDate(QDate(2010, 1, 1));
 
     mBirthdate->setDisplayFormat("yyyy-MM-dd");
-    mBirthdate->setCalendarPopup(true); // Affiche un calendrier au clic
+    mBirthdate->setCalendarPopup(true); // Display a calendar popup on click
     mBirthdate->setMaximumDate(QDate::currentDate());
     mBirthdate->setMinimumDate(QDate(1950, 1, 1));
 
     mPlanCombo->addItems(FormWindow::optionsPlan);
 
-    // Ajout des paires Libellé -> Champ au layout de formulaire
+    // Add label-field pairs to the form layout
     formLayout->addRow("Nom :", mLastname);
     formLayout->addRow("Prénom :", mFirstname);
     formLayout->addRow("Naissance :", mBirthdate);
@@ -84,7 +84,7 @@ void FormWindow::configAttributes() {
 FormWindow::FormWindow(const QList<QPair<uint, QString>> &managers, QWidget *parent) : FormWindow(parent) {
     setWindowTitle("Nouveau collaborateur");
 
-    // Formulaire
+    // Configure the creation form
     mLastname->setPlaceholderText("Ex: Dupont");
     mFirstname->setPlaceholderText("Ex: Julien");
     mJobEdit->setPlaceholderText("Ex: responsable RH");

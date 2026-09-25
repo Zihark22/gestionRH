@@ -13,14 +13,14 @@ void applyStyleSheet(QApplication &app) {
         file.close();
     }
     else
-        qWarning() << "Impossible de charger la feuille de style QSS :" << file.errorString();
+        qWarning() << "Unable to load the QSS stylesheet:" << file.errorString();
 }
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    applyStyleSheet(app); // Appliquer le style globalement
+    applyStyleSheet(app); // Apply the global style
 
     HRmanagement h;
-    MainWindow w(&h); // pour un découplage de l'UI et de la classe métier
+    MainWindow w(&h); // Keep the UI separate from the business logic
     h.start();
     w.show();
 

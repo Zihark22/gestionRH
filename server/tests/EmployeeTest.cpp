@@ -4,7 +4,7 @@
 #include <sstream>
 
 // ==========================================
-// 1. Constructor and initialization tests.
+// Constructor and initialization tests.
 // ==========================================
 
 TEST(EmployeeTest, DefaultConstructor_ShouldInitializeToDefaultEmployee) {
@@ -48,7 +48,7 @@ TEST(EmployeeTest, ParameterizedConstructor_ShouldSetCorrectValues) {
 }
 
 // ==========================================
-// 2. Setter tests.
+// Setter tests.
 // ==========================================
 
 TEST(EmployeeTest, Setters_ShouldUpdateValuesIndependently) {
@@ -83,7 +83,7 @@ TEST(EmployeeTest, Setters_ShouldUpdateValuesIndependently) {
 }
 
 // ==========================================
-// 3. Comparison operator tests.
+// Comparison operator tests.
 // ==========================================
 
 TEST(EmployeeTest, EqualityOperator_SameEmployee_ShouldReturnTrue) {
@@ -113,7 +113,7 @@ TEST(EmployeeTest, EqualityOperator_DifferentJobEmployee_ShouldReturnFalse) {
 }
 
 // ==========================================
-// 4. Formatting and stream output tests.
+// Formatting and stream output tests.
 // ==========================================
 
 TEST(EmployeeTest, ToJson_ShouldReturnExpectedJson) {

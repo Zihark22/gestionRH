@@ -17,7 +17,7 @@ ConfigServerWindow::ConfigServerWindow(QWidget *parent) : QDialog(parent) {
     mHost->setPlaceholderText("ex : 127.0.0.1");
     mDbPath->setPlaceholderText("ex: data/mydatabase.db");
 
-    // Ajout des paires Libellé -> Champ au layout de formulaire
+    // Add label-field pairs to the form layout
     QFormLayout* formLayout = new QFormLayout();
     formLayout->addRow("Port :", mPort);
     formLayout->addRow("Hôte :", mHost);
@@ -25,7 +25,7 @@ ConfigServerWindow::ConfigServerWindow(QWidget *parent) : QDialog(parent) {
     formLayout->setItem(formLayout->rowCount(), QFormLayout::SpanningRole,
                         new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)); // stretch space line
 
-    // Boutons de validation
+    // Create the validation buttons
     btnValider = new QPushButton("Valider", this);
     btnAnnuler = new QPushButton("Annuler", this);
 
@@ -37,7 +37,7 @@ ConfigServerWindow::ConfigServerWindow(QWidget *parent) : QDialog(parent) {
     mainLayout->addLayout(formLayout);
     mainLayout->addLayout(btnLayout);
 
-    // Relier les boutons aux slots intégrés de QDialog (accept/reject)
+    // Connect the buttons to QDialog's built-in slots
     connect(btnValider, &QPushButton::clicked, this, &QDialog::accept);
     connect(btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
 }

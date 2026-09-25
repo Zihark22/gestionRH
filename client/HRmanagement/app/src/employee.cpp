@@ -13,10 +13,10 @@ Employee::Employee(const std::string &jsonStr) {
 }
 
 std::string Employee::cleanJsonString(const std::string &jsonStr) {
-    // Traitment de la chaîne JSON pour extraire les informations de l'employé
+    // Parse the JSON string to extract the employee information
     std::string s = Employee::trim(jsonStr);
 
-    // Format attendu : [{"firstname":"Marc","lastname":"Dumort"}]
+    // Expected format: [{"firstname":"Marc","lastname":"Dumort"}]
     if (s.size() < 2 || s.front() != '[' || s.back() != ']')
         return "";
 
@@ -33,7 +33,7 @@ std::string Employee::cleanJsonString(const std::string &jsonStr) {
 
 void Employee::initAttributesFromJsonString(const std::string &obj) {
 
-    // Extraction des attributs
+    // Extract the employee attributes
     QString firstname = Employee::getField(obj, "firstname");
     QString lastname  = Employee::getField(obj, "lastname");
     QString birthdate = Employee::getField(obj, "birthdate");
@@ -109,7 +109,6 @@ void Employee::display(void) const {
     qDebug() << "\tSigned Plan: " << (mSignedPlan ? "Yes" : "No") ;
 }
 
-
 string Employee::trim(const string& str) {
     size_t first = str.find_first_not_of(" \t\r\n");
     if (first == string::npos)
@@ -133,7 +132,7 @@ QString Employee::getField(const std::string &obj, const std::string &key) {
         return "";
     }
 
-    // Cas chaîne de caractères
+    // String case
     if (obj[valueStart] == '"') {
         size_t valueEnd = valueStart + 1;
         while (valueEnd < obj.size()) {
@@ -149,7 +148,7 @@ QString Employee::getField(const std::string &obj, const std::string &key) {
         return QString::fromStdString(obj.substr(valueStart + 1, valueEnd - valueStart - 1));
     }
 
-    // Cas nombre / bool / null
+    // Numeric, boolean, or null case
     size_t valueEnd = valueStart;
     while (valueEnd < obj.size() && obj[valueEnd] != ',' && obj[valueEnd] != '}')
         ++valueEnd;

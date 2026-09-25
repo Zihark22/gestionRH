@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 
+/// Home view for welcoming user
 class HomeWidget : public QWidget {
     Q_OBJECT
 

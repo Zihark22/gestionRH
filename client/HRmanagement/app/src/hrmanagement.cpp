@@ -10,12 +10,16 @@ HRmanagement::HRmanagement(QWidget *parent) : QObject(parent) {
 }
 
 void HRmanagement::start() {
-    // Connexion des siganux asynchrones aux méthodes
+    // Connect the asynchronous API signals to the handlers
     connect(apiClient.get(), &ApiClient::employeeAdded, this, &HRmanagement::onEmployeeAdd);
     connect(apiClient.get(), &ApiClient::employeeModified, this, &HRmanagement::onEmployModify);
     connect(apiClient.get(), &ApiClient::configModified, this, &HRmanagement::onConfigModified);
     connect(apiClient.get(), &ApiClient::errorReachingApiServer, this, &HRmanagement::errorDetected);
 }
+
+
+/********* Slots *********/
+
 void HRmanagement::onEmployeeAdd(const uint &id) {
     employees.back().setId(id);
     QString manager = get_manager_name(get_employee_from_id(id).managerId());
@@ -25,31 +29,34 @@ void HRmanagement::onEmployModify(const int &row, const Employee &e) {
     QString manager = get_manager_name(e.managerId());
     emit onEmployeeModified(row, e, manager);
 }
+void HRmanagement::onConfigModified(const std::string json) {
+    qDebug() << "Configuration modified on the server side: " << json;
 
-// load data by recreating tabs and getting all DB
-void HRmanagement::loadData() {
-    apiClient->sendGetEmployeeRequest(0); // bloquant pour charger les données avant
+    QJsonParseError parseError;
+    QJsonDocument doc{QJsonDocument::fromJson(QString::fromStdString(json).toUtf8(), &parseError)};
 
-    if(apiClient->getStatus()!=0){
-        QString msg("");
-        msg += "<b>Erreur de connexion</b> : ";
-        msg += apiClient->getMsg();
-        msg += "<br/><br/>Pensez à vérifier la configuration (host/port)...";
-        emit errorDetected(msg);
+    // Check for parsing errors
+    if (parseError.error != QJsonParseError::NoError) {
+        qWarning() << "JSON parsing error:" << parseError.errorString();
+        return;
     }
-    else {
-        // Save employees list
-        parseMyJson();
 
-        // Extract managers list
-        extractManagers();
+    // Verify that the payload is a JSON array
+    if (doc.isArray()) {
+        QJsonArray jsonArray = doc.array();
 
-        emit employeesListUpdated(employees);
+        // Extract the available values when present
+        if (jsonArray.size() >= 1) {
+            QJsonObject obj = jsonArray.at(0).toObject();
+            apiClient.get()->setPort(obj.value(PORT_KEY).toInt());
+            apiClient.get()->setHost(obj.value(HOST_KEY).toString());
+        }
     }
 }
 
 
-// Get manager name on employee ID
+/********* Getters *********/
+
 QString HRmanagement::get_manager_name(const uint &manager_id) {
     for (const Employee &e : employees) {
         uint id = e.id();
@@ -74,26 +81,46 @@ Employee HRmanagement::get_employee_from_id(const uint &employee_id) {
     throw std::invalid_argument("L'ID de l'employé ne fait pas partie de la liste d'employés : " + to_string(employee_id));
 }
 
+
+/********* Data *********/
+
+void HRmanagement::loadData() {
+    apiClient->sendGetEmployeeRequest(0); // Block while loading the initial data
+
+    if(apiClient->getStatus()!=0){
+        QString msg("");
+        msg += "<b>Erreur de connexion</b> : ";
+        msg += apiClient->getMsg();
+        msg += "<br/><br/>Pensez à vérifier la configuration (host/port)...";
+        emit errorDetected(msg);
+    }
+    else {
+        parseMyJson();
+        extractManagers();
+        emit employeesListUpdated(employees);
+    }
+}
+
 void HRmanagement::parseMyJson() {
-    // clear for reload data
+    // Clear the list before reloading data
     employees.clear();
 
-    // Parser le QString
+    // Parse the response payload
     QJsonParseError parseError;
-    // QJsonDocument attend un QByteArray en UTF-8
+    // QJsonDocument expects a UTF-8 QByteArray
     QJsonDocument doc = QJsonDocument::fromJson(apiClient.get()->getResponseData(), &parseError);
 
-    // Vérification des erreurs de parsing
+    // Check for parsing errors
     if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
+        qWarning() << "JSON parsing error:" << parseError.errorString();
         return;
     }
 
-    // 3. Vérifier qu'il s'agit bien d'un tableau JSON (Array)
+    // Verify that the payload is a valid JSON array
     if (doc.isArray()) {
         QJsonArray jsonArray = doc.array();
 
-        // Vérifier qu'on a bien au moins 2 éléments
+        // Convert each object into an Employee instance
         for (int i = 0; i < jsonArray.size(); ++i) {
             QJsonObject empl_json = jsonArray.at(i).toObject();
             QJsonDocument empl_array(empl_json);
@@ -121,95 +148,67 @@ void HRmanagement::extractManagers() {
     });
 }
 
-// Création du Formulaire d'ajout
+
+/********* Dialog windows *********/
+
 void HRmanagement::addingEmployee() {
-    // Instanciation du dialogue avec 'this' en parent
+    // Instantiate the dialog with this as the parent
     FormWindow dialog(managers);
 
-    // .exec() rend la fenêtre MODALE et bloque le flux jusqu'à la fermerture
+    // The dialog is modal and blocks until the user confirms
     if (dialog.exec() == QDialog::Accepted)
     {
-        // L'utilisateur a cliqué sur "Valider"
+        // The user clicked validate
         Employee e = dialog.toEmployee();
-        // qDebug() << "Formualire saisie :" << e.toJson();
         std::string json = "[" + e.toJson() + "]";
         employees.append(e);
 
-        // Appel du service HTTP pour envoyer le JSON au serveur
+        // Send the new employee payload to the backend
         apiClient.get()->sendPostEmployeeRequest(json);
     }
     else
     {
-        // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
-        // Ajouter une fenêtre de confirmation
-        // std::cout << "Saisie annulée" << std::endl;
+        // The user cancelled the creation form
     }
 }
-
-
-
 void HRmanagement::openConfigServerWindow() {
     ConfigServerWindow configserv;
 
     if (configserv.exec() == QDialog::Accepted) {
-        // L'utilisateur a cliqué sur "Valider"
+        // The user clicked validate
         QString json = configserv.toJson();
-        qDebug() << "Saisie validée :" << json;
+        qDebug() << "Validated input:" << json;
         apiClient.get()->sendPutConfigRequest(json.toStdString());
     }
     else {
-        // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
-        qDebug() << "Saisie annulée";
+        // The user cancelled the configuration form
+        qDebug() << "Input cancelled";
     }
 }
 void HRmanagement::openConfigAppWindow() {
     ConfigAppWindow configapp(this->apiClient.get()->getPort(), apiClient.get()->getHost());
 
     if (configapp.exec() == QDialog::Accepted) {
-        // L'utilisateur a cliqué sur "Valider"
-        qDebug() << "Config désirée sur http://" << configapp.getHost() << ":" << configapp.getPort();
+        // The user clicked validate
+        qDebug() << "Requested config on http://" << configapp.getHost() << ":" << configapp.getPort();
         apiClient.get()->setHost(configapp.getHost());
         apiClient.get()->setPort(configapp.getPort());
 
-        // Sauvegarde de la nouvelle config dans le fichier config.ini
+        // Save the new configuration to the INI file
         QMap<QString, QString> map;
         map[HOST_KEY] = configapp.getHost();
         map[PORT_KEY] = QString::fromStdString(to_string(configapp.getPort()));
         if(ApiClient::saveConfig(CONFIG_FILE_NAME, map))
-            qDebug() << "Configuration modifiée avec succès";
+            qDebug() << "Configuration updated successfully";
         else{
-            qDebug() << "Erreur de sauvegarde de la nouvelle config";
-            emit errorDetected("Erreur de sauvegarde de la nouvelle config");
+            qDebug() << "Error while saving the new config";
+            emit errorDetected("Error while saving the new config");
         }
         loadData();
     }
     else {
-        // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
-        qDebug() << "Saisie annulée";
-    }
-}
-void HRmanagement::onConfigModified(const std::string json) {
-    qDebug() << "Configuration modifié côté serveur : " << json;
-
-    QJsonParseError parseError;
-    QJsonDocument doc{QJsonDocument::fromJson(QString::fromStdString(json).toUtf8(), &parseError)};
-
-    // Vérification des erreurs de parsing
-    if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << "Erreur de parsing JSON :" << parseError.errorString();
-        return;
-    }
-
-    // Vérifier qu'il s'agit bien d'un tableau JSON (Array)
-    if (doc.isArray()) {
-        QJsonArray jsonArray = doc.array();
-
-        // Vérifier qu'on a bien au moins 1 élément
-        if (jsonArray.size() >= 1) {
-            QJsonObject obj = jsonArray.at(0).toObject();
-            apiClient.get()->setPort(obj.value(PORT_KEY).toInt());
-            apiClient.get()->setHost(obj.value(HOST_KEY).toString());
-        }
+        // The user cancelled the configuration form
+        qDebug() << "Input cancelled";
     }
 }
 void HRmanagement::openLogs() {
@@ -217,31 +216,29 @@ void HRmanagement::openLogs() {
 }
 void HRmanagement::openEditEmployeeWindow(const uint &id, const int &row) {
 
-    // 3. Chercher le collaborateur correspondant dans votre QList
+    // Find the matching employee in the list
     auto it = std::find_if(employees.begin(), employees.end(), [id](const Employee &c) {
         return c.id() == id;
     });
 
     if (it != employees.end()) {
 
-            // 4. Ouvrir le formualire remplit avec les données de l'employé
-        Employee e = *it; // Copie de l'objet à modifier
-        FormWindow dialog(e, managers); // ouvre formulaire
+        // Open the form prefilled with the employee data
+        Employee e = *it; // Copy of the object to edit
+        FormWindow dialog(e, managers); // open form
 
-        // .exec() rend la fenêtre MODALE et bloque le flux jusqu'à la fermerture
+        // The form is modal and blocks until validation or cancellation
         if (dialog.exec() == QDialog::Accepted) {
-            // L'utilisateur a cliqué sur "Valider"
+            // The user clicked validate
             Employee e = dialog.toEmployee();
             std::string json = "[" + e.toJson() + "]";
-            // qDebug() << "Formualire saisie :" << e.toJson();
             *it = e;
 
-            // Appel du service HTTP pour envoyer le JSON au serveur
+            // Send the updated employee payload to the backend
             apiClient.get()->sendPutEmployeeRequest(json, id, row, e);
         }
         else {
-            // L'utilisateur a cliqué sur "Annuler" ou fermé la fenêtre
-            // std::cout << "Saisie annulée" << std::endl;
+            // The user cancelled the edit form
         }
     }
 }

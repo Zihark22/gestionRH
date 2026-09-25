@@ -17,66 +17,92 @@
 #include <QNetworkRequest>
 #include <QUrl>
 #include <QDebug>
-#include <QEventLoop> // Ne pas oublier cet include pour requete bloquante
+#include <QEventLoop> // Keep this include for the blocking request loop
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QResource> // pour lecture raw de config.ini
+#include <QResource> // for raw reading of config.ini
 
+/// API client used for server requests and local configuration handling
 class ApiClient : public QObject {
     Q_OBJECT
 
 public:
+    /// Create the API client
     explicit ApiClient(QObject *parent = nullptr);
 
-    // requests
-    void sendGetEmployeeRequest(const int &id); // get employees id=0 for all
-    void sendPostEmployeeRequest(const std::string &json); // add employee
-    void sendPutEmployeeRequest(const std::string &json, const uint &id, const int &row, const Employee &e);  // modify employee
-    void sendGetConfigRequest(); // get config
-    void sendPutConfigRequest(const std::string &json); // put config
+    /// Fetch one employee or the full list
+    void sendGetEmployeeRequest(const int &id);
 
-    // getters
+    /// Create a new employee from the provided JSON payload
+    void sendPostEmployeeRequest(const std::string &json);
+
+    /// Update an existing employee
+    void sendPutEmployeeRequest(const std::string &json, const uint &id, const int &row, const Employee &e);
+
+    /// Fetch the server configuration from the API
+    void sendGetConfigRequest();
+
+    /// Send an updated server configuration payload
+    void sendPutConfigRequest(const std::string &json);
+
+    /// Return the latest request status
     int getStatus();
+
+    /// Return the raw HTTP response payload
     QByteArray getResponseData();
+
+    /// Return the configured server port
     int getPort();
+
+    /// Return the configured server host
     QString getHost();
+
+    /// Return the last error message
     QString getMsg();
 
-    // setters
+    /// Update the API host
     void setHost(const QString &newhost);
+
+    /// Update the API port
     void setPort(const int &port);
 
-    // Méthode de sauvegarde d'une configuration dans un fichier .ini
+    /// Save a configuration map into an INI file
     static bool saveConfig(const QString &cheminFichier, const QMap<QString, QString> &map);
 
 signals:
-    // Signal émis quand la requête est terminée pour indiquer à l'application qu'elle peut quitter
+    /// Emitted when a request completes
     void finished();
+
+    /// Emitted after a new employee is created
     void employeeAdded(const int &id);
+
+    /// Emitted after an employee is updated
     void employeeModified(const int &row, const Employee &e);
+
+    /// Emitted when server configuration is updated
     void configModified(const std::string &json);
+
+    /// Emitted when the API is unreachable or a request fails
     void errorReachingApiServer(const QString &msg);
 
 private:
-    QNetworkAccessManager *networkManager;
-    QByteArray responseData;
-    QString errorMsg;
-    int status; // 0 for OK and error for other
-    int port;
-    QString host;
+    QNetworkAccessManager *networkManager; ///< HTTP client manager
+    QByteArray responseData; ///< Last raw API response payload
+    QString errorMsg; ///< Last client error message
+    int status; ///< Request status code
+    int port; ///< Server port used for requests
+    QString host; ///< Server host used for requests
 
-
-    /// Config ///
-
+    /// Load values from the INI file
     void configure(const std::string& file_path);
 
-    //Méthode de lecture de fichier de configuration
+    /// Read configuration values from an INI file
     static QMap<QString, QString> loadConfig(const QString &cheminFichier);
 
+    /// Resolve the writable path to the config file
     static QString getConfigPath(const QString &nomFichier);
-
 };
 
 #endif // APICLIENT_HPP
