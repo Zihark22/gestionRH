@@ -1,0 +1,28 @@
+#include "include/parameters.hpp"
+#include "include/hrmanagement.hpp"
+#include "include/mainwindow.hpp"
+
+#include <QApplication>
+#include <QFile>
+
+void applyStyleSheet(QApplication &app) {
+    QFile file(STYLE_FILE_NAME);
+
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        app.setStyleSheet(QLatin1String(file.readAll()));
+        file.close();
+    }
+    else
+        qWarning() << "Unable to load the QSS stylesheet:" << file.errorString();
+}
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+    applyStyleSheet(app); // Apply the global style
+
+    HRmanagement h;
+    MainWindow w(&h); // Keep the UI separate from the business logic
+    h.start();
+    w.show();
+
+    return app.exec();
+}

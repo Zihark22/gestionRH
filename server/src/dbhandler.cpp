@@ -6,7 +6,7 @@ DBhandler::DBhandler(const std::string& newdbPath) {
 
 DBhandler::~DBhandler() {
     if (this->db) {
-        sqlite3_close(this->db); // fermeture de la base de données SQLite
+        sqlite3_close(this->db); // Close the SQLite database.
         this->db = nullptr;
         std::cout << "Connection DB closed" << std::endl;
     }
@@ -27,14 +27,15 @@ void DBhandler::openDB() {
 void DBhandler::closeDB() {
     if (this->db) {
         sqlite3_close(this->db);
+        this->db = nullptr;
         std::cout << "Connection DB closed" << std::endl;
     }
 }
 
 int DBhandler::saveData(void* data, int argc, char** argv, char** azColName) {
-    // Le callback reçoit 'data' qui est notre pointeur 'this'
+    // The callback receives the current object through 'data'.
     
-    auto* self = static_cast<DBhandler*>(data); // On re-caste le void* en pointeur d'instance DBhandler*
+    auto* self = static_cast<DBhandler*>(data); // Cast the opaque pointer back to DBhandler*.
 
     if (!self) 
         return SQLITE_ERROR;
@@ -44,7 +45,6 @@ int DBhandler::saveData(void* data, int argc, char** argv, char** azColName) {
         row[azColName[i]] = argv[i] ? argv[i] : "NULL";
 
 
-    // On remplit le vecteur de L'INSTANCE courante
     self->employees.emplace_back(Employee::fromSql(row));
 
     return SQLITE_OK;
@@ -56,16 +56,16 @@ int DBhandler::getAllEmployees() {
 
     employees.clear();
 
-    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    // Pass 'this' as the fourth argument to sqlite3_exec.
     int rc = sqlite3_exec(this->db, "SELECT * FROM employees ORDER BY id ASC;", DBhandler::saveData, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return -1; // Indiquer qu'il y a eu une erreur
+        return -1; // Report the error to the caller.
     }
     std::cout << "All data retrieved successfully" << std::endl;
-    return 0; // Indiquer que tout s'est bien passé
+    return 0; // Report success to the caller.
 }
 
 int DBhandler::getEmployee(const int &id) {
@@ -76,17 +76,17 @@ int DBhandler::getEmployee(const int &id) {
 
     std::string query = "SELECT * FROM employees WHERE employees.id=" + std::to_string(id) + ";";
 
-    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    // Pass 'this' as the fourth argument to sqlite3_exec.
     int rc = sqlite3_exec(this->db, query.c_str(), DBhandler::saveData, static_cast<void*>(this), &messageError);
 
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return -1; // Indiquer qu'il y a eu une erreur
+        return -1; // Report the error to the caller.
     }
 
     std::cout << "All data retrieved successfully" << std::endl;
-    return 0; // Indiquer que tout s'est bien passé
+    return 0; // Report success to the caller.
 }
 
 int DBhandler::deleteEmployee(const int &id) {
@@ -97,16 +97,16 @@ int DBhandler::deleteEmployee(const int &id) {
 
     std::string query = "DELETE FROM employees WHERE employees.id=" + std::to_string(id) + ";";
 
-    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    // Pass 'this' as the fourth argument to sqlite3_exec.
     int rc = sqlite3_exec(this->db, query.c_str(), NULL, NULL, &messageError);
 
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return -1; // Indiquer qu'il y a eu une erreur
+        return -1; // Report the error to the caller.
     }
     std::cout << "Employee successfully deleted" << std::endl;
-    return 0; // Indiquer que tout s'est bien passé
+    return 0; // Report success to the caller.
 }
 
 int DBhandler::modifyEmployee(const Employee &e, const std::string &id) {
@@ -122,25 +122,25 @@ int DBhandler::modifyEmployee(const Employee &e, const std::string &id) {
             lastname=\'" + e.lastname() + "\', \
             birthdate=\'" + e.birthdate() + "\', \
             job=\'" + e.job() + "\', \
-            executive_status=" + std::to_string(e.isExecutive())+", \
+            executive_status=" + std::to_string((int) e.isExecutive())+", \
             position=" + std::to_string(e.position())+", \
             coefficient=" + std::to_string(e.coefficient())+", \
             start_date=\'" + e.startDate() + "\', \
             manager_id=" + std::to_string(e.managerId())+", \
             prev_plan=\'" + e.prevPlan()+"\',\
-            signed_plan=" + std::to_string(e.signedPlan())+" \
+            signed_plan=" + std::to_string((int)e.signedPlan())+" \
         WHERE id="+id+";";
  
-    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    // Pass 'this' as the fourth argument to sqlite3_exec.
     int rc = sqlite3_exec(this->db, query.c_str(), NULL, NULL, &messageError);
 
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return -1; // Indiquer qu'il y a eu une erreur
+        return -1; // Report the error to the caller.
     }
     std::cout << "Employee successfully modified" << std::endl;
-    return 0; // Indiquer que tout s'est bien passé
+    return 0; // Report success to the caller.
 } 
 
 int DBhandler::addEmployee(const Employee &e) {
@@ -159,16 +159,16 @@ int DBhandler::addEmployee(const Employee &e) {
         " + std::to_string(e.managerId())+", '"+e.prevPlan()+"', " + std::to_string(e.signedPlan())+"\
     );";
 
-    // On passe 'this' en 4ème paramètre à sqlite3_exec
+    // Pass 'this' as the fourth argument to sqlite3_exec.
     int rc = sqlite3_exec(this->db, query.c_str(), NULL, NULL, &messageError);
 
     if (rc != SQLITE_OK) {
         std::cerr << "SQL Error: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return -1; // Indiquer qu'il y a eu une erreur
+        return -1; // Report the error to the caller.
     }
 
-    // Récupération de l'ID généré (retourne un sqlite3_int64 / long long)
+    // Retrieve the generated ID (sqlite3_int64 / long long).
     int64_t newId = sqlite3_last_insert_rowid(this->db);
 
     std::cout << "Employee successfully added with ID: " << newId << std::endl;

@@ -1,0 +1,304 @@
+#include "include/tabwidget.hpp"
+
+#include "include/tablewidget.hpp"
+#include "include/datetablewidgetitem.hpp"
+
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+
+TabWidget::TabWidget(QWidget *parent)
+    : QWidget{parent}
+{
+    auto *mainLayout = new QVBoxLayout(this);
+
+    mTab = new QTabWidget(this);
+
+    // Add the two tabs
+    mTab->addTab(createGeneralTab(), "Général");
+    mTab->addTab(createPreventionTab(), "Prévention");
+
+    mainLayout->addWidget(mTab);
+
+    // Create the back button
+    auto *btnBack = new QPushButton("Retour", this);
+    btnBack->setMaximumWidth(200);
+    mainLayout->addWidget(btnBack, 0, Qt::AlignLeft);
+
+    // Connect the back button to the navigation request
+    connect(btnBack, &QPushButton::clicked, this, [this]() {
+        emit requestNavigation(ScreenId::Home);
+    });
+}
+
+void TabWidget::employeesUpdate(const QList<Employee> &employees) {
+    int row = 0;
+    counterGeneral->setText(tr("%1").arg(employees.size()));
+    mGeneralTable->getTable()->setRowCount(0);
+    mPreventionTable->getTable()->setRowCount(0);
+    counterPrevention->setText(tr("%1").arg(employees.size()));
+
+    // Disable sorting while rebuilding the rows
+    mGeneralTable->getTable()->setSortingEnabled(false);
+    mPreventionTable->getTable()->setSortingEnabled(false);
+
+    // Iterate through each employee and fill the table
+    for (const Employee &e : employees) {
+
+        // Insert a new row into the general table
+        mGeneralTable->getTable()->insertRow(row);
+
+        QTableWidgetItem *firstname_widget = new QTableWidgetItem(e.firstname());
+        firstname_widget->setTextAlignment(Qt::AlignCenter);
+
+        // Store the unique ID in the hidden data
+        firstname_widget->setData(Qt::UserRole, e.id());
+
+        // Add the widget to the table
+        mGeneralTable->getTable()->setItem(row, 0, firstname_widget);
+
+        QTableWidgetItem *cell = new DateTableWidgetItem(e.birthdate());
+        cell->setTextAlignment(Qt::AlignCenter);
+        mGeneralTable->getTable()->setItem(row, 1, cell);
+
+        cell = new QTableWidgetItem(e.job());
+        cell->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        mGeneralTable->getTable()->setItem(row, 2, cell);
+
+
+        QString executive_status_str = e.isExecutive() ? "✔" : "X";
+        cell = new QTableWidgetItem(executive_status_str);
+        cell->setTextAlignment(Qt::AlignCenter);
+        mGeneralTable->getTable()->setItem(row, 3, cell);
+
+        cell = new QTableWidgetItem(QString::number(e.position()));
+        cell->setTextAlignment(Qt::AlignCenter);
+        mGeneralTable->getTable()->setItem(row, 4, cell);
+
+        cell = new QTableWidgetItem(QString::number(e.coefficient()));
+        cell->setTextAlignment(Qt::AlignCenter);
+        mGeneralTable->getTable()->setItem(row, 5, cell);
+
+        cell = new DateTableWidgetItem(e.startDate());
+        cell->setTextAlignment(Qt::AlignCenter);
+        mGeneralTable->getTable()->setItem(row, 6, cell);
+
+        ///////////////////////////////////////////////////////////////////
+
+
+        // Reuse the employee data for the prevention tab
+        firstname_widget = new QTableWidgetItem(e.firstname());
+        firstname_widget->setTextAlignment(Qt::AlignCenter);
+
+        // Store the unique ID in the hidden data
+        firstname_widget->setData(Qt::UserRole, e.id());
+
+        QString signed_plan_str = e.signedPlan() ? "✔" : "X";
+        uint manager_id = e.managerId();
+        QString manager = "";
+        // Find the manager
+        for (const Employee &emp : employees) {
+            if(emp.id()==manager_id) {
+                QString lastname = emp.lastname();
+                QString firstname = emp.firstname();
+                manager = firstname + " " + lastname;
+            }
+        }
+        if(manager.isEmpty())
+            manager = "None";
+
+        // Insert a new row into the prevention table
+        mPreventionTable->getTable()->insertRow(row);
+
+        // Fill the prevention columns
+        mPreventionTable->getTable()->setItem(row, 0, firstname_widget);
+        mPreventionTable->getTable()->setItem(row, 1, new QTableWidgetItem(e.lastname()));
+        mPreventionTable->getTable()->setItem(row, 2, new QTableWidgetItem(e.job()));
+        mPreventionTable->getTable()->setItem(row, 3, new QTableWidgetItem(manager));
+        mPreventionTable->getTable()->setItem(row, 4, new QTableWidgetItem(e.prevPlan()));
+        mPreventionTable->getTable()->setItem(row, 5, new QTableWidgetItem(signed_plan_str));
+        if(!e.signedPlan()) {
+            QColor lightRed(255, 220, 220);
+            for (int col = 0; col < mPreventionTable->getTable()->columnCount(); ++col) {
+                mPreventionTable->getTable()->item(row, col)->setBackground(lightRed);
+            }
+        }
+
+        // Center the text in the prevention cells
+        for (int row = 0; row < mPreventionTable->getTable()->rowCount(); ++row) {
+            for (int col = 0; col < mPreventionTable->getTable()->columnCount(); ++col)
+                mPreventionTable->getTable()->item(row, col)->setTextAlignment(Qt::AlignCenter);
+            mPreventionTable->getTable()->item(row, 2)->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter); // align job left
+        }
+
+        row++;
+    }
+
+    mGeneralTable->getTable()->setSortingEnabled(true);
+    mPreventionTable->getTable()->setSortingEnabled(true);
+
+    emit requestNavigation(ScreenId::TableViewer);
+}
+
+
+/************* Fill tab ***************/
+
+QWidget* TabWidget::createGeneralTab() {
+    auto *tab = new QWidget(this);
+    auto *layout = new QVBoxLayout(tab);
+
+    mGeneralTable = new TableWidget({"Prénom", "Naissance", "Poste","Statut cadre", "Position (Syntec)","Coefficient (Syntec)", "Début"}, this);
+
+    // Open the edit dialog when a row is double-clicked
+    connect(mGeneralTable->getTable(), &QTableWidget::cellDoubleClicked, this, &TabWidget::onTableDoubleClicked);
+
+
+    auto *onLine = new QWidget(this);
+    auto *onLineLayout = new QHBoxLayout(onLine);
+    auto *addButton = new QPushButton("Ajouter", this);
+    connect(addButton, &QPushButton::clicked, this, &TabWidget::addingEmployee);
+    auto *exportButton = new QPushButton("Exporter", this);
+    auto *cmptLabel = new QLabel("Nombre d'employés : ", this);
+    counterGeneral = new QLabel("0", this);
+
+    onLineLayout->addWidget(addButton);
+    onLineLayout->addWidget(exportButton);
+    onLineLayout->addStretch();
+    onLineLayout->addWidget(cmptLabel);
+    onLineLayout->addWidget(counterGeneral);
+
+    layout->addWidget(onLine);
+    layout->addWidget(mGeneralTable);
+
+    return tab;
+}
+
+QWidget* TabWidget::createPreventionTab() {
+    auto *tab = new QWidget();
+    auto *layout = new QVBoxLayout(tab);
+
+    mPreventionTable = new TableWidget({"Prénom", "Nom", "Poste", "Manager", "Plan de prévention", "Plan signé"}, this);
+
+    auto *onLine = new QWidget(tab);
+    auto *onLineLayout = new QHBoxLayout(onLine);
+    auto *exportButton = new QPushButton("Exporter", tab);
+    auto *cmptLabel = new QLabel("Nombre d'employés : ", tab);
+    counterPrevention = new QLabel("0", this);
+
+    onLineLayout->addWidget(exportButton);
+    onLineLayout->addStretch();
+    onLineLayout->addWidget(cmptLabel);
+    onLineLayout->addWidget(counterPrevention);
+
+    layout->addWidget(onLine);
+    layout->addWidget(mPreventionTable);
+    return tab;
+}
+
+
+/************* Slots ***************/
+
+void TabWidget::onTableDoubleClicked(int row, int column) {
+    Q_UNUSED(column); // Ignore the clicked column because we want the whole row
+
+    // Read the employee ID from the first column
+    QTableWidgetItem *firstItem = mGeneralTable->getTable()->item(row, 0);
+    if (!firstItem)
+        return;
+
+    // Extract the hidden employee ID from the widget data
+    uint id = firstItem->data(Qt::UserRole).toUInt();
+    // qDebug() << "Employee ID:" << id;
+
+    emit openEditEmployee(id, row);
+}
+void TabWidget::onEmployeeModified(const int &row, const Employee &e, const QString &manager) {
+    // qDebug() << "Employee updated in database with id =" << e.id();
+
+    // Disable sorting while updating the table
+    mGeneralTable->getTable()->setSortingEnabled(false);
+    mPreventionTable->getTable()->setSortingEnabled(false);
+
+    updateRows(row, e, manager);
+
+    mGeneralTable->getTable()->setSortingEnabled(true);
+    mPreventionTable->getTable()->setSortingEnabled(true);
+}
+void TabWidget::onEmployeeAdded(const QList<Employee> &employees, const QString &manager) {
+
+    // Disable sorting while updating the tables
+    mGeneralTable->getTable()->setSortingEnabled(false);
+    mPreventionTable->getTable()->setSortingEnabled(false);
+
+    mGeneralTable->getTable()->insertRow(employees.size()-1);
+    mPreventionTable->getTable()->insertRow(employees.size()-1);
+
+    updateRows(employees.size()-1, employees.back(), manager);
+
+    mGeneralTable->getTable()->setSortingEnabled(true);
+    mPreventionTable->getTable()->setSortingEnabled(true);
+    updateCmpt(employees);
+}
+void TabWidget::updateRows(const int &row, const Employee &e, const QString &manager) {
+
+    QString executive_status_str = e.isExecutive() ? "✔" : "X";
+    QString plan_signed_str = e.signedPlan() ? "✔" : "X";
+
+    QTableWidgetItem *firstname_widget = new QTableWidgetItem(e.firstname());
+    firstname_widget->setData(Qt::UserRole, e.id()); // store the hidden ID
+
+    // Update the general tab
+    mGeneralTable->getTable()->setItem(row, 0, firstname_widget);
+    mGeneralTable->getTable()->setItem(row, 1, new DateTableWidgetItem(e.birthdate()));
+    mGeneralTable->getTable()->setItem(row, 2, new QTableWidgetItem(e.job()));
+    mGeneralTable->getTable()->setItem(row, 3, new QTableWidgetItem(executive_status_str));
+    mGeneralTable->getTable()->setItem(row, 4, new QTableWidgetItem(QString::number(e.position())));
+    mGeneralTable->getTable()->setItem(row, 5, new QTableWidgetItem(QString::number(e.coefficient())));
+    mGeneralTable->getTable()->setItem(row, 6, new DateTableWidgetItem(e.startDate()));
+
+    for (int col = 0; col < mGeneralTable->getTable()->columnCount(); ++col) {
+        if (auto item = mGeneralTable->getTable()->item(row, col))
+            item->setTextAlignment(Qt::AlignCenter);
+    }
+    mGeneralTable->getTable()->item(row, 2)->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter); // align job left
+    mGeneralTable->getTable()->selectRow(row);
+
+
+    // Update the prevention table
+    // Find the matching employee row in the prevention tab
+    int rowPrevention = mPreventionTable->getTable()->rowCount()-1; // defaults to the last row when adding a collaborator
+    QTableWidgetItem *firstCell;
+    for(int iRow=0; iRow<mPreventionTable->getTable()->rowCount()-1;iRow++) {
+        firstCell = mPreventionTable->getTable()->item(iRow, 0);
+        if (!firstCell)
+            return;
+
+        // Extract the ID that was hidden there using Qt::UserRole
+        uint id = firstCell->data(Qt::UserRole).toUInt();
+
+        if(id==e.id()) {
+            rowPrevention = iRow;
+            break;
+        }
+    }
+    mPreventionTable->getTable()->setItem(rowPrevention, 0, firstname_widget->clone());
+    mPreventionTable->getTable()->setItem(rowPrevention, 1, new QTableWidgetItem(e.lastname()));
+    mPreventionTable->getTable()->setItem(rowPrevention, 2, new QTableWidgetItem(e.job()));
+    mPreventionTable->getTable()->setItem(rowPrevention, 3, new QTableWidgetItem(manager));
+    mPreventionTable->getTable()->setItem(rowPrevention, 4, new QTableWidgetItem(e.prevPlan()));
+    mPreventionTable->getTable()->setItem(rowPrevention, 5, new QTableWidgetItem(plan_signed_str));
+    mPreventionTable->getTable()->selectRow(rowPrevention);
+    QColor lightRed(255, 220, 220);
+    for (int col = 0; col < mPreventionTable->getTable()->columnCount(); ++col) {
+        if(!e.signedPlan())
+            mPreventionTable->getTable()->item(row, col)->setBackground(lightRed);
+        if (auto item = mPreventionTable->getTable()->item(rowPrevention, col))
+            item->setTextAlignment(Qt::AlignCenter);
+    }
+    mPreventionTable->getTable()->item(row, 2)->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter); // align job left
+}
+void TabWidget::updateCmpt(const QList<Employee> &employees) {
+    counterGeneral->setText(QString::fromStdString(to_string(employees.size())));
+    counterPrevention->setText(QString::fromStdString(to_string(employees.size())));
+}
+

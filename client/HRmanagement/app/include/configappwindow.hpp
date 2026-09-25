@@ -1,39 +1,29 @@
 #ifndef CONFIGAPPWINDOW_H
 #define CONFIGAPPWINDOW_H
 
-#include <QDialog>
-
-// Widgets
-#include <QVBoxLayout>
-#include <QFormLayout>
-#include <QTabWidget>
-#include <QTableWidget>
-#include <QHeaderView>
 #include <QLineEdit>
 #include <QSpinBox>
-#include <QDoubleSpinBox>
-#include <QComboBox>
 #include <QPushButton>
-#include <QDateEdit>
-#include <QDate>
-#include <QCheckBox>
-#include <QLabel>
-#include <QMessageBox>
+#include <QDialog>
 
+/// Configuration dialog window to modify app config
 class ConfigAppWindow : public QDialog
 {
     public:
         explicit ConfigAppWindow(QWidget *parent=nullptr);
         explicit ConfigAppWindow(const int port, const QString host, QWidget *parent=nullptr);
 
+        /// Return the configured application port
         int getPort();
+        
+        /// Return the configured application host
         QString getHost();
 
     private:
-        QSpinBox *mPort;
-        QLineEdit *mHost;
-        QPushButton *btnValider;
-        QPushButton *btnAnnuler;
+        QSpinBox *mPort; ///< Application port selector
+        QLineEdit *mHost; ///< Application host input
+        QPushButton *btnValider; ///< Save button
+        QPushButton *btnAnnuler; ///< Cancel button
 
 };
 
