@@ -19,10 +19,16 @@ La communication s'effectue au travers d'une **API REST synchrone/asynchrone** �
 
 ```text
 gestionRH/
-├── client/HRmanagement         # Application IHM Qt 6 (HRmanagement)
-│   ├── sources & headers       # Fenêtres (MainWindow), formulaires, etc
-│   ├── style.qss               # Définit le style / la forme de l'app
-│   └── config.ini              # Fichier de configuration de l'application
+├── client/HRmanagement/         # Application IHM Qt 6 (HRmanagement)
+│   ├── app/                     # Dossier de l'application
+│   │   ├── src/                 # Fichiers .cpp
+│   │   ├── include/             # Fichiers .hpp
+│   │   ├── config/              
+│   │       ├──  config.ini      # Fichier de configuration de l'application
+│   │   ├── ressources/          
+│   │       ├──  style.qss       # Définit le style / la forme de l'app
+│   ├── tests/                   # Dossier des tests de l'application avec QTest
+│   ├── build/                   # Dossier généré à la compilation incluant l'executable
 │
 ├── server/                     # Backend C++ STL & API REST
 │   ├── config/                 # Fichiers de configuration du serveur (config.ini)
@@ -30,10 +36,10 @@ gestionRH/
 │   │   ├── db_sql_files/       # Scripts SQL pour mettre en place la BDD de test
 │   ├── includes/               # Headers C++ (.hpp / .h)
 │   ├── src/                    # Implémentation (.cpp)
-│   │   ├── CMakeLists.txt      # Build du projet
+│   │   ├── CMakeLists.txt      # Fichier de compilation des sources
 │   ├── tests/                  # Tests unitaires Google Test
-│   │   ├── CMakeLists.txt      # Build des tests
-│   └── CMakeLists.txt          # Build du projet et des tests
+│   │   ├── CMakeLists.txt      # Fichier de compilation des tests
+│   └── CMakeLists.txt          # Fichier de compilation global du projet et des tests
 │
 ├── tests/                      # Bac à sable (sandbox) et prototypage
 ├── diagrammes.excalidraw       # Diagrammes d'architecture, BDD et flux réseau (éditable sur Excalidraw)

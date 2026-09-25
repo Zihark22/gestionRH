@@ -1,96 +1,114 @@
 #ifndef EMPLOYEE_HPP
 #define EMPLOYEE_HPP
 
-#include "date.hpp"
 #include "iniparser.hpp"
-
 
 #include <iostream>
 #include <map>
+#include <chrono>
+#include <stdexcept> // For std::invalid_argument.
+#include <sstream>
+#include <iomanip> // For setprecision.
+
+
+
+using namespace std::chrono;
 
 class Employee {
-
 public:
-// Constructeurs
+// Constructors.
 
     Employee() = default;
 
-    /** @brief Crée un objet Employee à partir d'un JSON string (ex: réponse d'une requête API REST)
-     *  @param json Une chaîne JSON représentant l'employé.
+    /** @brief Create an Employee from a JSON string, such as a REST API response.
+     *  @param json JSON representation of the employee.
      */
     Employee(const std::string &json);
 
-// Getters and Setters
 
-    int id() const { return m_id; }
-    void set_id(int id) { m_id = id; }
+// Operators.
 
-    std::string firstname() const { return m_firstname; }
-    void set_firstname(const std::string &prenom) { m_firstname = prenom; }
+    // Comparison operators (using accessors).
+    bool operator==(const Employee &other);
+    bool operator!=(const Employee &other);
 
-    std::string lastname() const { return m_lastname; }
-    void set_lastname(const std::string &nom) { m_lastname = nom; }
+    // Stream operators.
+    friend std::ostream &operator<<(std::ostream &flux, Employee const& e);
 
-    Date birthdate() const { return m_birthdate; }
-    void set_birthdate(const Date &date) { m_birthdate = date; }
+// Getters and setters.
 
-    std::string job() const { return m_job; }
-    void set_job(const std::string &poste) { m_job = poste; }
+    int id() const { return mId; }
+    void setId(int id) { mId = id; }
 
-    int is_executive() const { return m_executive_status; }
-    void set_executive_status(int cadre) { m_executive_status = cadre; }
+    std::string firstname() const { return mFirstname; }
+    void setFirstname(const std::string &prenom) { mFirstname = prenom; }
 
-    float position() const { return m_position; }
-    void set_position(const float &pos) { m_position = pos; }
+    std::string lastname() const { return mLastname; }
+    void setLastname(const std::string &nom) { mLastname = nom; }
 
-    int coefficient() const { return m_coefficient; }
-    void set_coefficient(int coeff) { m_coefficient = coeff; }
+    std::string job() const { return mJob; }
+    void setJob(const std::string &poste) { mJob = poste; }
 
-    Date start_date() const { return m_start_date; }
-    void set_start_date(const Date &date) { m_start_date = date; }
+    bool isExecutive() const { return mExecutiveStatus; }
+    void setExecutiveStatus(bool cadre) { mExecutiveStatus = cadre; }
 
-    int manager_id() const { return m_manager_id; }
-    void set_manager_id(int id) { m_manager_id = id; }
+    float position() const { return mPosition; }
+    void setPosition(const float &pos) { mPosition = pos; }
 
-    std::string prev_plan() const { return m_prev_plan; }
-    void set_prev_plan(std::string plan) { m_prev_plan = plan; }
+    uint coefficient() const { return mCoefficient; }
+    void setCoefficient(uint coeff) { mCoefficient = coeff; }
 
-    int signed_plan() const { return m_signed_plan; }
-    void set_signed_plan(int signe) { m_signed_plan = signe; }
+    std::string startDate() const { return mStartDate; }
+    void setStartDate(const std::string &date) { mStartDate = date; }
+
+    std::string birthdate() const { return mBirthdate; }
+    void setBirthdate(const std::string &date) { mBirthdate = date; }
+
+    uint managerId() const { return mManagerId; }
+    void setManagerId(uint id) { mManagerId = id; }
+
+    std::string prevPlan() const { return mPrevPlan; }
+    void setPrevPlan(std::string plan) { mPrevPlan = plan; }
+
+    bool signedPlan() const { return mSignedPlan; }
+    void setSignedPlan(bool signe) { mSignedPlan = signe; }
 
 // ---------------------------------------------------
 
-    /** @brief Sérialise l'objet Employee en JSON pour l'API REST
-     *  @return Chaîne JSON représentant l'employé
+    /** @brief Serialize the Employee as JSON for the REST API.
+     *  @return JSON representation of the employee.
      */
-    std::string to_JSON() const;
+    std::string toJson() const;
 
 // ---------------------------------------------------
 
-    /** @brief Crée un objet Employee à partir d'une ligne de résultat SQL
-     *  @param sql_row Une map représentant une ligne de résultat SQL, où les clés sont les noms des colonnes et les valeurs sont les valeurs correspondantes.
-     *  @return Un objet Employee initialisé avec les données de la ligne SQL
+    /** @brief Create an Employee from a SQL result row.
+     *  @param sql_row Map of column names to values from a SQL result row.
+     *  @return Employee initialized from the SQL row.
      */
-    static Employee from_sql(const std::map<std::string, std::string> &sql_row);
+    static Employee fromSql(const std::map<std::string, std::string> &sql_row);
 
 // ---------------------------------------------------
 
-    /** @brief Affiche les informations de l'employé dans la sortie standard */
+    /** @brief Print employee information to standard output. */
     void display(void) const;
 
 private:
-    int m_id{-1};                        //< Identifiant unique de l'employé
-    std::string m_firstname;             //< Prénom de l'employé
-    std::string m_lastname;              //< Nom de famille de l'employé
-    Date m_birthdate;                    //< Date de naissance de l'employé
-    std::string m_job;                   //< Poste de l'employé
-    int m_executive_status{0};           //< Statut de manager de l'employé
-    float m_position;                    //< Position de l'employé
-    int m_coefficient{0};                //< Coefficient de l'employé
-    Date m_start_date;                   //< Date de début d'activité
-    int m_manager_id{-1};                //< Identifiant du manager
-    std::string m_prev_plan{"Plan A"};   //< Plan précédent
-    int m_signed_plan{0};                //< Plan signé
+    uint mId{0};                                //< Unique employee ID.
+    std::string mFirstname{""};             //< Employee first name.
+    std::string mLastname{""};              //< Employee last name.
+    std::string mBirthdate{"2000-01-01"};   //< Employee birth date.
+    std::string mJob{""};                   //< Employee position.
+    bool mExecutiveStatus{false};            //< Whether the employee is an executive.
+    float mPosition{0.0};                    //< Syntec position.
+    uint mCoefficient{0};                    //< Syntec coefficient.
+    std::string mStartDate{"2010-01-01"};   //< Employment start date.
+    uint mManagerId{0};                      //< Manager ID.
+    std::string mPrevPlan{"Plan A"};        //< Previous plan.
+    bool mSignedPlan{false};                 //< Whether the plan is signed.
+
+    std::string cleanJsonString(const std::string &jsonStr);
+    void initAttributesFromJsonString(const std::string &obj);
 };
 
 #endif // EMPLOYEE_HPP

@@ -1,4 +1,4 @@
-#pragma once // inclusion une seule fois 
+#pragma once
 
 #include "apiserver.hpp"
 #include "iniparser.hpp"
@@ -13,47 +13,47 @@
 class Server {
     
 public:
-    // Constructeur qui initialise le serveur avec les arguments de la ligne de commande
+    // Initialize the server with command-line arguments.
     Server(int argc, char* argv[]);
 
     ~Server();
 
-    // Règle des 5 : Interdire la copie pour éviter les doubles fermetures de socket
+    // Prevent copying to avoid closing the socket twice.
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
 
-    // Lancement du serveur
+    // Start the server.
     void start();
 
-    // Gestion des requêtes API pour modifier la configuration
-    std::string handle_action(const std::string &req, const std::string &body); // gestion des requetes API pour modifier la config
+    // Handle API requests that modify the configuration.
+    std::string handleAction(const std::string &req, const std::string &body);
 
 private:
-    int server_fd;                              //< socket
-    sockaddr_in address{};                      //< stock l'adresse de la socket
-    int opt;                                    //< option de config de la socket
-    int port;                                   //< port du serveur
-    std::string config_file_path= "config.ini"; //< chemin du fichier de configuration
-    std::string host;                           //< hôte du serveur
-    std::string db_path;                        //< chemin de la base de données
-    std::string log_file;                       //< chemin du fichier de journalisation
-    ApiServer apiServer;                        //< Instance de ApiServer pour gérer les requêtes API
-    std::string m_executablePath;               //< Chemin de l'exécutable
-    std::vector<std::string> m_args;            //< Arguments passés à l'exécutable
+    int server_fd;                              //< Server socket.
+    sockaddr_in address{};                      //< Socket address.
+    int opt;                                    //< Socket configuration option.
+    int port;                                   //< Server port.
+    std::string configFilePath = "config.ini"; //< Configuration file path.
+    std::string host;                           //< Server host.
+    std::string dbPath;                         //< Database path.
+    std::string logFile;                        //< Log file path.
+    ApiServer apiServer;                        //< API request handler.
+    std::string executablePath;                 //< Executable path.
+    std::vector<std::string> args;              //< Process arguments.
 
-    // Chargement de la configuration depuis le fichier config.ini
-    void load_config(const std::string& file_path);
+    // Load configuration from an INI file.
+    void loadConfig(const std::string& file_path);
 
-    // Convertit la configuration actuelle en format JSON pour l'API
-    std::string config_to_json();
+    // Convert the current configuration to JSON for the API.
+    std::string configToJson();
 
-    // Modifie le fichier de configuration actuelle à partir d'une chaîne JSON reçue via l'API
-    int modify_config_from_json(const std::string &json);
+    // Update the configuration file from JSON received through the API.
+    int modifyConfigFromJson(const std::string &json);
 
-    // Redémarrage du serveur
+    // Restart the server process.
     void executeRestart();
 
-    // Demande de redémarrage du serveur (asynchrone)
+    // Request an asynchronous server restart.
     void requestRestart();
 
 };
