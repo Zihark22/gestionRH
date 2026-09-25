@@ -37,9 +37,6 @@ public:
 
     // Parse an INI file.
     static std::vector<SectionConfig> parse(const std::string& filepath);
-
-    // Parse INI content from a string.
-    static std::vector<SectionConfig> parseFromString(std::string_view content);
 };
 
 #endif // INIPARSER_HPP
