@@ -11,6 +11,24 @@ TARGET = HRmanagement
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+
+# configurations du dossier de build
+CONFIG(debug, debug|release) {
+    DESTDIR      = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/debug
+    OBJECTS_DIR  = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/debug/obj
+    MOC_DIR      = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/debug/obj
+    RCC_DIR      = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/debug/obj
+    UI_DIR       = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/debug/obj
+}
+CONFIG(release, debug|release) {
+    DESTDIR      = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/release
+    OBJECTS_DIR  = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/release/obj
+    MOC_DIR      = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/release/obj
+    RCC_DIR      = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/release/obj
+    UI_DIR       = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/release/obj
+}
+
+
 # 1. Permet de trouver les headers dans include/
 INCLUDEPATH += include
 

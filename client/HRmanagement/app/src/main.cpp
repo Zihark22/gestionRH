@@ -19,9 +19,9 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     applyStyleSheet(app); // Apply the global style
 
-    HRmanagement h;
-    MainWindow w(&h); // Keep the UI separate from the business logic
-    h.start();
+    HRmanagement hr;
+    MainWindow w(&hr); // Keep the UI separate from the business logic
+    hr.start();
     w.show();
 
     return app.exec();

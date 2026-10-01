@@ -1,6 +1,5 @@
 # *.excalidraw
-*/build/
-/tests/*/*/build
-# /tests/*/build
+build/
 /tests/*
+bin/
 
