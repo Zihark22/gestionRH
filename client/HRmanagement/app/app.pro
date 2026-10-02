@@ -7,12 +7,7 @@ CONFIG += c++17
 TEMPLATE = app
 TARGET = HRmanagement
 
-# You can make your code fail to compile if it uses deprecated APIs.
-# In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
-
-# configurations du dossier de build
+# configure build directory
 CONFIG(debug, debug|release) {
     DESTDIR      = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/debug
     OBJECTS_DIR  = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/debug/obj
@@ -28,8 +23,6 @@ CONFIG(release, debug|release) {
     UI_DIR       = $${PWD}/bin/$${QMAKE_HOST.os}_$${QMAKE_HOST.arch}/release/obj
 }
 
-
-# 1. Permet de trouver les headers dans include/
 INCLUDEPATH += include
 
 SOURCES += \
